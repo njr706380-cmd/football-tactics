@@ -1,18 +1,7 @@
 // gemini-config.js
 
-const GEMINI_CONFIG = {
-    API_KEY: "AQ.Ab8RN6IU8JjpP3MnCDVN8ufTqJHV0YT",
-    MODEL: "gemini-1.5-flash",
-    API_URL: "https://generativelanguage.googleapis.com/v1beta/models/"
+const AI_CONFIG = {
+    API_KEY: "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",
+    MODEL: "llama-3.3-70b-versatile",
+    API_URL: "https://api.groq.com/openai/v1/chat/completions"
 };
-
-function getGeminiUrl() {
-    return GEMINI_CONFIG.API_URL + GEMINI_CONFIG.MODEL + ":generateContent";
-}
-
-function getGeminiHeaders() {
-    return {
-        "Content-Type": "application/json",
-        "x-goog-api-key": GEMINI_CONFIG.API_KEY
-    };
-}
