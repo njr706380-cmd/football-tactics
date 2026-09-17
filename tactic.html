@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملعب التكتيكي | Football Tactics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #050505;
+            color: #FFF;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        /* الشريط العلوي */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            background: linear-gradient(180deg, rgba(5,5,5,0.95), rgba(5,5,5,0.7), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            color: #D4AF37;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 10px 20px;
+            border: 2px solid rgba(212,175,55,0.3);
+            border-radius: 12px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .back-btn:hover {
+            background: rgba(212,175,55,0.2);
+            border-color: #D4AF37;
+        }
+
+        .style-title {
+            color: #D4AF37;
+            font-weight: 900;
+            font-size: 20px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .style-icon {
+            font-size: 28px;
+        }
+
+        /* الملعب */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* الأزرار السفلية */
+        .bottom-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(10,10,10,0.85);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+        }
+
+        .mode-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid rgba(212,175,55,0.3);
+            color: #D4AF37;
+            border-radius: 12px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-btn:hover {
+            background: rgba(212,175,55,0.1);
+            border-color: #D4AF37;
+        }
+
+        .mode-btn.active {
+            background: #D4AF37;
+            color: #050505;
+            border-color: #D4AF37;
+        }
+
+        /* معلومات الأسلوب */
+        .style-info {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 100;
+            padding: 20px;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            max-width: 250px;
+            animation: slideIn 0.6s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .info-formations {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .formation-tag {
+            padding: 5px 12px;
+            background: rgba(212,175,55,0.15);
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #D4AF37;
+        }
+
+        .info-row {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(212,175,55,0.1);
+            font-size: 13px;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #FFF;
+            font-weight: 700;
+        }
+
+        /* مؤشر التحميل */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            color: #D4AF37;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(212,175,55,0.2);
+            border-top-color: #D4AF37;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        /* للجوال */
+        @media (max-width: 768px) {
+            .style-info {
+                top: auto;
+                bottom: 100px;
+                right: 15px;
+                left: 15px;
+                max-width: none;
+                padding: 15px;
+            }
+            .style-title { font-size: 16px; }
+            .mode-btn { padding: 10px 16px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <div>جاري تحميل الملعب...</div>
+    </div>
+
+    <div class="topbar">
+        <a href="index.html" class="back-btn">
+            <span>→</span>
+            <span>رجوع</span>
+        </a>
+        <div class="style-title" id="topTitle">جاري التحميل...</div>
+        <div class="style-icon" id="topIcon">⚽</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="style-info" id="styleInfo">
+        <div class="info-formations" id="infoFormations"></div>
+        <div class="info-row">
+            <div class="info-label">الوضع الحالي</div>
+            <div class="info-value" id="currentMode">هجوم</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">الخطة</div>
+            <div class="info-value" id="currentFormation">-</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">الوصف</div>
+            <div class="info-value" id="currentDesc">-</div>
+        </div>
+    </div>
+
+    <div class="bottom-controls">
+        <button class="mode-btn active" onclick="setMode('attacking')" id="btnAttack">
+            <span>⚔️</span>
+            <span>هجوم</span>
+        </button>
+        <button class="mode-btn" onclick="setMode('defending')" id="btnDefend">
+            <span>🛡️</span>
+            <span>دفاع</span>
+        </button>
+        <button class="mode-btn" onclick="resetCamera()" id="btnReset">
+            <span>🔄</span>
+            <span>إعادة</span>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="data.js"></script>
+    <script src="tactic.js"></script>
+</body>
+</html>
