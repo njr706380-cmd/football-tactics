@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المدربون | Football Tactics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #050505;
+            color: #FFF;
+            min-height: 100vh;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.12), transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(27, 94, 32, 0.15), transparent 50%),
+                #050505;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* الهيدر */
+        .header {
+            text-align: center;
+            padding: 30px 0 40px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            color: #D4AF37;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 10px 18px;
+            border: 2px solid rgba(212,175,55,0.3);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.5);
+            font-size: 14px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(212,175,55,0.2);
+        }
+
+        .header h1 {
+            font-size: clamp(30px, 6vw, 48px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 15px;
+        }
+
+        /* التابات */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 10px 18px;
+            background: transparent;
+            border: 2px solid transparent;
+            color: #888;
+            border-radius: 10px;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab:hover {
+            color: #D4AF37;
+        }
+
+        .tab.active {
+            background: #D4AF37;
+            color: #050505;
+        }
+
+        /* شبكة المدربين */
+        .coaches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .coach-card {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(10, 10, 10, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 20px;
+            padding: 25px 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .coach-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .coach-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; right: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, var(--accent, rgba(212, 175, 55, 0.15)), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .coach-card:hover::after { opacity: 1; }
+
+        .coach-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+            display: block;
+            position: relative;
+            z-index: 2;
+        }
+
+        .coach-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #D4AF37;
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .coach-club {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .coach-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.7;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+            min-height: 60px;
+        }
+
+        .coach-formations {
+            display: flex;
+            gap: 6px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            position: relative;
+            z-index: 2;
+            flex-wrap: wrap;
+        }
+
+        .formation-tag {
+            padding: 4px 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #D4AF37;
+        }
+
+        .formation-tag.def {
+            background: rgba(74, 144, 226, 0.1);
+            border-color: rgba(74, 144, 226, 0.4);
+            color: #4A90E2;
+        }
+
+        @media (max-width: 768px) {
+            .coach-card { padding: 20px 16px; }
+            .coach-name { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <a href="index.html" class="back-btn">→ رجوع</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>⚽ المدربون</h1>
+            <p>اختر مدرباً لترى أسلوبه وتحولاته التكتيكية</p>
+        </div>
+
+        <div class="tabs" id="tabs"></div>
+
+        <div class="coaches-grid" id="coachesGrid"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        let activeStyle = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            activeStyle = params.get("style") || "possession";
+            buildTabs();
+            loadCoaches();
+        });
+
+        function buildTabs() {
+            const tabs = document.getElementById("tabs");
+            tabs.innerHTML = "";
+
+            STYLES.forEach(style => {
+                const btn = document.createElement("button");
+                btn.className = "tab" + (style.id === activeStyle ? " active" : "");
+                btn.innerHTML = `<span>${style.icon}</span><span>${style.name}</span>`;
+                btn.onclick = () => {
+                    activeStyle = style.id;
+                    buildTabs();
+                    loadCoaches();
+                    window.history.replaceState(null, "", `?style=${style.id}`);
+                };
+                tabs.appendChild(btn);
+            });
+        }
+
+        function loadCoaches() {
+            const grid = document.getElementById("coachesGrid");
+            grid.innerHTML = "";
+
+            const style = STYLES.find(s => s.id === activeStyle);
+            const coaches = COACHES.filter(c => c.style === activeStyle);
+
+            if (coaches.length === 0) {
+                grid.innerHTML = `<div style="text-align:center;padding:40px;color:#666;grid-column:1/-1">لا يوجد مدربون في هذا الأسلوب بعد</div>`;
+                return;
+            }
+
+            coaches.forEach((coach, i) => {
+                const card = document.createElement("a");
+                card.className = "coach-card";
+                card.href = `tactic.html?style=${coach.style}&coach=${coach.id}`;
+                card.style.setProperty("--accent", style.colorAlpha);
+                card.style.animation = `fadeInUp 0.6s ease ${i * 0.1}s both`;
+
+                card.innerHTML = `
+                    <span class="coach-icon">${coach.icon}</span>
+                    <div class="coach-name">${coach.name}</div>
+                    <div class="coach-club">${coach.club} • ${coach.era}</div>
+                    <div class="coach-desc">${coach.description.substring(0, 120)}...</div>
+                    <div class="coach-formations">
+                        <span class="formation-tag">⚔️ ${coach.attackingFormation}</span>
+                        <span class="formation-tag def">🛡️ ${coach.defendingFormation}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
