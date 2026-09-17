@@ -1,4 +1,4 @@
-// tactic.js - ملعب 3D (كرة صفراء نظيفة)
+// tactic.js - ملعب 3D (كرة صفراء نظيفة) - يدعم المدربين
 
 const FIELD_LENGTH = 140;
 const FIELD_WIDTH = 90;
@@ -7,6 +7,7 @@ const PLAYER_RADIUS = 2;
 let scene, camera, renderer, controls;
 let ownPlayers = [];
 let currentStyle = null;
+let activeCoach = null;
 let currentMode = "attacking";
 let targetOwn = [];
 let animationId = null;
@@ -87,16 +88,40 @@ const FORMATIONS = {
         { x: -28, z: 0 },
         { x: -12, z: -18 }, { x: -12, z: 18 },
         { x: 8, z: -28 }, { x: 20, z: 0 }, { x: 8, z: 28 }
+    ],
+    "3-2-5": [
+        { x: -62, z: 0 },
+        { x: -48, z: -18 }, { x: -50, z: 0 }, { x: -48, z: 18 },
+        { x: -25, z: -10 }, { x: -25, z: 10 },
+        { x: 5, z: -35 }, { x: 5, z: -18 }, { x: 10, z: 0 }, { x: 5, z: 18 }, { x: 5, z: 35 }
+    ],
+    "4-1-4-1": [
+        { x: -62, z: 0 },
+        { x: -45, z: -25 }, { x: -48, z: -8 }, { x: -48, z: 8 }, { x: -45, z: 25 },
+        { x: -30, z: 0 },
+        { x: -12, z: -28 }, { x: -15, z: -8 }, { x: -15, z: 8 }, { x: -12, z: 28 },
+        { x: 15, z: 0 }
     ]
 };
 
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const styleId = params.get("style") || "possession";
+    const coachId = params.get("coach");
+
     currentStyle = STYLES.find(s => s.id === styleId) || STYLES[0];
 
-    document.getElementById("topTitle").textContent = currentStyle.name;
-    document.getElementById("topIcon").textContent = currentStyle.icon;
+    if (coachId && typeof COACHES !== "undefined") {
+        activeCoach = COACHES.find(c => c.id === coachId) || null;
+    }
+
+    if (activeCoach) {
+        document.getElementById("topTitle").textContent = activeCoach.name;
+        document.getElementById("topIcon").textContent = activeCoach.icon;
+    } else {
+        document.getElementById("topTitle").textContent = currentStyle.name;
+        document.getElementById("topIcon").textContent = currentStyle.icon;
+    }
 
     updateStyleInfo();
     initScene();
@@ -132,17 +157,26 @@ function toggleControls() {
     btn.classList.toggle("active");
 }
 
+function getActiveData(mode) {
+    if (activeCoach) {
+        return mode === "attacking"
+            ? { formation: activeCoach.attackingFormation, description: "خطة " + activeCoach.name + " الهجومية" }
+            : { formation: activeCoach.defendingFormation, description: "خطة " + activeCoach.name + " الدفاعية" };
+    }
+    return mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+}
+
 function updateStyleInfo() {
     const infoFormations = document.getElementById("infoFormations");
     infoFormations.innerHTML = currentStyle.formations
         .map(f => `<span class="formation-tag">${f}</span>`)
         .join("");
 
-    const mode = currentMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+    const data = getActiveData(currentMode);
     document.getElementById("currentMode").textContent = 
         currentMode === "attacking" ? "⚔️ هجوم" : "🛡️ دفاع";
-    document.getElementById("currentFormation").textContent = mode.formation;
-    document.getElementById("currentDesc").textContent = mode.description;
+    document.getElementById("currentFormation").textContent = data.formation;
+    document.getElementById("currentDesc").textContent = data.description;
 }
 
 function initScene() {
@@ -309,7 +343,6 @@ function createPlayers() {
     }
 }
 
-// نظام الأقرب: كل لاعب يروح لأقرب مركز متاح
 function matchPlayersToTargets() {
     const targets = targetOwn.map(t => ({ x: t.x, z: t.z, taken: false }));
     const result = new Array(ownPlayers.length);
@@ -349,7 +382,7 @@ function setMode(mode) {
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
     document.getElementById("btnDefend").classList.toggle("active", mode === "defending");
 
-    const data = mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+    const data = getActiveData(mode);
     const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
 
     targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
@@ -413,7 +446,7 @@ function startDemo() {
         if (!demoRunning) return;
 
         const nextMode = currentMode === "attacking" ? "defending" : "attacking";
-        const data = nextMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+        const data = getActiveData(nextMode);
         const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
 
         targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
