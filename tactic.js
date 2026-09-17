@@ -1,5 +1,5 @@
 // ============================================
-// tactic.js - ملعب 3D لفريق واحد + شرح التحرك
+// tactic.js - ملعب 3D مع أرقام ومراكز + نظام الأقرب
 // ============================================
 
 const FIELD_LENGTH = 140;
@@ -19,7 +19,6 @@ let arrowsGroup = null;
 let demoRunning = false;
 let demoTimers = [];
 
-// ============ مواقع اللاعبين في كل خطة ============
 const FORMATIONS = {
     "4-3-3": [
         { x: -62, z: 0 },
@@ -93,7 +92,6 @@ const FORMATIONS = {
     ]
 };
 
-// ============ بدء التطبيق ============
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const styleId = params.get("style") || "possession";
@@ -110,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
     arrowsGroup = new THREE.Group();
     scene.add(arrowsGroup);
 
-    // نحط اللاعبين بشكّل مبعثر مؤقت حتى يتحركون لمكانهم
     ownPlayers.forEach((p, i) => {
         p.position.set(-60 + i * 0.5, 0, 0);
     });
@@ -123,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
 });
 
-// ============ إظهار/إخفاء لوحة المعلومات ============
 function toggleInfo() {
     const panel = document.getElementById("styleInfo");
     const btn = document.getElementById("infoToggleBtn");
@@ -131,7 +127,6 @@ function toggleInfo() {
     btn.classList.toggle("active");
 }
 
-// ============ إظهار/إخفاء أزرار التحكم ============
 function toggleControls() {
     const controls = document.getElementById("bottomControls");
     const btn = document.getElementById("controlsToggleBtn");
@@ -139,7 +134,6 @@ function toggleControls() {
     btn.classList.toggle("active");
 }
 
-// ============ معلومات الأسلوب ============
 function updateStyleInfo() {
     const infoFormations = document.getElementById("infoFormations");
     infoFormations.innerHTML = currentStyle.formations
@@ -153,7 +147,6 @@ function updateStyleInfo() {
     document.getElementById("currentDesc").textContent = mode.description;
 }
 
-// ============ تهيئة المشهد ============
 function initScene() {
     const container = document.getElementById("canvas-container");
 
@@ -201,7 +194,6 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// ============ إنشاء الملعب ============
 function createPitch() {
     const pitchGeo = new THREE.PlaneGeometry(FIELD_LENGTH, FIELD_WIDTH);
     const pitchMat = new THREE.MeshStandardMaterial({
@@ -279,8 +271,39 @@ function drawPoint(x, z) {
     scene.add(point);
 }
 
-// ============ إنشاء لاعب ============
-function createPlayer() {
+function createTextSprite(text, bgColor, textColor, width, height, fontSize) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = bgColor;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+        ctx.roundRect(0, 0, width, height, height / 2);
+    } else {
+        ctx.rect(0, 0, width, height);
+    }
+    ctx.fill();
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, width / 2, height / 2 + 2);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
+    const material = new THREE.SpriteMaterial({ 
+        map: texture, 
+        transparent: true,
+        depthTest: false
+    });
+    const sprite = new THREE.Sprite(material);
+    return sprite;
+}
+
+function createPlayer(number) {
     const group = new THREE.Group();
 
     const sphereGeo = new THREE.SphereGeometry(PLAYER_RADIUS, 24, 24);
@@ -308,19 +331,84 @@ function createPlayer() {
     ring.position.y = 0.05;
     group.add(ring);
 
+    const numberSprite = createTextSprite(String(number), "#D4AF37", "#050505", 80, 80, 50);
+    numberSprite.scale.set(4, 4, 1);
+    numberSprite.position.y = PLAYER_RADIUS * 2 + 3;
+    group.add(numberSprite);
+
     return group;
 }
 
 function createPlayers() {
     for (let i = 0; i < 11; i++) {
-        const p = createPlayer();
+        const p = createPlayer(i + 1);
         p.position.set(-60, 0, 0);
         scene.add(p);
         ownPlayers.push(p);
     }
 }
 
-// ============ تعيين الوضع ============
+function updatePositionLabels(formationName) {
+    const positions = POSITIONS[formationName] || POSITIONS["4-3-3"];
+    ownPlayers.forEach((p, i) => {
+        const posCode = positions[i] || "";
+        const posName = POS_NAMES[posCode] || posCode;
+
+        // احذف أي label قديم
+        const toRemove = [];
+        p.children.forEach(child => {
+            if (child.userData && child.userData.isPosition) {
+                toRemove.push(child);
+            }
+        });
+        toRemove.forEach(c => p.remove(c));
+
+        // أضف الجديد
+        const posSprite = createTextSprite(posName, "#050505", "#D4AF37", 220, 60, 28);
+        posSprite.scale.set(11, 3, 1);
+        posSprite.position.y = PLAYER_RADIUS * 2 + 7.5;
+        posSprite.userData.isPosition = true;
+        p.add(posSprite);
+    });
+}
+
+// نظام الأقرب: كل لاعب يروح لأقرب مركز متاح
+function matchPlayersToTargets() {
+    const targets = targetOwn.map((t, i) => ({ x: t.x, z: t.z, index: i, taken: false }));
+    const result = new Array(ownPlayers.length);
+
+    // الحارس يظل حارس (لاعب 0)
+    if (targets[0]) {
+        result[0] = { x: targets[0].x, z: targets[0].z };
+        targets[0].taken = true;
+    }
+
+    // باقي اللاعبين: كل واحد يروح لأقرب هدف متاح
+    for (let i = 1; i < ownPlayers.length; i++) {
+        const p = ownPlayers[i].position;
+        let closestIdx = -1;
+        let closestDist = Infinity;
+
+        for (let j = 0; j < targets.length; j++) {
+            if (targets[j].taken) continue;
+            const dx = targets[j].x - p.x;
+            const dz = targets[j].z - p.z;
+            const dist = dx * dx + dz * dz;
+            if (dist < closestDist) {
+                closestDist = dist;
+                closestIdx = j;
+            }
+        }
+
+        if (closestIdx >= 0) {
+            result[i] = { x: targets[closestIdx].x, z: targets[closestIdx].z };
+            targets[closestIdx].taken = true;
+        }
+    }
+
+    targetOwn = result;
+}
+
 function setMode(mode) {
     currentMode = mode;
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
@@ -330,11 +418,11 @@ function setMode(mode) {
     const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
 
     targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
-
+    matchPlayersToTargets();
+    updatePositionLabels(data.formation);
     updateStyleInfo();
 }
 
-// ============ إنشاء الأسهم ============
 function createArrows() {
     clearArrows();
 
@@ -367,7 +455,6 @@ function clearArrows() {
     }
 }
 
-// ============ وضع الشرح ============
 function startDemo() {
     const btn = document.getElementById("demoBtn");
 
@@ -392,30 +479,25 @@ function startDemo() {
         if (!demoRunning) return;
 
         const nextMode = currentMode === "attacking" ? "defending" : "attacking";
-
-        // نحسب الأهداف الجديدة
         const data = nextMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
         const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
-        const newTarget = formation.map(p => ({ x: p.x, z: p.z }));
 
-        // نثبّت الحركة ونحدد الأهداف الجديدة
+        targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
+        matchPlayersToTargets();
+
         movePaused = true;
-        targetOwn = newTarget;
         createArrows();
+        updatePositionLabels(data.formation);
 
-        // نحدّث الواجهة (زر الهجوم/الدفاع + الـ info)
         document.getElementById("btnAttack").classList.toggle("active", nextMode === "attacking");
         document.getElementById("btnDefend").classList.toggle("active", nextMode === "defending");
         currentMode = nextMode;
         updateStyleInfo();
 
-        // بعد 2.5 ثانية: نشيل الأسهم ونشغّل الحركة
         demoTimers.push(setTimeout(() => {
             if (!demoRunning) return;
             clearArrows();
             movePaused = false;
-
-            // بعد 5 ثواني (وقت الحركة): نكمل الدورة
             demoTimers.push(setTimeout(cycle, 5000));
         }, 2500));
     };
@@ -423,7 +505,6 @@ function startDemo() {
     cycle();
 }
 
-// ============ تحديث المواقع ============
 function updatePositions() {
     if (movePaused) return;
 
@@ -434,10 +515,8 @@ function updatePositions() {
     });
 }
 
-// ============ حلقة الأنيميشن ============
 function animate() {
     animationId = requestAnimationFrame(animate);
-
     updatePositions();
 
     const t = Date.now() * 0.001;
@@ -449,7 +528,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ============ إعادة الكاميرا ============
 function resetCamera() {
     camera.position.set(0, 130, 130);
     controls.target.set(0, 0, 0);
