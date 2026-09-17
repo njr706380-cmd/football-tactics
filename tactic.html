@@ -29,7 +29,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            pointer-events: none;
         }
+
+        .topbar > * { pointer-events: auto; }
 
         .back-btn {
             color: #D4AF37;
@@ -71,18 +74,24 @@
             z-index: 1;
         }
 
-        /* زر إخفاء/إظهار المعلومات */
-        .panel-toggle-btn {
+        /* أزرار جانبية */
+        .side-controls {
             position: fixed;
             top: 80px;
             right: 15px;
             z-index: 101;
-            background: rgba(212, 175, 55, 0.15);
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            color: #D4AF37;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .side-btn {
             width: 48px;
             height: 48px;
             border-radius: 14px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #D4AF37;
             font-size: 22px;
             cursor: pointer;
             backdrop-filter: blur(10px);
@@ -92,22 +101,23 @@
             justify-content: center;
         }
 
-        .panel-toggle-btn:hover {
+        .side-btn:hover {
             background: rgba(212, 175, 55, 0.3);
             border-color: #D4AF37;
             transform: scale(1.05);
         }
 
-        .panel-toggle-btn.active {
+        .side-btn.active {
             background: #D4AF37;
             color: #050505;
         }
 
+        /* أزرار التحكم السفلية */
         .bottom-controls {
             position: fixed;
             bottom: 20px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translateY(0);
             z-index: 100;
             display: flex;
             gap: 8px;
@@ -119,6 +129,13 @@
             max-width: calc(100% - 20px);
             flex-wrap: wrap;
             justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bottom-controls.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(150px);
+            pointer-events: none;
         }
 
         .mode-btn {
@@ -161,9 +178,10 @@
             50% { box-shadow: 0 0 0 12px rgba(39, 174, 96, 0); }
         }
 
+        /* لوحة المعلومات */
         .style-info {
             position: fixed;
-            top: 90px;
+            top: 80px;
             left: 15px;
             z-index: 100;
             padding: 18px;
@@ -173,7 +191,7 @@
             backdrop-filter: blur(15px);
             width: 240px;
             animation: slideIn 0.6s ease;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         @keyframes slideIn {
@@ -255,14 +273,20 @@
             .mode-btn { padding: 8px 12px; font-size: 12px; }
             .style-info {
                 top: auto;
-                bottom: 90px;
+                bottom: 100px;
                 left: 10px;
                 right: 10px;
                 width: auto;
                 padding: 14px;
             }
-            .panel-toggle-btn {
-                top: 75px;
+            .style-info.hidden {
+                transform: translateY(120%);
+            }
+            .side-controls {
+                top: 70px;
+                right: 10px;
+            }
+            .side-btn {
                 width: 42px;
                 height: 42px;
                 font-size: 20px;
@@ -285,10 +309,11 @@
         <div class="style-icon" id="topIcon">⚽</div>
     </div>
 
-    <!-- زر إخفاء/إظهار لوحة المعلومات -->
-    <button class="panel-toggle-btn" id="panelToggleBtn" onclick="togglePanel()" title="إظهار/إخفاء المعلومات">
-        <span id="panelToggleIcon">👁️</span>
-    </button>
+    <!-- أزرار جانبية -->
+    <div class="side-controls">
+        <button class="side-btn" id="infoToggleBtn" onclick="toggleInfo()" title="إظهار/إخفاء المعلومات">👁️</button>
+        <button class="side-btn" id="controlsToggleBtn" onclick="toggleControls()" title="إظهار/إخفاء الأزرار">⚙️</button>
+    </div>
 
     <div id="canvas-container"></div>
 
@@ -308,7 +333,7 @@
         </div>
     </div>
 
-    <div class="bottom-controls">
+    <div class="bottom-controls" id="bottomControls">
         <button class="mode-btn active" onclick="setMode('attacking')" id="btnAttack">
             <span>⚔️</span>
             <span>هجوم</span>
