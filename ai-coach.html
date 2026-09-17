@@ -177,7 +177,7 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 
 <div class="video-mode" id="videoMode">
     <div class="info-box">
-        ⚠️ <b>ملاحظة:</b> الفيديو لازم يكون <b>قصير (10-30 ثانية)</b> وحجمه أقل من <b>15 ميجا</b>. النظام راح يستخرج 6 لقطات ويحللها.
+        ⚠️ <b>ملاحظة:</b> الفيديو لازم يكون <b>قصير (10-30 ثانية)</b>. النظام راح يستخرج 6 لقطات ويحللها بـ AI.
     </div>
     <div class="upload-box" id="uploadBox">
         <input type="file" id="fileInput" accept="video/*">
@@ -213,20 +213,15 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
     </div>
 </div>
 
+<!-- Puter.js - الخدمة المجانية -->
+<script src="https://js.puter.com/v2/"></script>
+
 <script>
-// ============ الإعدادات ============
-// Groq للشات
+// ============ إعدادات الشات ============
 const GROQ_CONFIG = {
     API_KEY: "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",
     MODEL: "openai/gpt-oss-120b",
     API_URL: "https://api.groq.com/openai/v1/chat/completions"
-};
-
-// OpenRouter للفيديو (Vision)
-const OPENROUTER_CONFIG = {
-    API_KEY: "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",
-    VISION_MODEL: "meta-llama/llama-3.2-11b-vision-instruct:free",
-    API_URL: "https://openrouter.ai/api/v1/chat/completions"
 };
 
 let conversationHistory = [];
@@ -245,15 +240,14 @@ const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خب
 خبرتك:
 - كل أساليب اللعب (استحواذ، مرتدات، ضغط عالي، كرة طويلة)
 - كل الخطط (4-3-3، 4-4-2، 3-2-4-1، 4-2-3-1، 3-4-2-1، إلخ)
-- كل المدربين (بيب جوارديولا، كلوب، مورينهو، كرويف، تشافي ألونسو، فليك، دي شامب، أموريم، لامبارد)
-- تحليل الخصوم
-- التبديلات التكتيكية
+- كل المدربين (بيب، كلوب، مورينهو، كرويف، تشافي ألونسو، فليك، دي شامب، أموريم، لامبارد)
+- تحليل الخصوم والتبديلات
 
 قواعدك:
 1. لا تخترع معلومات
 2. اعطي إجابات مفصلة ومباشرة
 3. اذكر السبب وراء كل نصيحة
-4. استخدم الإيموجي بشكل معتدل
+4. استخدم الإيموجي باعتدال
 
 كن مختصراً لكن شامل.`;
 
@@ -525,46 +519,35 @@ async function analyzeVideo() {
 
         showProgress(50, "جاري إرسال اللقطات للـ AI...");
 
-        const imageContents = frames.map(f => ({
-            type: "image_url",
-            image_url: { url: f }
-        }));
-
-        const messages = [
-            {
-                role: "user",
-                content: [
-                    { type: "text", text: VISION_PROMPT },
-                    ...imageContents
-                ]
-            }
-        ];
+        // بناء محتوى الرسالة مع الصور
+        const contentArray = [{ type: "text", text: VISION_PROMPT }];
+        frames.forEach(f => {
+            contentArray.push({ type: "image_url", image_url: { url: f } });
+        });
 
         showProgress(70, "AI يحلل المباراة...");
 
-        const response = await fetch(OPENROUTER_CONFIG.API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + OPENROUTER_CONFIG.API_KEY,
-                "HTTP-Referer": "https://njr706380-cmd.github.io/football-tactics/",
-                "X-Title": "Football Tactics"
-            },
-            body: JSON.stringify({
-                model: OPENROUTER_CONFIG.VISION_MODEL,
-                messages: messages,
-                temperature: 0.7,
-                max_tokens: 2500
-            })
-        });
+        // استخدام Puter.js
+        const response = await puter.ai.chat(
+            contentArray,
+            { model: "gpt-4o-mini" }
+        );
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error?.message || `خطأ ${response.status}`);
+        let text = "";
+        if (typeof response === "string") {
+            text = response;
+        } else if (response && response.message && response.message.content) {
+            if (typeof response.message.content === "string") {
+                text = response.message.content;
+            } else if (Array.isArray(response.message.content)) {
+                text = response.message.content.map(c => c.text || "").join("");
+            }
+        } else if (response && response.text) {
+            text = response.text;
+        } else {
+            text = JSON.stringify(response);
         }
 
-        const data = await response.json();
-        const text = data.choices?.[0]?.message?.content;
         if (!text) throw new Error("ما وصل رد من AI");
 
         showProgress(100, "اكتمل!");
