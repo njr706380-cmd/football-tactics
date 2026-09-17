@@ -1,5 +1,5 @@
 // ============================================
-// tactic.js - منطق الملعب 3D مع الشرح والتحركات
+// tactic.js - ملعب 3D لفريق واحد + شرح التحرك
 // ============================================
 
 const FIELD_LENGTH = 140;
@@ -8,20 +8,14 @@ const PLAYER_RADIUS = 2;
 
 let scene, camera, renderer, controls;
 let ownPlayers = [];
-let opponentPlayers = [];
 let currentStyle = null;
 let currentMode = "attacking";
 let targetOwn = [];
-let targetOpp = [];
 let animationId = null;
 
-// سرعة الحركة (تتغير في وضع الشرح)
 let moveSpeed = 0.08;
-// هل الحركة متوقفة مؤقتاً (في وضع الشرح نوقفها لإظهار الأسهم)
 let movePaused = false;
-// مجموعة الأسهم
 let arrowsGroup = null;
-// هل وضع الشرح شغال
 let demoRunning = false;
 let demoTimers = [];
 
@@ -113,20 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
     createPitch();
     createPlayers();
 
-    // مجموعة الأسهم
     arrowsGroup = new THREE.Group();
     scene.add(arrowsGroup);
 
-    setMode("attacking");
-
-    // نحفظ المواقع الأولية (الكل بنفس المكان)
+    // نحط اللاعبين بشكّل مبعثر مؤقت حتى يتحركون لمكانهم
     ownPlayers.forEach((p, i) => {
         p.position.set(-60 + i * 0.5, 0, 0);
     });
-    opponentPlayers.forEach((p, i) => {
-        p.position.set(60 - i * 0.5, 0, 0);
-    });
 
+    setMode("attacking");
     animate();
 
     setTimeout(() => {
@@ -134,15 +123,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
 });
 
-// ============ إخفاء/إظهار اللوحة ============
-function togglePanel() {
+// ============ إظهار/إخفاء لوحة المعلومات ============
+function toggleInfo() {
     const panel = document.getElementById("styleInfo");
-    const btn = document.getElementById("panelToggleBtn");
-    const icon = document.getElementById("panelToggleIcon");
-
+    const btn = document.getElementById("infoToggleBtn");
     panel.classList.toggle("hidden");
     btn.classList.toggle("active");
-    icon.textContent = panel.classList.contains("hidden") ? "👁️‍🗨️" : "👁️";
+}
+
+// ============ إظهار/إخفاء أزرار التحكم ============
+function toggleControls() {
+    const controls = document.getElementById("bottomControls");
+    const btn = document.getElementById("controlsToggleBtn");
+    controls.classList.toggle("hidden");
+    btn.classList.toggle("active");
 }
 
 // ============ معلومات الأسلوب ============
@@ -286,15 +280,15 @@ function drawPoint(x, z) {
 }
 
 // ============ إنشاء لاعب ============
-function createPlayer(color) {
+function createPlayer() {
     const group = new THREE.Group();
 
     const sphereGeo = new THREE.SphereGeometry(PLAYER_RADIUS, 24, 24);
     const sphereMat = new THREE.MeshStandardMaterial({
-        color: color,
+        color: 0xD4AF37,
         roughness: 0.4,
         metalness: 0.6,
-        emissive: color,
+        emissive: 0xD4AF37,
         emissiveIntensity: 0.3
     });
     const sphere = new THREE.Mesh(sphereGeo, sphereMat);
@@ -319,17 +313,10 @@ function createPlayer(color) {
 
 function createPlayers() {
     for (let i = 0; i < 11; i++) {
-        const p = createPlayer(0xD4AF37);
+        const p = createPlayer();
         p.position.set(-60, 0, 0);
         scene.add(p);
         ownPlayers.push(p);
-    }
-
-    for (let i = 0; i < 11; i++) {
-        const p = createPlayer(0x4A90E2);
-        p.position.set(60, 0, 0);
-        scene.add(p);
-        opponentPlayers.push(p);
     }
 }
 
@@ -339,34 +326,18 @@ function setMode(mode) {
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
     document.getElementById("btnDefend").classList.toggle("active", mode === "defending");
 
-    const ownData = mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
-    const oppData = mode === "attacking" ? currentStyle.defending : currentStyle.attacking;
+    const data = mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+    const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
 
-    const ownForm = FORMATIONS[ownData.formation] || FORMATIONS["4-3-3"];
-    const oppForm = FORMATIONS[oppData.formation] || FORMATIONS["4-4-2"];
-
-    // في الهجوم: الأصفر يتقدم +18، الأزرق يتراجع -15
-    // في الدفاع: الأصفر يتراجع -12، الأزرق يتقدم +18
-    const ownOffset = mode === "attacking" ? 18 : -12;
-    const oppOffset = mode === "attacking" ? -15 : 18;
-
-    targetOwn = ownForm.map(p => ({ x: p.x + ownOffset, z: p.z }));
-    targetOpp = oppForm.map(p => ({ x: -p.x + oppOffset, z: -p.z }));
+    targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
 
     updateStyleInfo();
 }
 
 // ============ إنشاء الأسهم ============
 function createArrows() {
-    // تنظيف الأسهم القديمة
-    while (arrowsGroup.children.length) {
-        const c = arrowsGroup.children[0];
-        arrowsGroup.remove(c);
-        if (c.geometry) c.geometry.dispose();
-        if (c.material) c.material.dispose();
-    }
+    clearArrows();
 
-    // أسهم الفريق الأصفر (own)
     ownPlayers.forEach((p, i) => {
         if (!targetOwn[i]) return;
         const from = new THREE.Vector3(p.position.x, 0.5, p.position.z);
@@ -380,28 +351,8 @@ function createArrows() {
             from,
             len,
             0xD4AF37,
-            5,
-            3
-        );
-        arrowsGroup.add(arrow);
-    });
-
-    // أسهم الفريق الأزرق (opponent)
-    opponentPlayers.forEach((p, i) => {
-        if (!targetOpp[i]) return;
-        const from = new THREE.Vector3(p.position.x, 0.5, p.position.z);
-        const to = new THREE.Vector3(targetOpp[i].x, 0.5, targetOpp[i].z);
-        const dir = to.clone().sub(from);
-        const len = dir.length();
-        if (len < 2) return;
-
-        const arrow = new THREE.ArrowHelper(
-            dir.clone().normalize(),
-            from,
-            len,
-            0x4A90E2,
-            5,
-            3
+            4,
+            2.5
         );
         arrowsGroup.add(arrow);
     });
@@ -421,7 +372,6 @@ function startDemo() {
     const btn = document.getElementById("demoBtn");
 
     if (demoRunning) {
-        // إيقاف الوضع
         demoRunning = false;
         movePaused = false;
         moveSpeed = 0.08;
@@ -433,7 +383,6 @@ function startDemo() {
         return;
     }
 
-    // بدء الوضع
     demoRunning = true;
     moveSpeed = 0.025;
     btn.classList.add("active");
@@ -442,49 +391,31 @@ function startDemo() {
     const cycle = () => {
         if (!demoRunning) return;
 
-        // 1) نحدد الوضع التالي (عكس الحالي) بدون تحريك
         const nextMode = currentMode === "attacking" ? "defending" : "attacking";
 
-        // 2) نحفظ المواقع الحالية
-        const currentPosOwn = ownPlayers.map(p => ({ x: p.position.x, z: p.position.z }));
-        const currentPosOpp = opponentPlayers.map(p => ({ x: p.position.x, z: p.position.z }));
+        // نحسب الأهداف الجديدة
+        const data = nextMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+        const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
+        const newTarget = formation.map(p => ({ x: p.x, z: p.z }));
 
-        // 3) نحدد الأهداف الجديدة
-        const ownData = nextMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
-        const oppData = nextMode === "attacking" ? currentStyle.defending : currentStyle.attacking;
-        const ownForm = FORMATIONS[ownData.formation] || FORMATIONS["4-3-3"];
-        const oppForm = FORMATIONS[oppData.formation] || FORMATIONS["4-4-2"];
-        const ownOffset = nextMode === "attacking" ? 18 : -12;
-        const oppOffset = nextMode === "attacking" ? -15 : 18;
-
-        // 4) نحسب الأهداف ونحطها مؤقتاً
-        const newTargetOwn = ownForm.map(p => ({ x: p.x + ownOffset, z: p.z }));
-        const newTargetOpp = oppForm.map(p => ({ x: -p.x + oppOffset, z: -p.z }));
-
-        // 5) نوقف الحركة وننشئ الأسهم من الموقع الحالي للهدف الجديد
+        // نثبّت الحركة ونحدد الأهداف الجديدة
         movePaused = true;
-
-        // نحدث الأهداف عشان الأسهم تنرسم صح
-        targetOwn = newTargetOwn;
-        targetOpp = newTargetOpp;
-
-        // نرجع المواقع الحالية مؤقتاً
-        ownPlayers.forEach((p, i) => p.position.set(currentPosOwn[i].x, 0, currentPosOwn[i].z));
-        opponentPlayers.forEach((p, i) => p.position.set(currentPosOpp[i].x, 0, currentPosOpp[i].z));
-
+        targetOwn = newTarget;
         createArrows();
 
-        // 6) بعد 2.5 ثانية، نشيل الأسهم ونبدأ الحركة
+        // نحدّث الواجهة (زر الهجوم/الدفاع + الـ info)
+        document.getElementById("btnAttack").classList.toggle("active", nextMode === "attacking");
+        document.getElementById("btnDefend").classList.toggle("active", nextMode === "defending");
+        currentMode = nextMode;
+        updateStyleInfo();
+
+        // بعد 2.5 ثانية: نشيل الأسهم ونشغّل الحركة
         demoTimers.push(setTimeout(() => {
             if (!demoRunning) return;
             clearArrows();
-            currentMode = nextMode;
-            document.getElementById("btnAttack").classList.toggle("active", currentMode === "attacking");
-            document.getElementById("btnDefend").classList.toggle("active", currentMode === "defending");
-            updateStyleInfo();
             movePaused = false;
 
-            // 7) بعد 5 ثواني (للحركة)، نبدأ الدورة من جديد
+            // بعد 5 ثواني (وقت الحركة): نكمل الدورة
             demoTimers.push(setTimeout(cycle, 5000));
         }, 2500));
     };
@@ -501,12 +432,6 @@ function updatePositions() {
         p.position.x += (targetOwn[i].x - p.position.x) * moveSpeed;
         p.position.z += (targetOwn[i].z - p.position.z) * moveSpeed;
     });
-
-    opponentPlayers.forEach((p, i) => {
-        if (!targetOpp[i]) return;
-        p.position.x += (targetOpp[i].x - p.position.x) * moveSpeed;
-        p.position.z += (targetOpp[i].z - p.position.z) * moveSpeed;
-    });
 }
 
 // ============ حلقة الأنيميشن ============
@@ -518,9 +443,6 @@ function animate() {
     const t = Date.now() * 0.001;
     ownPlayers.forEach(p => {
         p.children[0].position.y = PLAYER_RADIUS + Math.sin(t * 2 + p.position.x) * 0.15;
-    });
-    opponentPlayers.forEach(p => {
-        p.children[0].position.y = PLAYER_RADIUS + Math.sin(t * 2 + p.position.z) * 0.15;
     });
 
     controls.update();
