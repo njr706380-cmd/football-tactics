@@ -1,13 +1,11 @@
 // ============================================
-// tactic.js - منطق الملعب 3D
+// tactic.js - منطق الملعب 3D مع الشرح والتحركات
 // ============================================
 
-// ============ إعدادات الملعب ============
 const FIELD_LENGTH = 140;
 const FIELD_WIDTH = 90;
 const PLAYER_RADIUS = 2;
 
-// ============ الحالة العامة ============
 let scene, camera, renderer, controls;
 let ownPlayers = [];
 let opponentPlayers = [];
@@ -17,8 +15,17 @@ let targetOwn = [];
 let targetOpp = [];
 let animationId = null;
 
+// سرعة الحركة (تتغير في وضع الشرح)
+let moveSpeed = 0.08;
+// هل الحركة متوقفة مؤقتاً (في وضع الشرح نوقفها لإظهار الأسهم)
+let movePaused = false;
+// مجموعة الأسهم
+let arrowsGroup = null;
+// هل وضع الشرح شغال
+let demoRunning = false;
+let demoTimers = [];
+
 // ============ مواقع اللاعبين في كل خطة ============
-// x: الطول (-70 إلى 70) — z: العرض (-45 إلى 45)
 const FORMATIONS = {
     "4-3-3": [
         { x: -62, z: 0 },
@@ -105,13 +112,38 @@ document.addEventListener("DOMContentLoaded", () => {
     initScene();
     createPitch();
     createPlayers();
+
+    // مجموعة الأسهم
+    arrowsGroup = new THREE.Group();
+    scene.add(arrowsGroup);
+
     setMode("attacking");
+
+    // نحفظ المواقع الأولية (الكل بنفس المكان)
+    ownPlayers.forEach((p, i) => {
+        p.position.set(-60 + i * 0.5, 0, 0);
+    });
+    opponentPlayers.forEach((p, i) => {
+        p.position.set(60 - i * 0.5, 0, 0);
+    });
+
     animate();
 
     setTimeout(() => {
         document.getElementById("loading").classList.add("hidden");
     }, 500);
 });
+
+// ============ إخفاء/إظهار اللوحة ============
+function togglePanel() {
+    const panel = document.getElementById("styleInfo");
+    const btn = document.getElementById("panelToggleBtn");
+    const icon = document.getElementById("panelToggleIcon");
+
+    panel.classList.toggle("hidden");
+    btn.classList.toggle("active");
+    icon.textContent = panel.classList.contains("hidden") ? "👁️‍🗨️" : "👁️";
+}
 
 // ============ معلومات الأسلوب ============
 function updateStyleInfo() {
@@ -146,7 +178,6 @@ function initScene() {
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
 
-    // إضاءة
     const ambient = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambient);
 
@@ -159,7 +190,6 @@ function initScene() {
     goldLight.position.set(-60, 50, -60);
     scene.add(goldLight);
 
-    // تحكم
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -179,7 +209,6 @@ function onResize() {
 
 // ============ إنشاء الملعب ============
 function createPitch() {
-    // أرضية خضراء
     const pitchGeo = new THREE.PlaneGeometry(FIELD_LENGTH, FIELD_WIDTH);
     const pitchMat = new THREE.MeshStandardMaterial({
         color: 0x1B5E20,
@@ -191,29 +220,16 @@ function createPitch() {
     pitch.receiveShadow = true;
     scene.add(pitch);
 
-    // خطوط بيضاء (حدود)
     drawBorder(0, 0, FIELD_LENGTH, FIELD_WIDTH);
-
-    // خط المنتصف
     drawLine(0, -FIELD_WIDTH/2, 0, FIELD_WIDTH/2);
-
-    // دائرة المنتصف
     drawCircle(0, 0, 12);
-
-    // مربع الجزاء اليمين
     drawRect(FIELD_LENGTH/2 - 20, 0, 20, 45);
-    // مربع الجزاء اليسار
     drawRect(-FIELD_LENGTH/2 + 20, 0, 20, 45);
-
-    // مربع المرمى الصغير يمين
     drawRect(FIELD_LENGTH/2 - 8, 0, 8, 22);
     drawRect(-FIELD_LENGTH/2 + 8, 0, 8, 22);
-
-    // نقاط الجزاء
     drawPoint(FIELD_LENGTH/2 - 15, 0);
     drawPoint(-FIELD_LENGTH/2 + 15, 0);
 
-    // خطوط إضافية خارج الحدود (جو)
     const groundGeo = new THREE.PlaneGeometry(400, 400);
     const groundMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0a });
     const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -224,7 +240,7 @@ function createPitch() {
 }
 
 function drawLine(x1, z1, x2, z2) {
-    const mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+    const mat = new THREE.LineBasicMaterial({ color: 0xffffff });
     const points = [
         new THREE.Vector3(x1, 0.05, z1),
         new THREE.Vector3(x2, 0.05, z2)
@@ -270,10 +286,9 @@ function drawPoint(x, z) {
 }
 
 // ============ إنشاء لاعب ============
-function createPlayer(color, isOpponent) {
+function createPlayer(color) {
     const group = new THREE.Group();
 
-    // جسم اللاعب (كرة)
     const sphereGeo = new THREE.SphereGeometry(PLAYER_RADIUS, 24, 24);
     const sphereMat = new THREE.MeshStandardMaterial({
         color: color,
@@ -287,7 +302,6 @@ function createPlayer(color, isOpponent) {
     sphere.castShadow = true;
     group.add(sphere);
 
-    // حلقة ذهبية تحت اللاعب
     const ringGeo = new THREE.RingGeometry(PLAYER_RADIUS + 0.5, PLAYER_RADIUS + 1, 24);
     const ringMat = new THREE.MeshBasicMaterial({
         color: 0xD4AF37,
@@ -303,19 +317,16 @@ function createPlayer(color, isOpponent) {
     return group;
 }
 
-// ============ إنشاء اللاعبين ============
 function createPlayers() {
-    // فريقي (ذهبي)
     for (let i = 0; i < 11; i++) {
-        const p = createPlayer(0xD4AF37, false);
+        const p = createPlayer(0xD4AF37);
         p.position.set(-60, 0, 0);
         scene.add(p);
         ownPlayers.push(p);
     }
 
-    // الخصم (أزرق)
     for (let i = 0; i < 11; i++) {
-        const p = createPlayer(0x4A90E2, true);
+        const p = createPlayer(0x4A90E2);
         p.position.set(60, 0, 0);
         scene.add(p);
         opponentPlayers.push(p);
@@ -328,29 +339,173 @@ function setMode(mode) {
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
     document.getElementById("btnDefend").classList.toggle("active", mode === "defending");
 
-    const data = mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
-    const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
+    const ownData = mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+    const oppData = mode === "attacking" ? currentStyle.defending : currentStyle.attacking;
 
-    targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
-    targetOpp = formation.map(p => ({ x: -p.x, z: -p.z }));
+    const ownForm = FORMATIONS[ownData.formation] || FORMATIONS["4-3-3"];
+    const oppForm = FORMATIONS[oppData.formation] || FORMATIONS["4-4-2"];
+
+    // في الهجوم: الأصفر يتقدم +18، الأزرق يتراجع -15
+    // في الدفاع: الأصفر يتراجع -12، الأزرق يتقدم +18
+    const ownOffset = mode === "attacking" ? 18 : -12;
+    const oppOffset = mode === "attacking" ? -15 : 18;
+
+    targetOwn = ownForm.map(p => ({ x: p.x + ownOffset, z: p.z }));
+    targetOpp = oppForm.map(p => ({ x: -p.x + oppOffset, z: -p.z }));
 
     updateStyleInfo();
 }
 
-// ============ تحديث المواقع (Tween) ============
+// ============ إنشاء الأسهم ============
+function createArrows() {
+    // تنظيف الأسهم القديمة
+    while (arrowsGroup.children.length) {
+        const c = arrowsGroup.children[0];
+        arrowsGroup.remove(c);
+        if (c.geometry) c.geometry.dispose();
+        if (c.material) c.material.dispose();
+    }
+
+    // أسهم الفريق الأصفر (own)
+    ownPlayers.forEach((p, i) => {
+        if (!targetOwn[i]) return;
+        const from = new THREE.Vector3(p.position.x, 0.5, p.position.z);
+        const to = new THREE.Vector3(targetOwn[i].x, 0.5, targetOwn[i].z);
+        const dir = to.clone().sub(from);
+        const len = dir.length();
+        if (len < 2) return;
+
+        const arrow = new THREE.ArrowHelper(
+            dir.clone().normalize(),
+            from,
+            len,
+            0xD4AF37,
+            5,
+            3
+        );
+        arrowsGroup.add(arrow);
+    });
+
+    // أسهم الفريق الأزرق (opponent)
+    opponentPlayers.forEach((p, i) => {
+        if (!targetOpp[i]) return;
+        const from = new THREE.Vector3(p.position.x, 0.5, p.position.z);
+        const to = new THREE.Vector3(targetOpp[i].x, 0.5, targetOpp[i].z);
+        const dir = to.clone().sub(from);
+        const len = dir.length();
+        if (len < 2) return;
+
+        const arrow = new THREE.ArrowHelper(
+            dir.clone().normalize(),
+            from,
+            len,
+            0x4A90E2,
+            5,
+            3
+        );
+        arrowsGroup.add(arrow);
+    });
+}
+
+function clearArrows() {
+    while (arrowsGroup.children.length) {
+        const c = arrowsGroup.children[0];
+        arrowsGroup.remove(c);
+        if (c.geometry) c.geometry.dispose();
+        if (c.material) c.material.dispose();
+    }
+}
+
+// ============ وضع الشرح ============
+function startDemo() {
+    const btn = document.getElementById("demoBtn");
+
+    if (demoRunning) {
+        // إيقاف الوضع
+        demoRunning = false;
+        movePaused = false;
+        moveSpeed = 0.08;
+        demoTimers.forEach(t => clearTimeout(t));
+        demoTimers = [];
+        clearArrows();
+        btn.classList.remove("active");
+        btn.innerHTML = '<span>📽️</span><span>شرح التحرك</span>';
+        return;
+    }
+
+    // بدء الوضع
+    demoRunning = true;
+    moveSpeed = 0.025;
+    btn.classList.add("active");
+    btn.innerHTML = '<span>⏸️</span><span>إيقاف الشرح</span>';
+
+    const cycle = () => {
+        if (!demoRunning) return;
+
+        // 1) نحدد الوضع التالي (عكس الحالي) بدون تحريك
+        const nextMode = currentMode === "attacking" ? "defending" : "attacking";
+
+        // 2) نحفظ المواقع الحالية
+        const currentPosOwn = ownPlayers.map(p => ({ x: p.position.x, z: p.position.z }));
+        const currentPosOpp = opponentPlayers.map(p => ({ x: p.position.x, z: p.position.z }));
+
+        // 3) نحدد الأهداف الجديدة
+        const ownData = nextMode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+        const oppData = nextMode === "attacking" ? currentStyle.defending : currentStyle.attacking;
+        const ownForm = FORMATIONS[ownData.formation] || FORMATIONS["4-3-3"];
+        const oppForm = FORMATIONS[oppData.formation] || FORMATIONS["4-4-2"];
+        const ownOffset = nextMode === "attacking" ? 18 : -12;
+        const oppOffset = nextMode === "attacking" ? -15 : 18;
+
+        // 4) نحسب الأهداف ونحطها مؤقتاً
+        const newTargetOwn = ownForm.map(p => ({ x: p.x + ownOffset, z: p.z }));
+        const newTargetOpp = oppForm.map(p => ({ x: -p.x + oppOffset, z: -p.z }));
+
+        // 5) نوقف الحركة وننشئ الأسهم من الموقع الحالي للهدف الجديد
+        movePaused = true;
+
+        // نحدث الأهداف عشان الأسهم تنرسم صح
+        targetOwn = newTargetOwn;
+        targetOpp = newTargetOpp;
+
+        // نرجع المواقع الحالية مؤقتاً
+        ownPlayers.forEach((p, i) => p.position.set(currentPosOwn[i].x, 0, currentPosOwn[i].z));
+        opponentPlayers.forEach((p, i) => p.position.set(currentPosOpp[i].x, 0, currentPosOpp[i].z));
+
+        createArrows();
+
+        // 6) بعد 2.5 ثانية، نشيل الأسهم ونبدأ الحركة
+        demoTimers.push(setTimeout(() => {
+            if (!demoRunning) return;
+            clearArrows();
+            currentMode = nextMode;
+            document.getElementById("btnAttack").classList.toggle("active", currentMode === "attacking");
+            document.getElementById("btnDefend").classList.toggle("active", currentMode === "defending");
+            updateStyleInfo();
+            movePaused = false;
+
+            // 7) بعد 5 ثواني (للحركة)، نبدأ الدورة من جديد
+            demoTimers.push(setTimeout(cycle, 5000));
+        }, 2500));
+    };
+
+    cycle();
+}
+
+// ============ تحديث المواقع ============
 function updatePositions() {
-    const speed = 0.08;
+    if (movePaused) return;
 
     ownPlayers.forEach((p, i) => {
         if (!targetOwn[i]) return;
-        p.position.x += (targetOwn[i].x - p.position.x) * speed;
-        p.position.z += (targetOwn[i].z - p.position.z) * speed;
+        p.position.x += (targetOwn[i].x - p.position.x) * moveSpeed;
+        p.position.z += (targetOwn[i].z - p.position.z) * moveSpeed;
     });
 
     opponentPlayers.forEach((p, i) => {
         if (!targetOpp[i]) return;
-        p.position.x += (targetOpp[i].x - p.position.x) * speed;
-        p.position.z += (targetOpp[i].z - p.position.z) * speed;
+        p.position.x += (targetOpp[i].x - p.position.x) * moveSpeed;
+        p.position.z += (targetOpp[i].z - p.position.z) * moveSpeed;
     });
 }
 
@@ -360,10 +515,12 @@ function animate() {
 
     updatePositions();
 
-    // دوران خفيف للكرات
     const t = Date.now() * 0.001;
     ownPlayers.forEach(p => {
         p.children[0].position.y = PLAYER_RADIUS + Math.sin(t * 2 + p.position.x) * 0.15;
+    });
+    opponentPlayers.forEach(p => {
+        p.children[0].position.y = PLAYER_RADIUS + Math.sin(t * 2 + p.position.z) * 0.15;
     });
 
     controls.update();
