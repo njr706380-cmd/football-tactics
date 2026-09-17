@@ -18,7 +18,6 @@
             min-height: 100vh;
         }
 
-        /* الشريط العلوي */
         .topbar {
             position: fixed;
             top: 0;
@@ -36,15 +35,16 @@
             color: #D4AF37;
             text-decoration: none;
             font-weight: 700;
-            padding: 10px 20px;
+            padding: 10px 18px;
             border: 2px solid rgba(212,175,55,0.3);
             border-radius: 12px;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             backdrop-filter: blur(10px);
             background: rgba(0,0,0,0.3);
+            font-size: 14px;
         }
 
         .back-btn:hover {
@@ -55,16 +55,13 @@
         .style-title {
             color: #D4AF37;
             font-weight: 900;
-            font-size: 20px;
+            font-size: 18px;
             text-align: center;
             flex: 1;
         }
 
-        .style-icon {
-            font-size: 28px;
-        }
+        .style-icon { font-size: 26px; }
 
-        /* الملعب */
         #canvas-container {
             position: fixed;
             top: 0;
@@ -74,7 +71,38 @@
             z-index: 1;
         }
 
-        /* الأزرار السفلية */
+        /* زر إخفاء/إظهار المعلومات */
+        .panel-toggle-btn {
+            position: fixed;
+            top: 80px;
+            right: 15px;
+            z-index: 101;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #D4AF37;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            font-size: 22px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel-toggle-btn:hover {
+            background: rgba(212, 175, 55, 0.3);
+            border-color: #D4AF37;
+            transform: scale(1.05);
+        }
+
+        .panel-toggle-btn.active {
+            background: #D4AF37;
+            color: #050505;
+        }
+
         .bottom-controls {
             position: fixed;
             bottom: 20px;
@@ -82,28 +110,32 @@
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             padding: 10px;
             background: rgba(10,10,10,0.85);
             border: 1px solid rgba(212,175,55,0.2);
             border-radius: 20px;
             backdrop-filter: blur(15px);
+            max-width: calc(100% - 20px);
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .mode-btn {
-            padding: 12px 24px;
+            padding: 10px 18px;
             background: transparent;
             border: 2px solid rgba(212,175,55,0.3);
             color: #D4AF37;
             border-radius: 12px;
             font-family: inherit;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .mode-btn:hover {
@@ -117,63 +149,81 @@
             border-color: #D4AF37;
         }
 
-        /* معلومات الأسلوب */
+        .mode-btn.demo-btn.active {
+            background: #27AE60;
+            color: #FFF;
+            border-color: #27AE60;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.5); }
+            50% { box-shadow: 0 0 0 12px rgba(39, 174, 96, 0); }
+        }
+
         .style-info {
             position: fixed;
-            top: 100px;
-            right: 20px;
+            top: 90px;
+            left: 15px;
             z-index: 100;
-            padding: 20px;
-            background: rgba(10,10,10,0.9);
+            padding: 18px;
+            background: rgba(10,10,10,0.92);
             border: 1px solid rgba(212,175,55,0.3);
             border-radius: 15px;
             backdrop-filter: blur(15px);
-            max-width: 250px;
+            width: 240px;
             animation: slideIn 0.6s ease;
+            transition: all 0.4s ease;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(50px); }
+            from { opacity: 0; transform: translateX(-50px); }
             to { opacity: 1; transform: translateX(0); }
+        }
+
+        .style-info.hidden {
+            opacity: 0;
+            transform: translateX(-120%);
+            pointer-events: none;
         }
 
         .info-formations {
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 6px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
         }
 
         .formation-tag {
-            padding: 5px 12px;
+            padding: 4px 10px;
             background: rgba(212,175,55,0.15);
             border: 1px solid rgba(212,175,55,0.4);
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #D4AF37;
         }
 
         .info-row {
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid rgba(212,175,55,0.1);
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .info-row:last-child { border-bottom: none; }
 
         .info-label {
             color: #888;
-            font-size: 11px;
-            margin-bottom: 4px;
+            font-size: 10px;
+            margin-bottom: 3px;
         }
 
         .info-value {
             color: #FFF;
             font-weight: 700;
+            font-size: 13px;
         }
 
-        /* مؤشر التحميل */
         .loading {
             position: fixed;
             top: 50%;
@@ -181,7 +231,7 @@
             transform: translate(-50%, -50%);
             z-index: 200;
             color: #D4AF37;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             text-align: center;
         }
@@ -200,18 +250,23 @@
 
         .hidden { display: none !important; }
 
-        /* للجوال */
         @media (max-width: 768px) {
+            .style-title { font-size: 15px; }
+            .mode-btn { padding: 8px 12px; font-size: 12px; }
             .style-info {
                 top: auto;
-                bottom: 100px;
-                right: 15px;
-                left: 15px;
-                max-width: none;
-                padding: 15px;
+                bottom: 90px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+                padding: 14px;
             }
-            .style-title { font-size: 16px; }
-            .mode-btn { padding: 10px 16px; font-size: 13px; }
+            .panel-toggle-btn {
+                top: 75px;
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -229,6 +284,11 @@
         <div class="style-title" id="topTitle">جاري التحميل...</div>
         <div class="style-icon" id="topIcon">⚽</div>
     </div>
+
+    <!-- زر إخفاء/إظهار لوحة المعلومات -->
+    <button class="panel-toggle-btn" id="panelToggleBtn" onclick="togglePanel()" title="إظهار/إخفاء المعلومات">
+        <span id="panelToggleIcon">👁️</span>
+    </button>
 
     <div id="canvas-container"></div>
 
@@ -257,7 +317,11 @@
             <span>🛡️</span>
             <span>دفاع</span>
         </button>
-        <button class="mode-btn" onclick="resetCamera()" id="btnReset">
+        <button class="mode-btn demo-btn" onclick="startDemo()" id="demoBtn">
+            <span>📽️</span>
+            <span>شرح التحرك</span>
+        </button>
+        <button class="mode-btn" onclick="resetCamera()">
             <span>🔄</span>
             <span>إعادة</span>
         </button>
