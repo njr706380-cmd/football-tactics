@@ -1,6 +1,4 @@
-// ============================================
 // tactic.js - ملعب 3D (كرة صفراء نظيفة)
-// ============================================
 
 const FIELD_LENGTH = 140;
 const FIELD_WIDTH = 90;
@@ -19,7 +17,6 @@ let arrowsGroup = null;
 let demoRunning = false;
 let demoTimers = [];
 
-// ============ مواقع اللاعبين في كل خطة ============
 const FORMATIONS = {
     "4-3-3": [
         { x: -62, z: 0 },
@@ -93,7 +90,6 @@ const FORMATIONS = {
     ]
 };
 
-// ============ بدء التطبيق ============
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const styleId = params.get("style") || "possession";
@@ -122,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
 });
 
-// ============ إظهار/إخفاء اللوحة ============
 function toggleInfo() {
     const panel = document.getElementById("styleInfo");
     const btn = document.getElementById("infoToggleBtn");
@@ -130,7 +125,6 @@ function toggleInfo() {
     btn.classList.toggle("active");
 }
 
-// ============ إظهار/إخفاء الأزرار ============
 function toggleControls() {
     const controls = document.getElementById("bottomControls");
     const btn = document.getElementById("controlsToggleBtn");
@@ -138,7 +132,6 @@ function toggleControls() {
     btn.classList.toggle("active");
 }
 
-// ============ معلومات الأسلوب ============
 function updateStyleInfo() {
     const infoFormations = document.getElementById("infoFormations");
     infoFormations.innerHTML = currentStyle.formations
@@ -152,7 +145,6 @@ function updateStyleInfo() {
     document.getElementById("currentDesc").textContent = mode.description;
 }
 
-// ============ تهيئة المشهد ============
 function initScene() {
     const container = document.getElementById("canvas-container");
 
@@ -200,7 +192,6 @@ function onResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// ============ إنشاء الملعب ============
 function createPitch() {
     const pitchGeo = new THREE.PlaneGeometry(FIELD_LENGTH, FIELD_WIDTH);
     const pitchMat = new THREE.MeshStandardMaterial({
@@ -278,7 +269,6 @@ function drawPoint(x, z) {
     scene.add(point);
 }
 
-// ============ إنشاء لاعب (كرة صفراء نظيفة) ============
 function createPlayer() {
     const group = new THREE.Group();
 
@@ -319,12 +309,11 @@ function createPlayers() {
     }
 }
 
-// ============ نظام الأقرب ============
+// نظام الأقرب: كل لاعب يروح لأقرب مركز متاح
 function matchPlayersToTargets() {
-    const targets = targetOwn.map((t, i) => ({ x: t.x, z: t.z, taken: false }));
+    const targets = targetOwn.map(t => ({ x: t.x, z: t.z, taken: false }));
     const result = new Array(ownPlayers.length);
 
-    // الحارس يظل حارس (لاعب 0)
     if (targets[0]) {
         result[0] = { x: targets[0].x, z: targets[0].z };
         targets[0].taken = true;
@@ -355,7 +344,6 @@ function matchPlayersToTargets() {
     targetOwn = result;
 }
 
-// ============ تعيين الوضع ============
 function setMode(mode) {
     currentMode = mode;
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
@@ -369,7 +357,6 @@ function setMode(mode) {
     updateStyleInfo();
 }
 
-// ============ إنشاء الأسهم ============
 function createArrows() {
     clearArrows();
 
@@ -402,7 +389,6 @@ function clearArrows() {
     }
 }
 
-// ============ وضع الشرح ============
 function startDemo() {
     const btn = document.getElementById("demoBtn");
 
@@ -452,7 +438,6 @@ function startDemo() {
     cycle();
 }
 
-// ============ تحديث المواقع ============
 function updatePositions() {
     if (movePaused) return;
 
@@ -463,7 +448,6 @@ function updatePositions() {
     });
 }
 
-// ============ حلقة الأنيميشن ============
 function animate() {
     animationId = requestAnimationFrame(animate);
     updatePositions();
@@ -477,7 +461,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ============ إعادة الكاميرا ============
 function resetCamera() {
     camera.position.set(0, 130, 130);
     controls.target.set(0, 0, 0);
