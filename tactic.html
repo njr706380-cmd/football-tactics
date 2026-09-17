@@ -74,7 +74,6 @@
             z-index: 1;
         }
 
-        /* أزرار جانبية */
         .side-controls {
             position: fixed;
             top: 80px;
@@ -104,7 +103,6 @@
         .side-btn:hover {
             background: rgba(212, 175, 55, 0.3);
             border-color: #D4AF37;
-            transform: scale(1.05);
         }
 
         .side-btn.active {
@@ -112,7 +110,6 @@
             color: #050505;
         }
 
-        /* أزرار التحكم السفلية */
         .bottom-controls {
             position: fixed;
             bottom: 20px;
@@ -178,7 +175,6 @@
             50% { box-shadow: 0 0 0 12px rgba(39, 174, 96, 0); }
         }
 
-        /* لوحة المعلومات */
         .style-info {
             position: fixed;
             top: 80px;
@@ -190,13 +186,7 @@
             border-radius: 15px;
             backdrop-filter: blur(15px);
             width: 240px;
-            animation: slideIn 0.6s ease;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-50px); }
-            to { opacity: 1; transform: translateX(0); }
         }
 
         .style-info.hidden {
@@ -309,7 +299,6 @@
         <div class="style-icon" id="topIcon">⚽</div>
     </div>
 
-    <!-- أزرار جانبية -->
     <div class="side-controls">
         <button class="side-btn" id="infoToggleBtn" onclick="toggleInfo()" title="إظهار/إخفاء المعلومات">👁️</button>
         <button class="side-btn" id="controlsToggleBtn" onclick="toggleControls()" title="إظهار/إخفاء الأزرار">⚙️</button>
