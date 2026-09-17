@@ -19,7 +19,7 @@ function loadStyles() {
 function createStyleCard(style, index) {
     const card = document.createElement("a");
     card.className = "style-card";
-    card.href = `tactic.html?style=${style.id}`;
+    card.href = `coaches.html?style=${style.id}`;
     card.style.setProperty("--card-color", style.color);
     card.style.setProperty("--card-color-alpha", style.colorAlpha);
     card.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s both`;
