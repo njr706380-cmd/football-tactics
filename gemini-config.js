@@ -9,3 +9,7 @@ const GEMINI_CONFIG = {
 function getGeminiUrl() {
     return GEMINI_CONFIG.API_URL + GEMINI_CONFIG.MODEL + ":generateContent?key=" + GEMINI_CONFIG.API_KEY;
 }
+
+function getGeminiHeaders() {
+    return { "Content-Type": "application/json" };
+}
