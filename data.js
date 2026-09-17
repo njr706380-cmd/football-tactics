@@ -1,4 +1,4 @@
-// data.js - بيانات الأساليب + المراكز
+// data.js - بيانات الأساليب
 
 const STYLES = [
     {
@@ -92,37 +92,3 @@ const STYLES = [
         }
     }
 ];
-
-const POSITIONS = {
-    "4-3-3": ["GK", "RB", "CB", "CB", "LB", "CM", "CM", "CM", "RW", "ST", "LW"],
-    "3-2-4-1": ["GK", "CB", "CB", "CB", "CM", "CM", "RM", "AM", "AM", "LM", "ST"],
-    "4-2-3-1": ["GK", "RB", "CB", "CB", "LB", "CDM", "CDM", "RAM", "CAM", "LAM", "ST"],
-    "4-4-2": ["GK", "RB", "CB", "CB", "LB", "RM", "CM", "CM", "LM", "ST", "ST"],
-    "4-2-4": ["GK", "RB", "CB", "CB", "LB", "CM", "CM", "RW", "ST", "ST", "LW"],
-    "2-3-5": ["GK", "CB", "CB", "CM", "CM", "CM", "RW", "AM", "ST", "AM", "LW"],
-    "5-3-2": ["GK", "RWB", "CB", "CB", "CB", "LWB", "CM", "CM", "CM", "ST", "ST"],
-    "3-4-3": ["GK", "CB", "CB", "CB", "RM", "CM", "CM", "LM", "RW", "ST", "LW"],
-    "3-4-2-1": ["GK", "CB", "CB", "CB", "RM", "CM", "CM", "LM", "AM", "AM", "ST"],
-    "5-4-1": ["GK", "RWB", "CB", "CB", "CB", "LWB", "RM", "CM", "CM", "LM", "ST"],
-    "4-1-2-3": ["GK", "RB", "CB", "CB", "LB", "CDM", "CM", "CM", "RW", "ST", "LW"]
-};
-
-const POS_NAMES = {
-    "GK": "حارس",
-    "RB": "ظهير أيمن",
-    "LB": "ظهير أيسر",
-    "CB": "قلب دفاع",
-    "RWB": "ظهير أيمن",
-    "LWB": "ظهير أيسر",
-    "CDM": "ارتكاز",
-    "CM": "وسط",
-    "RM": "وسط أيمن",
-    "LM": "وسط أيسر",
-    "AM": "صانع",
-    "CAM": "صانع",
-    "RAM": "جناح أيمن",
-    "LAM": "جناح أيسر",
-    "RW": "جناح أيمن",
-    "LW": "جناح أيسر",
-    "ST": "مهاجم"
-};
