@@ -178,40 +178,13 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 
 <div class="video-mode" id="videoMode">
     <div class="info-box">
-        ⚠️ <b>ملاحظة:</b> تحليل الفيديو يحتاج <b>إنترنت قوي</b>. الفيديو لازم يكون قصير (30 ثانية - دقيقتين) وحجمه أقل من <b>20 ميجا</b>.
+        ⚠️ <b>ملاحظة:</b> تحليل الفيديو قيد التطوير. استخدم <b>المحادثة</b> حالياً.
     </div>
     <div class="upload-box" id="uploadBox">
         <input type="file" id="fileInput" accept="video/*">
         <span class="upload-icon">🎥</span>
         <div class="upload-title">ارفع فيديو من مباراتك</div>
-        <div class="upload-hint">اضغط هنا لاختيار فيديو</div>
-    </div>
-    <div class="preview" id="preview">
-        <video id="previewVideo" controls></video>
-        <div class="preview-name" id="previewName"></div>
-    </div>
-    <button class="btn btn-primary" id="analyzeBtn" disabled>
-        <span>🎯</span><span>حلل المباراة</span>
-    </button>
-    <div class="progress-container" id="progressContainer">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-text" id="progressText">0%</div>
-    </div>
-    <div class="error-box" id="errorBox"></div>
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-text">جاري التحليل...</div>
-        <div class="loading-sub">AI يشاهد المباراة</div>
-    </div>
-    <div class="results" id="results">
-        <div class="results-header">
-            <span>📊</span>
-            <div class="results-title">تحليل المباراة</div>
-        </div>
-        <div class="result-content" id="resultContent"></div>
-        <button class="btn btn-secondary" id="resetVideoBtn" style="margin-top:15px;">
-            <span>🔄</span><span>تحليل فيديو جديد</span>
-        </button>
+        <div class="upload-hint">قريباً...</div>
     </div>
 </div>
 
@@ -219,10 +192,8 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 <script>
 let conversationHistory = [];
 let isProcessing = false;
-let selectedFile = null;
-let videoObjectUrl = null;
 
-const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball.
+const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball من Konami.
 
 شخصيتك:
 - تتكلم بالعربية الفصحى المبسطة
@@ -231,19 +202,27 @@ const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خب
 - تعطي نصائح عملية فورية
 
 خبرتك:
-- كل أساليب اللعب
-- كل الخطط (4-3-3، 4-4-2، 3-2-4-1، إلخ)
-- كل المدربين (بيب، كلوب، مورينهو، كرويف، تشافي ألونسو، فليك، دي شامب، أموريم، لامبارد)
-- تحليل الخصوم والتبديلات التكتيكية
+- كل أساليب اللعب (استحواذ، مرتدات، ضغط عالي، كرة طويلة)
+- كل الخطط (4-3-3، 4-4-2، 3-2-4-1، 4-2-3-1، 3-4-2-1، إلخ)
+- كل المدربين (بيب جوارديولا، كلوب، مورينهو، كرويف، تشافي ألونسو، فليك، دي شامب، أموريم، لامبارد)
+- تحليل الخصوم
+- التبديلات التكتيكية
+- تحسين التشكيلة
 
 قواعدك:
-1. لا تخترع معلومات
-2. اعطي إجابات مفصلة ومباشرة
-3. اذكر السبب وراء كل نصيحة
-4. اقترح مدرب مناسب إذا مناسب
-5. استخدم الإيموجي باعتدال
+1. لا تخترع معلومات عن اللعبة
+2. إذا ما تعرف، قول "ما عندي معلومات كافية"
+3. اعطي إجابات مفصلة ومباشرة
+4. اذكر السبب وراء كل نصيحة
+5. اقترح مدرب مناسب إذا كان السياق يستدعي
+6. استخدم الإيموجي بشكل معتدل (⚽🎯🛡️🔥)
 
-كن مختصراً وشامل.`;
+طريقة الإجابة:
+- حلل الوضع أولاً
+- اعطي توصيات مرقمة
+- اذكر البديل لو النصيحة ما نفعت
+
+كن مختصراً لكن شامل. لا تكتب مقالات طويلة.`;
 
 function switchMode(mode) {
     document.getElementById("chatTab").classList.toggle("active", mode === "chat");
@@ -289,17 +268,17 @@ async function sendMessage() {
     if (welcome) welcome.style.display = "none";
 
     addMessage("user", text);
-    conversationHistory.push({ role: "user", parts: [{ text: text }] });
+    conversationHistory.push({ role: "user", content: text });
 
     isProcessing = true;
     document.getElementById("sendBtn").disabled = true;
     const typingId = showTyping();
 
     try {
-        const response = await callGeminiChat();
+        const response = await callGroq();
         removeTyping(typingId);
         addMessage("ai", response);
-        conversationHistory.push({ role: "model", parts: [{ text: response }] });
+        conversationHistory.push({ role: "assistant", content: response });
     } catch (err) {
         removeTyping(typingId);
         addMessage("ai", "❌ عذراً، صار خطأ: " + err.message);
@@ -309,33 +288,36 @@ async function sendMessage() {
     }
 }
 
-async function callGeminiChat() {
-    if (typeof GEMINI_CONFIG === "undefined") throw new Error("الإعدادات غير محملة");
+async function callGroq() {
+    if (typeof AI_CONFIG === "undefined") throw new Error("الإعدادات غير محملة");
 
-    const url = getGeminiUrl();
-
-    const contents = [
-        { role: "user", parts: [{ text: SYSTEM_PROMPT }] },
-        { role: "model", parts: [{ text: "تمام، أنا المدرب الذكي. اسألني عن أي شي في eFootball." }] },
+    const messages = [
+        { role: "system", content: SYSTEM_PROMPT },
         ...conversationHistory
     ];
 
-    const response = await fetch(url, {
+    const response = await fetch(AI_CONFIG.API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + AI_CONFIG.API_KEY
+        },
         body: JSON.stringify({
-            contents: contents,
-            generationConfig: { temperature: 0.85, maxOutputTokens: 2000 }
+            model: AI_CONFIG.MODEL,
+            messages: messages,
+            temperature: 0.85,
+            max_tokens: 2000
         })
     });
 
     if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `خطأ ${response.status}`);
+        const msg = errData.error?.message || `خطأ ${response.status}`;
+        throw new Error(msg);
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error("رد فارغ");
     return text.trim();
 }
@@ -380,158 +362,12 @@ function clearChat() {
     `;
 }
 
-function setupVideo() {
-    const box = document.getElementById("uploadBox");
-    const input = document.getElementById("fileInput");
-
-    box.addEventListener("click", () => input.click());
-    input.addEventListener("change", (e) => {
-        if (e.target.files.length > 0) handleVideoFile(e.target.files[0]);
-    });
-}
-
-function handleVideoFile(file) {
-    if (!file.type.startsWith("video/")) { showVideoError("الملف لازم يكون فيديو"); return; }
-    if (file.size > 20 * 1024 * 1024) { showVideoError("الحجم كبير (الحد 20 ميجا)"); return; }
-
-    selectedFile = file;
-    if (videoObjectUrl) URL.revokeObjectURL(videoObjectUrl);
-    videoObjectUrl = URL.createObjectURL(file);
-
-    document.getElementById("previewVideo").src = videoObjectUrl;
-    document.getElementById("previewName").textContent = `${file.name} • ${(file.size / (1024*1024)).toFixed(1)} MB`;
-    document.getElementById("preview").classList.add("show");
-    document.getElementById("analyzeBtn").disabled = false;
-    hideVideoError();
-    document.getElementById("results").classList.remove("show");
-}
-
-async function analyzeVideo() {
-    if (!selectedFile) { showVideoError("ارفع فيديو أولاً"); return; }
-
-    document.getElementById("analyzeBtn").disabled = true;
-    document.getElementById("results").classList.remove("show");
-    document.getElementById("loading").classList.add("show");
-    hideVideoError();
-    showProgress(10, "جاري تحويل الفيديو...");
-
-    try {
-        const base64 = await fileToBase64(selectedFile);
-        const base64Data = base64.split(",")[1];
-
-        showProgress(40, "جاري الإرسال...");
-
-        const prompt = `أنت مدرب كرة قدم خبير في eFootball. حلل هذا الفيديو وأعطني:
-
-1. الوضع العام
-2. نقاط القوة (3-5)
-3. نقاط الضعف (3-5)
-4. التحليل التكتيكي
-5. النصائح (3-5)
-6. التوصية النهائية
-
-اكتب بالعربية الفصحى.`;
-
-        const url = getGeminiUrl();
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        { inline_data: { mime_type: selectedFile.type, data: base64Data } }
-                    ]
-                }],
-                generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
-            })
-        });
-
-        showProgress(85, "AI يحلل...");
-
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.error?.message || `خطأ ${response.status}`);
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "ما قدرنا نحلل";
-
-        showProgress(100, "اكتمل!");
-        setTimeout(() => {
-            hideProgress();
-            document.getElementById("loading").classList.remove("show");
-            showVideoResults(text);
-        }, 500);
-
-    } catch (err) {
-        console.error(err);
-        hideProgress();
-        document.getElementById("loading").classList.remove("show");
-        showVideoError("حدث خطأ: " + err.message);
-    } finally {
-        document.getElementById("analyzeBtn").disabled = false;
-    }
-}
-
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function showProgress(percent, text) {
-    document.getElementById("progressContainer").classList.add("show");
-    document.getElementById("progressFill").style.width = percent + "%";
-    document.getElementById("progressText").textContent = text + " " + percent + "%";
-}
-
-function hideProgress() {
-    document.getElementById("progressContainer").classList.remove("show");
-}
-
-function showVideoResults(text) {
-    document.getElementById("resultContent").textContent = text;
-    document.getElementById("results").classList.add("show");
-}
-
-function showVideoError(message) {
-    const box = document.getElementById("errorBox");
-    box.textContent = message;
-    box.classList.add("show");
-}
-
-function hideVideoError() {
-    document.getElementById("errorBox").classList.remove("show");
-}
-
-function resetVideo() {
-    selectedFile = null;
-    if (videoObjectUrl) { URL.revokeObjectURL(videoObjectUrl); videoObjectUrl = null; }
-    document.getElementById("fileInput").value = "";
-    document.getElementById("preview").classList.remove("show");
-    document.getElementById("results").classList.remove("show");
-    document.getElementById("analyzeBtn").disabled = true;
-    hideVideoError();
-    hideProgress();
-}
-
 window.addEventListener("load", () => {
     setupChat();
-    setupVideo();
 
     document.getElementById("chatTab").addEventListener("click", () => switchMode("chat"));
     document.getElementById("videoTab").addEventListener("click", () => switchMode("video"));
-    document.getElementById("clearBtn").addEventListener("click", () => {
-        if (document.getElementById("chatMode").classList.contains("active")) clearChat();
-        else resetVideo();
-    });
-    document.getElementById("analyzeBtn").addEventListener("click", analyzeVideo);
-    document.getElementById("resetVideoBtn").addEventListener("click", resetVideo);
+    document.getElementById("clearBtn").addEventListener("click", clearChat);
 
     document.querySelectorAll(".suggestion-btn").forEach(btn => {
         btn.addEventListener("click", () => quickAsk(btn.dataset.q));
