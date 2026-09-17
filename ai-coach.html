@@ -95,44 +95,6 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 .upload-icon { font-size: 50px; margin-bottom: 15px; display: block; }
 .upload-title { font-size: 18px; font-weight: 900; color: #D4AF37; margin-bottom: 8px; }
 .upload-hint { color: #888; font-size: 13px; }
-#fileInput { display: none; }
-.preview { margin-top: 20px; text-align: center; display: none; }
-.preview.show { display: block; }
-.preview video { max-width: 100%; max-height: 250px; border-radius: 15px;
-    border: 2px solid rgba(212,175,55,0.4); margin-bottom: 15px; }
-.preview-name { color: #888; font-size: 13px; margin-bottom: 10px; }
-
-.btn { padding: 15px 25px; font-family: 'Cairo', sans-serif; font-size: 16px; font-weight: 700;
-    border: none; border-radius: 15px; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; gap: 10px; width: 100%; margin-bottom: 12px; }
-.btn-primary { background: linear-gradient(135deg, #D4AF37, #F4D03F); color: #050505; box-shadow: 0 10px 30px rgba(212,175,55,0.3); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: rgba(255,255,255,0.05); color: #D4AF37; border: 2px solid rgba(212,175,55,0.3); }
-
-.progress-container { display: none; margin: 20px 0; }
-.progress-container.show { display: block; }
-.progress-bar { width: 100%; height: 8px; background: rgba(212,175,55,0.15); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #D4AF37, #F4D03F); width: 0%; transition: width 0.3s; border-radius: 10px; }
-.progress-text { color: #D4AF37; font-size: 13px; font-weight: 700; text-align: center; }
-
-.loading { display: none; text-align: center; padding: 30px 20px; }
-.loading.show { display: block; }
-.spinner { width: 60px; height: 60px; border: 4px solid rgba(212,175,55,0.2); border-top-color: #D4AF37;
-    border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { color: #D4AF37; font-size: 16px; font-weight: 700; }
-.loading-sub { color: #888; font-size: 13px; margin-top: 8px; }
-
-.results { display: none; margin-top: 20px; }
-.results.show { display: block; }
-.results-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; padding-bottom: 12px;
-    border-bottom: 1px solid rgba(212,175,55,0.2); }
-.results-title { font-size: 20px; font-weight: 900; color: #D4AF37; }
-.result-content { background: rgba(15,15,15,0.7); border: 1px solid rgba(212,175,55,0.2); border-radius: 15px;
-    padding: 18px; color: #e0e0e0; font-size: 14px; line-height: 1.9; white-space: pre-wrap; word-wrap: break-word; }
-.error-box { background: rgba(231,76,60,0.15); border: 1px solid #E74C3C; color: #E74C3C;
-    padding: 12px 15px; border-radius: 12px; margin-top: 15px; display: none; font-size: 13px; line-height: 1.6; }
-.error-box.show { display: block; }
 </style>
 </head>
 <body>
@@ -180,16 +142,22 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
     <div class="info-box">
         ⚠️ <b>ملاحظة:</b> تحليل الفيديو قيد التطوير. استخدم <b>المحادثة</b> حالياً.
     </div>
-    <div class="upload-box" id="uploadBox">
-        <input type="file" id="fileInput" accept="video/*">
+    <div class="upload-box">
         <span class="upload-icon">🎥</span>
         <div class="upload-title">ارفع فيديو من مباراتك</div>
         <div class="upload-hint">قريباً...</div>
     </div>
 </div>
 
-<script src="gemini-config.js"></script>
 <script>
+// ============ الإعدادات - داخل الملف مباشرة ============
+const AI_CONFIG = {
+    API_KEY: "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",
+    MODEL: "llama-3.3-70b-versatile",
+    API_URL: "https://api.groq.com/openai/v1/chat/completions"
+};
+
+// ============ المتغيرات ============
 let conversationHistory = [];
 let isProcessing = false;
 
@@ -224,6 +192,7 @@ const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خب
 
 كن مختصراً لكن شامل. لا تكتب مقالات طويلة.`;
 
+// ============ التبديل ============
 function switchMode(mode) {
     document.getElementById("chatTab").classList.toggle("active", mode === "chat");
     document.getElementById("videoTab").classList.toggle("active", mode === "video");
@@ -231,6 +200,7 @@ function switchMode(mode) {
     document.getElementById("videoMode").classList.toggle("active", mode === "video");
 }
 
+// ============ المحادثة ============
 function setupChat() {
     const input = document.getElementById("userInput");
     const btn = document.getElementById("sendBtn");
@@ -289,8 +259,6 @@ async function sendMessage() {
 }
 
 async function callGroq() {
-    if (typeof AI_CONFIG === "undefined") throw new Error("الإعدادات غير محملة");
-
     const messages = [
         { role: "system", content: SYSTEM_PROMPT },
         ...conversationHistory
@@ -362,6 +330,7 @@ function clearChat() {
     `;
 }
 
+// ============ التهيئة ============
 window.addEventListener("load", () => {
     setupChat();
 
