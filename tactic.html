@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الملعب التكتيكي | Football Tactics</title>
+    <title>الملعب التكتيكي | تكتيكات كرة القدم</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -310,7 +310,7 @@
         <div class="info-formations" id="infoFormations"></div>
         <div class="info-row">
             <div class="info-label">الوضع الحالي</div>
-            <div class="info-value" id="currentMode">هجوم</div>
+            <div class="info-value" id="currentMode">الوضع</div>
         </div>
         <div class="info-row">
             <div class="info-label">الخطة</div>
@@ -324,20 +324,20 @@
 
     <div class="bottom-controls" id="bottomControls">
         <button class="mode-btn active" onclick="setMode('attacking')" id="btnAttack">
-            <span>⚔️</span>
+            ⚔️
             <span>هجوم</span>
         </button>
         <button class="mode-btn" onclick="setMode('defending')" id="btnDefend">
-            <span>🛡️</span>
+            🛡️
             <span>دفاع</span>
         </button>
         <button class="mode-btn demo-btn" onclick="startDemo()" id="demoBtn">
-            <span>📽️</span>
-            <span>شرح التحرك</span>
+            📽️
+            <span>شرح التعلم</span>
         </button>
         <button class="mode-btn" onclick="resetCamera()">
-            <span>🔄</span>
-            <span>إعادة</span>
+            🔄
+            <span>تصفير الكاميرا</span>
         </button>
     </div>
 
@@ -345,5 +345,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="data.js"></script>
     <script src="tactic.js"></script>
+    <script src="js/sounds.js"></script>
 </body>
 </html>
