@@ -36,13 +36,31 @@
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* ═══════ 3D WORLD CANVAS ═══════ */
+        /* ═══════ LAYERS ═══════ */
+        /* ترتيب الطبقات:
+           -5: Fallback gradient (أعمق)
+           -4: 3D Canvas
+           -2: Grid
+            0: Content
+        */
+
+        .bg-fallback {
+            position: fixed;
+            inset: 0;
+            z-index: -5;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0, 184, 255, 0.12), transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.10), transparent 50%),
+                #050505;
+        }
+
         #bg3d {
             position: fixed;
             inset: 0;
-            z-index: -3;
+            z-index: -4;
             pointer-events: none;
-            background: #050505;
+            background: transparent;
         }
         #bg3d canvas {
             display: block !important;
@@ -50,16 +68,17 @@
             height: 100% !important;
         }
 
-        /* Fallback gradient if Three.js fails */
-        .bg-fallback {
+        .bg-grid {
             position: fixed;
             inset: 0;
             z-index: -2;
+            background-image:
+                linear-gradient(rgba(0, 184, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 184, 255, 0.03) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 85%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 85%);
             pointer-events: none;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(0, 184, 255, 0.15), transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.12), transparent 50%),
-                #050505;
         }
 
         /* ═══════ NAVBAR ═══════ */
@@ -643,6 +662,7 @@
 <body>
     <div class="bg-fallback"></div>
     <canvas id="bg3d"></canvas>
+    <div class="bg-grid"></div>
 
     <!-- NAVBAR -->
     <header class="navbar" id="mainNavbar">
@@ -759,7 +779,7 @@
         </div>
     </section>
 
-    <!-- ═══════ THREE.JS ═══════ -->
+    <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
@@ -819,6 +839,7 @@
                 console.log('Three.js not loaded — fallback active');
                 return;
             }
+            console.log('Three.js loaded, starting 3D world...');
 
             var canvas = document.getElementById('bg3d');
             var isMobile = window.innerWidth < 768;
@@ -837,12 +858,12 @@
             var renderer = new THREE.WebGLRenderer({
                 canvas: canvas,
                 antialias: quality > 0.7,
-                alpha: false,
+                alpha: true,
                 powerPreference: 'low-power'
             });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
-            renderer.setClearColor(0x050505, 1);
+            renderer.setClearColor(0x000000, 0);
 
             // ═══════ LIGHTS ═══════
             var ambient = new THREE.AmbientLight(0x202535, 0.8);
@@ -860,28 +881,26 @@
             cyanLight.position.set(0, 20, 0);
             scene.add(cyanLight);
 
-            // ═══════ CENTRAL FOOTBALL PITCH (from above) ═══════
+            // ═══════ CENTRAL PITCH ═══════
             var pitchGroup = new THREE.Group();
             pitchGroup.position.y = -3;
             scene.add(pitchGroup);
 
-            // Pitch floor (dark green)
             var pitchFloorGeo = new THREE.CircleGeometry(14, 48);
             var pitchFloorMat = new THREE.MeshBasicMaterial({
                 color: 0x0A2416,
                 transparent: true,
-                opacity: 0.85
+                opacity: 0.7
             });
             var pitchFloor = new THREE.Mesh(pitchFloorGeo, pitchFloorMat);
             pitchFloor.rotation.x = -Math.PI / 2;
             pitchGroup.add(pitchFloor);
 
-            // Pitch boundary ring (glowing blue)
             var pitchRingGeo = new THREE.RingGeometry(13.5, 14.2, 64);
             var pitchRingMat = new THREE.MeshBasicMaterial({
                 color: 0x00B8FF,
                 transparent: true,
-                opacity: 0.5,
+                opacity: 0.6,
                 side: THREE.DoubleSide
             });
             var pitchRing = new THREE.Mesh(pitchRingGeo, pitchRingMat);
@@ -889,12 +908,11 @@
             pitchRing.position.y = 0.02;
             pitchGroup.add(pitchRing);
 
-            // Center circle
             var centerCircleGeo = new THREE.RingGeometry(3.5, 3.7, 48);
             var centerCircleMat = new THREE.MeshBasicMaterial({
                 color: 0xD4AF37,
                 transparent: true,
-                opacity: 0.6,
+                opacity: 0.7,
                 side: THREE.DoubleSide
             });
             var centerCircle = new THREE.Mesh(centerCircleGeo, centerCircleMat);
@@ -902,7 +920,6 @@
             centerCircle.position.y = 0.03;
             pitchGroup.add(centerCircle);
 
-            // Center spot
             var spotGeo = new THREE.CircleGeometry(0.3, 16);
             var spotMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37 });
             var spot = new THREE.Mesh(spotGeo, spotMat);
@@ -910,7 +927,7 @@
             spot.position.y = 0.04;
             pitchGroup.add(spot);
 
-            // ═══════ STADIUM PILLARS (ring of glowing towers) ═══════
+            // ═══════ STADIUM PILLARS ═══════
             var pillarCount = isMobile ? 16 : 24;
             var pillarRadius = 26;
             var pillars = [];
@@ -925,16 +942,15 @@
                 var pillarMat = new THREE.MeshStandardMaterial({
                     color: 0x0A0E17,
                     emissive: 0x00B8FF,
-                    emissiveIntensity: 0.4,
+                    emissiveIntensity: 0.5,
                     metalness: 0.8,
                     roughness: 0.3
                 });
                 var pillar = new THREE.Mesh(pillarGeo, pillarMat);
                 pillar.position.set(x, pillarHeight / 2 - 3, z);
                 scene.add(pillar);
-                pillars.push({ mesh: pillar, baseY: pillar.position.y, phase: i });
+                pillars.push({ mesh: pillar, phase: i });
 
-                // Top light on each pillar
                 var topLightGeo = new THREE.SphereGeometry(0.4, 8, 8);
                 var topLightMat = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
                 var topLight = new THREE.Mesh(topLightGeo, topLightMat);
@@ -942,7 +958,7 @@
                 scene.add(topLight);
             }
 
-            // ═══════ FLOATING HOLOGRAPHIC PANELS ═══════
+            // ═══════ HOLOGRAPHIC PANELS ═══════
             var panels = [];
             var panelPositions = [
                 { x: -18, y: 6, z: -8, rotY: 0.5 },
@@ -957,29 +973,25 @@
                 panelGroup.position.set(pos.x, pos.y, pos.z);
                 panelGroup.rotation.y = pos.rotY;
 
-                // Panel border (glowing rectangle)
                 var borderGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(4, 2.5));
                 var borderMat = new THREE.LineBasicMaterial({
                     color: 0x00B8FF,
                     transparent: true,
-                    opacity: 0.6
+                    opacity: 0.7
                 });
                 var border = new THREE.LineSegments(borderGeo, borderMat);
                 panelGroup.add(border);
 
-                // Panel fill (very faint)
                 var fillGeo = new THREE.PlaneGeometry(4, 2.5);
                 var fillMat = new THREE.MeshBasicMaterial({
                     color: 0x00B8FF,
                     transparent: true,
-                    opacity: 0.08,
+                    opacity: 0.1,
                     side: THREE.DoubleSide
                 });
                 var fill = new THREE.Mesh(fillGeo, fillMat);
                 panelGroup.add(fill);
 
-                // Internal grid lines
-                var gridLines = [];
                 for (var g = 0; g < 3; g++) {
                     var yLine = -0.9 + g * 0.9;
                     var pts = [
@@ -990,7 +1002,7 @@
                     var lineMat = new THREE.LineBasicMaterial({
                         color: 0x4DCCFF,
                         transparent: true,
-                        opacity: 0.3
+                        opacity: 0.4
                     });
                     var line = new THREE.Line(lineGeo, lineMat);
                     panelGroup.add(line);
@@ -1005,8 +1017,8 @@
                 });
             }
 
-            // ═══════ FLOATING PARTICLES ═══════
-            var particleCount = isMobile ? 120 : 250;
+            // ═══════ PARTICLES ═══════
+            var particleCount = isMobile ? 150 : 300;
             var particleGeo = new THREE.BufferGeometry();
             var positions = new Float32Array(particleCount * 3);
             var colors = new Float32Array(particleCount * 3);
@@ -1020,7 +1032,6 @@
                 positions[k * 3 + 1] = Math.sin(phi) * r * 0.5 + 5;
                 positions[k * 3 + 2] = Math.sin(theta) * Math.cos(phi) * r;
 
-                // Color: mix of blue and gold
                 if (Math.random() > 0.5) {
                     colors[k * 3] = 0; colors[k * 3 + 1] = 0.72; colors[k * 3 + 2] = 1;
                 } else {
@@ -1032,10 +1043,10 @@
             particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
             var particleMat = new THREE.PointsMaterial({
-                size: 0.35,
+                size: 0.4,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.85,
+                opacity: 0.9,
                 sizeAttenuation: true,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
@@ -1044,7 +1055,7 @@
             var particles = new THREE.Points(particleGeo, particleMat);
             scene.add(particles);
 
-            // ═══════ CAMERA ANIMATION ═══════
+            // ═══════ ANIMATION ═══════
             var clock = new THREE.Clock();
             var cameraRadius = 32;
             var cameraHeight = 12;
@@ -1053,32 +1064,26 @@
                 requestAnimationFrame(animate);
                 var t = clock.getElapsedTime();
 
-                // Slow orbit
                 camera.position.x = Math.cos(t * 0.08) * cameraRadius;
                 camera.position.z = Math.sin(t * 0.08) * cameraRadius;
                 camera.position.y = cameraHeight + Math.sin(t * 0.15) * 2;
 
-                // Look at center
                 camera.lookAt(0, -2, 0);
 
-                // Rotate particles slowly
                 particles.rotation.y = t * 0.02;
 
-                // Float panels
                 for (var i = 0; i < panels.length; i++) {
                     var pnl = panels[i];
                     pnl.group.position.y = pnl.baseY + Math.sin(t * 0.7 + pnl.phase) * 0.4;
                     pnl.group.rotation.y = pnl.baseRotY + Math.sin(t * 0.3 + pnl.phase) * 0.15;
                 }
 
-                // Subtle pillar animation (blink)
                 for (var j = 0; j < pillars.length; j++) {
                     var pl = pillars[j];
-                    var pulse = 0.3 + Math.sin(t * 1.5 + pl.phase) * 0.15;
+                    var pulse = 0.3 + Math.sin(t * 1.5 + pl.phase) * 0.2;
                     pl.mesh.material.emissiveIntensity = pulse;
                 }
 
-                // Light rotation
                 blueLight.position.x = Math.cos(t * 0.3) * 20;
                 blueLight.position.z = Math.sin(t * 0.3) * 20;
                 goldLight.position.x = Math.cos(t * 0.3 + Math.PI) * 20;
@@ -1087,7 +1092,6 @@
                 renderer.render(scene, camera);
             }
 
-            // Resize
             window.addEventListener('resize', function() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
@@ -1095,7 +1099,6 @@
             });
 
             animate();
-            console.log('3D World started');
         })();
 
         // Service Worker
