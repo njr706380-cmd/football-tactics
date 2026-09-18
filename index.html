@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* ═══════ FIXED VIEWPORT ═══════ */
         html, body {
             height: 100%;
             overflow: hidden !important;
@@ -27,43 +28,46 @@
             color: #fff;
         }
 
-        a, button, .btn, .zone-node, .style-card, .feature,
-        .menu-btn, .back-btn {
+        a, button, .btn, .ai-node, .menu-btn, .back-btn {
             -webkit-touch-callout: none !important;
             -webkit-user-select: none !important;
             user-select: none !important;
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* ═══════ LAYERS ═══════ */
+        /* ═══════ WORLD BACKGROUND IMAGE ═══════ */
+        .world-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -6;
+            background-image: url('file_0000000043a48210a567fbce11c924e2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: brightness(0.55) saturate(1.15) contrast(1.05);
+            animation: worldSlowZoom 60s ease-in-out infinite;
+        }
+        @keyframes worldSlowZoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        /* Darkening overlay for readability */
+        .world-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 20%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.85) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.8) 100%);
+        }
+
+        /* Fallback gradient */
         .bg-fallback {
             position: fixed;
             inset: 0;
-            z-index: -5;
-            pointer-events: none;
-            background:
-                radial-gradient(circle at 50% 40%, rgba(0, 184, 255, 0.08), transparent 55%),
-                linear-gradient(180deg, #050505 0%, #0A0E17 50%, #050505 100%);
-        }
-
-        #bg3d {
-            position: fixed;
-            inset: 0;
-            z-index: -4;
-            pointer-events: none;
-        }
-
-        .bg-grid {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background-image:
-                linear-gradient(rgba(0, 184, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 184, 255, 0.02) 1px, transparent 1px);
-            background-size: 100px 100px;
-            mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
-            pointer-events: none;
+            z-index: -7;
+            background: #050505;
         }
 
         /* ═══════ NAVBAR ═══════ */
@@ -71,10 +75,10 @@
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 100;
-            background: rgba(5, 5, 5, 0.85);
+            background: rgba(5, 5, 5, 0.7);
             backdrop-filter: blur(24px) saturate(180%);
             -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid rgba(0, 184, 255, 0.12);
+            border-bottom: 1px solid rgba(0, 184, 255, 0.15);
             padding: 12px 18px;
             display: flex;
             justify-content: space-between;
@@ -94,45 +98,194 @@
             display: flex; align-items: center; gap: 10px;
             font-size: 15px; font-weight: 900;
             letter-spacing: 0.5px; color: #fff;
+            text-shadow: 0 0 12px rgba(0,184,255,0.5);
         }
         .logo-icon {
             font-size: 24px;
             animation: spinSlow 12s linear infinite;
-            filter: drop-shadow(0 0 8px rgba(0, 184, 255, 0.5));
+            filter: drop-shadow(0 0 8px rgba(0, 184, 255, 0.7));
         }
         @keyframes spinSlow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        .menu-btn {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: rgba(0, 184, 255, 0.08);
-            border: 1px solid rgba(0, 184, 255, 0.3);
+        /* ═══════ AI HEAD BUTTON — Base ═══════ */
+        .ai-head {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            /* Octagonal AI head shape */
+            clip-path: polygon(
+                25% 0%, 75% 0%,
+                100% 25%, 100% 75%,
+                75% 100%, 25% 100%,
+                0% 75%, 0% 25%
+            );
+            background:
+                radial-gradient(circle at 50% 30%, rgba(0,184,255,0.15), transparent 60%),
+                linear-gradient(180deg, #0a1520 0%, #050a10 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            overflow: hidden;
+        }
+
+        /* Inner glowing border */
+        .ai-head::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            clip-path: polygon(
+                25% 0%, 75% 0%,
+                100% 25%, 100% 75%,
+                75% 100%, 25% 100%,
+                0% 75%, 0% 25%
+            );
+            background: transparent;
+            border: 1.5px solid rgba(0, 240, 255, 0.5);
+            pointer-events: none;
+            box-shadow: inset 0 0 15px rgba(0,240,255,0.3);
+        }
+
+        /* Rectangular visor (eye showing name) */
+        .ai-visor {
+            position: relative;
+            z-index: 2;
+            width: 72%;
+            height: 30%;
+            background: linear-gradient(90deg,
+                rgba(0,184,255,0.15) 0%,
+                rgba(0,240,255,0.4) 50%,
+                rgba(0,184,255,0.15) 100%);
+            border: 1px solid #00F0FF;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cairo', sans-serif;
+            font-size: 10px;
+            font-weight: 900;
             color: #00F0FF;
-            font-size: 20px; font-weight: 700;
+            text-shadow: 0 0 10px #00F0FF;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow:
+                0 0 15px rgba(0,240,255,0.5),
+                inset 0 0 10px rgba(0,240,255,0.3);
+            animation: visorPulse 2s ease-in-out infinite;
+        }
+        @keyframes visorPulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(0,240,255,0.5), inset 0 0 10px rgba(0,240,255,0.3); }
+            50% { box-shadow: 0 0 25px rgba(0,240,255,0.9), inset 0 0 15px rgba(0,240,255,0.5); }
+        }
+
+        /* LED dots (antenna lights) */
+        .ai-led {
+            position: absolute;
+            top: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 3;
+        }
+        .ai-led span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 8px #00F0FF;
+            animation: ledBlink 1.5s ease-in-out infinite;
+        }
+        .ai-led span:nth-child(2) { animation-delay: 0.3s; }
+        .ai-led span:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes ledBlink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 12px #00F0FF; }
+            50% { opacity: 0.3; box-shadow: 0 0 4px #00F0FF; }
+        }
+
+        /* Emission rays from sides */
+        .ai-emission {
+            position: absolute;
+            inset: -30%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .ai-emission::before,
+        .ai-emission::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 160%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00F0FF, transparent);
+            animation: rayPulse 3s ease-in-out infinite;
+        }
+        .ai-emission::before {
+            left: -30%;
+            transform-origin: right;
+            transform: translateY(-50%) rotate(-25deg);
+        }
+        .ai-emission::after {
+            right: -30%;
+            transform-origin: left;
+            transform: translateY(-50%) rotate(25deg);
+            animation-delay: 0.5s;
+        }
+        @keyframes rayPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.9; }
+        }
+
+        /* ═══════ MENU BUTTON (top right tower) ═══════ */
+        .menu-btn {
+            position: fixed;
+            top: 16px;
+            left: 18px;
+            width: 46px;
+            height: 46px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s;
-            font-family: inherit;
+            padding: 0;
+            z-index: 100;
+            transition: transform 0.3s;
+            animation: menuFloat 4s ease-in-out infinite;
+        }
+        @keyframes menuFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
         .menu-btn:hover, .menu-btn.active {
-            background: rgba(0, 184, 255, 0.2);
-            border-color: #00F0FF;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .menu-btn .ai-head {
+            gap: 3px;
+        }
+        .menu-btn .ai-visor {
+            height: 38%;
+            font-size: 16px;
+            letter-spacing: 0;
         }
 
         /* ═══════ DROPDOWN ═══════ */
         .dropdown-menu {
-            position: fixed; top: 70px; left: 18px;
-            width: 210px;
-            background: rgba(10, 14, 23, 0.98);
-            border: 1px solid rgba(0, 184, 255, 0.3);
+            position: fixed;
+            top: 72px;
+            left: 18px;
+            width: 220px;
+            background: rgba(10, 14, 23, 0.96);
+            border: 1px solid rgba(0, 184, 255, 0.4);
             border-radius: 16px;
-            padding: 8px; z-index: 99;
+            padding: 8px;
+            z-index: 99;
             backdrop-filter: blur(24px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 184, 255, 0.15);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(0, 184, 255, 0.25);
             opacity: 0;
             transform: translateY(-12px) scale(0.95);
             pointer-events: none;
@@ -144,7 +297,7 @@
             pointer-events: auto;
         }
         .dropdown-menu a {
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 12px;
             padding: 12px 14px;
             color: #e2e8f0;
             text-decoration: none;
@@ -154,7 +307,7 @@
         }
         .dropdown-menu a:hover {
             background: linear-gradient(135deg, rgba(0, 184, 255, 0.15), rgba(139, 92, 246, 0.08));
-            color: #D4AF37;
+            color: #00F0FF;
             transform: translateX(-4px);
         }
 
@@ -190,8 +343,8 @@
         .back-btn {
             position: absolute; top: 16px; right: 18px;
             padding: 8px 16px;
-            background: rgba(0, 184, 255, 0.08);
-            border: 1px solid rgba(0, 184, 255, 0.3);
+            background: rgba(0, 184, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 10px;
             color: #00F0FF;
             font-size: 13px; font-weight: 700;
@@ -200,10 +353,12 @@
             transition: all 0.3s;
             display: flex; align-items: center; gap: 6px;
             z-index: 10;
+            text-shadow: 0 0 8px #00F0FF;
+            box-shadow: 0 0 15px rgba(0,240,255,0.3);
         }
         .back-btn:hover {
-            background: rgba(0, 184, 255, 0.2);
-            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 25px rgba(0,240,255,0.6);
         }
 
         /* ═══════ HOME ═══════ */
@@ -212,13 +367,15 @@
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 9px 20px;
-            background: linear-gradient(135deg, rgba(0, 184, 255, 0.12), rgba(139, 92, 246, 0.08));
-            border: 1px solid rgba(0, 184, 255, 0.4);
+            background: linear-gradient(135deg, rgba(0, 184, 255, 0.15), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(0, 240, 255, 0.5);
             border-radius: 30px;
             color: #4DCCFF;
             font-size: 11px; font-weight: 700;
             letter-spacing: 1.2px;
             margin: 0 auto;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 25px rgba(0,240,255,0.3);
         }
 
         .hero-title {
@@ -226,80 +383,139 @@
             font-weight: 900; line-height: 1;
             margin: 0; letter-spacing: -1.5px;
             color: #fff;
+            text-shadow: 0 0 30px rgba(0,184,255,0.6);
         }
         .hero-title .line-2 {
             display: block;
-            background: linear-gradient(135deg, #D4AF37, #4DCCFF, #D4AF37);
+            background: linear-gradient(135deg, #D4AF37, #00F0FF, #D4AF37);
             background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: shine 5s linear infinite;
+            filter: drop-shadow(0 0 20px rgba(0,240,255,0.5));
         }
         @keyframes shine { to { background-position: 300% center; } }
 
         .hero-subtitle {
-            font-size: 14px; color: #94a3b8;
+            font-size: 14px; color: #cbd5e1;
             line-height: 1.8; margin: 0 auto;
             max-width: 460px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
         }
 
-        .hero-buttons {
-            display: flex; flex-direction: column; gap: 12px;
-            max-width: 360px; margin: 0 auto; width: 100%;
+        /* ═══════ HOME BUTTON (AI Head Shape) ═══════ */
+        .home-btn-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            margin: 10px 0;
         }
 
-        .btn {
-            display: flex; align-items: center; justify-content: center;
-            gap: 10px;
-            padding: 17px 28px;
-            font-family: inherit;
-            font-size: 15px; font-weight: 700;
-            border-radius: 14px;
+        .btn-primary-ai {
+            position: relative;
+            width: 220px;
+            height: 90px;
+            background: transparent;
+            border: none;
             cursor: pointer;
-            text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 1px solid transparent;
-            position: relative; overflow: hidden;
-        }
-        .btn::before {
-            content: '';
-            position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-            transition: left 0.6s;
-        }
-        .btn:hover::before { left: 100%; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: 900;
             color: #050505;
-            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.35);
-            font-weight: 900; font-size: 16px;
+            animation: btnFloat 3s ease-in-out infinite;
+            transition: transform 0.3s;
         }
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(212, 175, 55, 0.55);
+        @keyframes btnFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
+        .btn-primary-ai .ai-head {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 30%, rgba(0,240,255,0.35), transparent 65%),
+                linear-gradient(180deg, #D4AF37 0%, #B8941F 100%);
+            clip-path: polygon(
+                20% 0%, 80% 0%,
+                100% 30%, 100% 70%,
+                80% 100%, 20% 100%,
+                0% 70%, 0% 30%
+            );
+            box-shadow:
+                0 0 40px rgba(212,175,55,0.6),
+                0 0 80px rgba(0,240,255,0.3);
+            transition: all 0.4s;
+        }
+        .btn-primary-ai .ai-head::before {
+            border-color: rgba(0, 240, 255, 0.9);
+            box-shadow:
+                inset 0 0 20px rgba(0,240,255,0.4),
+                0 0 30px rgba(0,240,255,0.6);
+        }
+        .btn-primary-ai:hover .ai-head {
+            box-shadow:
+                0 0 60px rgba(212,175,55,0.9),
+                0 0 120px rgba(0,240,255,0.5);
+        }
+        .btn-primary-ai .ai-visor {
+            background: linear-gradient(90deg,
+                rgba(0,0,0,0.4) 0%,
+                rgba(0,0,0,0.7) 50%,
+                rgba(0,0,0,0.4) 100%);
+            border-color: #050505;
+            color: #D4AF37;
+            text-shadow:
+                0 0 10px #D4AF37,
+                0 0 20px rgba(212,175,55,0.5);
+            font-size: 18px;
+            height: 40%;
+            width: 76%;
+            border-radius: 8px;
+        }
+
+        .btn-primary-ai .btn-text {
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Bigger emission for primary button */
+        .btn-primary-ai .ai-emission::before,
+        .btn-primary-ai .ai-emission::after {
+            background: linear-gradient(90deg, transparent, #00F0FF, #D4AF37, #00F0FF, transparent);
+            height: 2px;
+        }
+
+        /* ═══════ STATS ═══════ */
         .hero-stats {
             display: flex; justify-content: center; align-items: center;
             gap: 18px; flex-wrap: wrap;
             padding: 16px 22px;
-            background: linear-gradient(135deg, rgba(14, 18, 25, 0.7), rgba(10, 14, 23, 0.6));
-            border: 1px solid rgba(0, 184, 255, 0.2);
+            background: rgba(10, 14, 23, 0.6);
+            border: 1px solid rgba(0, 184, 255, 0.25);
             border-radius: 18px;
             backdrop-filter: blur(20px);
+            box-shadow:
+                0 0 30px rgba(0,240,255,0.15),
+                inset 0 0 20px rgba(0,240,255,0.05);
             margin-top: 6px;
         }
         .stat { text-align: center; }
         .stat-value {
             font-size: 24px; font-weight: 900;
-            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            background: linear-gradient(135deg, #D4AF37, #00F0FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             line-height: 1; margin-bottom: 4px;
+            filter: drop-shadow(0 0 10px rgba(0,240,255,0.5));
         }
         .stat-label {
             font-size: 10px; color: #94a3b8;
@@ -309,10 +525,10 @@
         }
         .stat-divider {
             width: 1px; height: 30px;
-            background: linear-gradient(180deg, transparent, rgba(0, 184, 255, 0.5), transparent);
+            background: linear-gradient(180deg, transparent, rgba(0, 240, 255, 0.6), transparent);
         }
 
-        /* ═══════ HUB ═══════ */
+        /* ═══════ HUB — AI HEADS AROUND ═══════ */
         #screen-hub {
             display: flex; align-items: center; justify-content: center;
         }
@@ -323,122 +539,153 @@
 
         .world-hub {
             position: relative;
-            width: min(90vw, 420px);
+            width: min(90vw, 440px);
             aspect-ratio: 1 / 1;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .central-football {
-            position: absolute; top: 50%; left: 50%;
+        /* Central core (energy ball) */
+        .central-core {
+            position: absolute;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 130px; height: 130px;
+            width: 120px;
+            height: 120px;
             z-index: 10;
-            display: flex; align-items: center; justify-content: center;
         }
-        .football-glow {
-            position: absolute; inset: -40%;
+        .core-glow {
+            position: absolute;
+            inset: -50%;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 184, 255, 0.35) 0%, rgba(212, 175, 55, 0.25) 30%, transparent 70%);
-            animation: footballPulse 4s ease-in-out infinite;
+            background: radial-gradient(circle,
+                rgba(0, 240, 255, 0.5) 0%,
+                rgba(212, 175, 55, 0.3) 30%,
+                transparent 70%);
+            animation: corePulse 3s ease-in-out infinite;
             filter: blur(20px);
         }
-        @keyframes footballPulse {
+        @keyframes corePulse {
             0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.15); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 1; }
         }
-        .football-inner {
+        .core-inner {
             position: relative;
-            width: 100px; height: 100px;
+            width: 100%; height: 100%;
             border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 50%), linear-gradient(145deg, rgba(0, 184, 255, 0.15), rgba(212, 175, 55, 0.1));
-            border: 2px solid rgba(0, 184, 255, 0.5);
-            box-shadow: 0 0 60px rgba(0, 184, 255, 0.5), inset 0 0 40px rgba(0, 184, 255, 0.15);
+            background:
+                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 50%),
+                linear-gradient(145deg, rgba(0, 240, 255, 0.3), rgba(212, 175, 55, 0.15));
+            border: 2px solid #00F0FF;
+            box-shadow:
+                0 0 60px rgba(0, 240, 255, 0.7),
+                0 0 120px rgba(0, 240, 255, 0.3),
+                inset 0 0 40px rgba(0, 240, 255, 0.3);
             display: flex; align-items: center; justify-content: center;
-            animation: footballFloat 6s ease-in-out infinite;
+            animation: coreFloat 5s ease-in-out infinite;
         }
-        @keyframes footballFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(4deg); }
+        @keyframes coreFloat {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(8deg); }
         }
-        .football-icon {
+        .core-icon {
             font-size: 60px;
-            filter: drop-shadow(0 0 25px rgba(0, 184, 255, 0.9));
-            animation: footballSpin 20s linear infinite;
+            filter: drop-shadow(0 0 25px #00F0FF);
+            animation: coreSpin 20s linear infinite;
         }
-        @keyframes footballSpin {
+        @keyframes coreSpin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .football-orbit {
-            position: absolute; inset: -50px;
+        .core-orbit {
+            position: absolute;
+            inset: -40px;
             border-radius: 50%;
-            border: 1px dashed rgba(0, 184, 255, 0.3);
-            animation: orbitSpin 30s linear infinite;
+            border: 1px dashed rgba(0, 240, 255, 0.5);
+            animation: orbitSpin 25s linear infinite;
         }
-        .football-orbit::before {
+        .core-orbit::before {
             content: '';
-            position: absolute; top: -4px; left: 50%;
-            width: 8px; height: 8px;
-            background: #00F0FF; border-radius: 50%;
+            position: absolute;
+            top: -5px; left: 50%;
+            width: 10px; height: 10px;
+            background: #00F0FF;
+            border-radius: 50%;
             box-shadow: 0 0 20px #00F0FF;
             transform: translateX(-50%);
         }
-        @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes orbitSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
-        .zone-node {
-            position: absolute; top: 50%; left: 50%;
-            width: 90px; height: 100px;
-            margin: -55px 0 0 -45px;
-            transform: rotate(var(--angle)) translateY(-160px) rotate(calc(-1 * var(--angle)));
-            display: flex; flex-direction: column;
-            align-items: center; gap: 6px;
-            text-decoration: none; color: inherit;
+        /* AI Head Nodes (5 around the core) */
+        .ai-node {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 84px;
+            height: 100px;
+            margin: -50px 0 0 -42px;
+            transform: rotate(var(--angle)) translateY(-165px) rotate(calc(-1 * var(--angle)));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: inherit;
             z-index: 5;
-            animation: nodeFloat 5s ease-in-out infinite;
-            background: none; border: none; cursor: pointer;
+            animation: nodeFloat 4s ease-in-out infinite;
+            animation-delay: var(--delay);
+            background: none;
+            border: none;
+            cursor: pointer;
             font-family: inherit;
+            padding: 0;
         }
         @keyframes nodeFloat {
-            0%, 100% { transform: rotate(var(--angle)) translateY(-160px) rotate(calc(-1 * var(--angle))); }
-            50% { transform: rotate(var(--angle)) translateY(-170px) rotate(calc(-1 * var(--angle))); }
+            0%, 100% { transform: rotate(var(--angle)) translateY(-165px) rotate(calc(-1 * var(--angle))) scale(1); }
+            50% { transform: rotate(var(--angle)) translateY(-175px) rotate(calc(-1 * var(--angle))) scale(1.03); }
         }
-        .node-orb {
-            width: 76px; height: 76px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), transparent 60%), linear-gradient(145deg, rgba(14, 18, 25, 0.95), rgba(10, 14, 23, 0.85));
-            border: 1.5px solid rgba(0, 184, 255, 0.35);
-            box-shadow: 0 0 30px rgba(0, 184, 255, 0.2);
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            backdrop-filter: blur(15px);
-            flex-shrink: 0;
+
+        .ai-node .ai-head {
+            width: 84px;
+            height: 84px;
+            box-shadow:
+                0 0 25px rgba(0, 240, 255, 0.5),
+                inset 0 0 20px rgba(0, 240, 255, 0.15);
+            transition: all 0.4s;
         }
-        .zone-node:hover .node-orb,
-        .zone-node:active .node-orb {
-            transform: scale(1.15);
-            border-color: #D4AF37;
-            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6), 0 0 100px rgba(0, 184, 255, 0.4);
+
+        .ai-node:hover .ai-head,
+        .ai-node:active .ai-head {
+            box-shadow:
+                0 0 50px rgba(0, 240, 255, 0.9),
+                0 0 100px rgba(212, 175, 55, 0.5),
+                inset 0 0 30px rgba(0, 240, 255, 0.4);
         }
-        .node-icon {
-            font-size: 30px;
-            filter: drop-shadow(0 0 10px rgba(0, 184, 255, 0.6));
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+        .ai-node:hover {
+            transform: rotate(var(--angle)) translateY(-175px) rotate(calc(-1 * var(--angle))) scale(1.15);
         }
-        .zone-node:hover .node-icon { transform: scale(1.2) rotate(-8deg); }
-        .node-name {
-            font-size: 9px; font-weight: 900;
-            color: #D4AF37;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(212, 175, 55, 0.6);
-            white-space: nowrap;
+
+        .ai-node .ai-visor {
+            font-size: 8px;
+            height: 28%;
+            letter-spacing: 0.8px;
         }
-        .node-sub {
-            font-size: 9px; color: #94a3b8;
+
+        /* Node label below */
+        .node-label {
+            margin-top: 6px;
+            text-align: center;
+        }
+        .node-ar {
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
             white-space: nowrap;
         }
 
-        /* ═══════ STYLES / ABOUT ═══════ */
+        /* ═══════ STYLES SCREEN ═══════ */
         .section-header {
             text-align: center;
             margin-bottom: 26px; padding-top: 40px;
@@ -446,24 +693,24 @@
         .section-badge {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 8px 18px;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(0, 184, 255, 0.08));
-            border: 1px solid rgba(16, 185, 129, 0.4);
+            background: rgba(10, 14, 23, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.5);
             border-radius: 30px;
-            color: #4ADE80;
+            color: #4DCCFF;
             font-size: 11px; font-weight: 700;
             letter-spacing: 0.8px;
             margin-bottom: 14px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 20px rgba(0,240,255,0.3);
         }
         .section-title {
             font-size: clamp(24px, 5vw, 34px);
             font-weight: 900; margin-bottom: 12px;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #fff;
+            text-shadow: 0 0 25px rgba(0,184,255,0.5);
         }
         .section-desc {
-            color: #94a3b8; font-size: 13px;
+            color: #cbd5e1; font-size: 13px;
             max-width: 500px; margin: 0 auto;
             line-height: 1.7;
         }
@@ -474,94 +721,112 @@
             gap: 14px; padding-bottom: 40px;
         }
         .style-card {
-            background: linear-gradient(145deg, rgba(14, 18, 25, 0.95), rgba(10, 14, 23, 0.9));
-            border: 1px solid rgba(0, 184, 255, 0.15);
+            background: rgba(10, 14, 23, 0.75);
+            border: 1px solid rgba(0, 184, 255, 0.25);
             border-radius: 18px;
             padding: 20px 18px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             text-decoration: none; color: inherit; display: block;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 20px rgba(0,240,255,0.1);
         }
         .style-card:hover {
             transform: translateY(-6px);
-            border-color: rgba(0, 184, 255, 0.45);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 184, 255, 0.15);
+            border-color: rgba(0, 240, 255, 0.6);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(0, 240, 255, 0.3);
         }
         .style-card-icon {
             font-size: 38px; margin-bottom: 12px;
             display: block;
-            filter: drop-shadow(0 0 15px rgba(0, 184, 255, 0.5));
+            filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.6));
         }
-        .style-card-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
-        .style-card-desc { color: #94a3b8; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
+        .style-card-title {
+            font-size: 18px; font-weight: 900; margin-bottom: 6px;
+            color: #00F0FF;
+            text-shadow: 0 0 12px rgba(0,240,255,0.6);
+        }
+        .style-card-desc { color: #cbd5e1; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
         .style-card-formations {
             display: flex; gap: 6px; flex-wrap: wrap;
             padding-top: 12px;
-            border-top: 1px solid rgba(0, 184, 255, 0.12);
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
         }
         .formation-tag {
             padding: 3px 9px;
-            background: rgba(0, 184, 255, 0.1);
-            border: 1px solid rgba(0, 184, 255, 0.3);
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 6px;
-            font-size: 10px; font-weight: 700; color: #4DCCFF;
+            font-size: 10px; font-weight: 700; color: #00F0FF;
         }
 
+        /* ═══════ ABOUT ═══════ */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 14px; padding-bottom: 40px;
         }
         .feature {
-            background: linear-gradient(145deg, rgba(14, 18, 25, 0.75), rgba(10, 14, 23, 0.65));
-            border: 1px solid rgba(0, 184, 255, 0.12);
+            background: rgba(10, 14, 23, 0.7);
+            border: 1px solid rgba(0, 184, 255, 0.2);
             border-radius: 16px;
             padding: 22px 18px;
             transition: all 0.4s;
             text-align: center;
+            backdrop-filter: blur(15px);
         }
         .feature:hover {
-            border-color: rgba(0, 184, 255, 0.4);
+            border-color: rgba(0, 240, 255, 0.5);
             transform: translateY(-4px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 240, 255, 0.2);
         }
-        .feature-icon { font-size: 32px; margin-bottom: 12px; filter: drop-shadow(0 0 12px rgba(0, 184, 255, 0.4)); }
-        .feature h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; color: #D4AF37; }
-        .feature p { color: #94a3b8; font-size: 12px; line-height: 1.6; }
+        .feature-icon { font-size: 32px; margin-bottom: 12px; filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.5)); }
+        .feature h3 { font-size: 15px; font-weight: 800; margin-bottom: 8px; color: #D4AF37; text-shadow: 0 0 10px rgba(212,175,55,0.6); }
+        .feature p { color: #cbd5e1; font-size: 12px; line-height: 1.6; }
 
+        /* ═══════ Mobile ═══════ */
         @media (min-width: 641px) {
-            .world-hub { width: min(80vw, 480px); }
-            .central-football { width: 150px; height: 150px; }
-            .football-inner { width: 115px; height: 115px; }
-            .football-icon { font-size: 68px; }
-            .football-orbit { inset: -55px; }
-            .zone-node {
+            .world-hub { width: min(80vw, 500px); }
+            .ai-node {
                 width: 100px; height: 110px;
-                margin: -60px 0 0 -50px;
-                transform: rotate(var(--angle)) translateY(-185px) rotate(calc(-1 * var(--angle)));
+                margin: -55px 0 0 -50px;
+                transform: rotate(var(--angle)) translateY(-195px) rotate(calc(-1 * var(--angle)));
             }
             @keyframes nodeFloat {
-                0%, 100% { transform: rotate(var(--angle)) translateY(-185px) rotate(calc(-1 * var(--angle))); }
-                50% { transform: rotate(var(--angle)) translateY(-195px) rotate(calc(-1 * var(--angle))); }
+                0%, 100% { transform: rotate(var(--angle)) translateY(-195px) rotate(calc(-1 * var(--angle))) scale(1); }
+                50% { transform: rotate(var(--angle)) translateY(-205px) rotate(calc(-1 * var(--angle))) scale(1.03); }
             }
-            .node-orb { width: 84px; height: 84px; }
-            .node-icon { font-size: 34px; }
+            .ai-node .ai-head { width: 100px; height: 100px; }
+            .ai-node .ai-visor { font-size: 10px; }
+            .node-ar { font-size: 11px; }
         }
     </style>
 </head>
 <body>
+    <!-- World Background Image -->
     <div class="bg-fallback"></div>
-    <canvas id="bg3d"></canvas>
-    <div class="bg-grid"></div>
+    <div class="world-bg"></div>
 
+    <!-- NAVBAR -->
     <header class="navbar" id="mainNavbar">
         <div class="logo">
             <span class="logo-icon">⚽</span>
             <span>FOOTBALL TACTICS</span>
         </div>
-        <button class="menu-btn" id="menuBtn" aria-label="القائمة">☰</button>
     </header>
 
+    <!-- MENU BUTTON (AI Head) -->
+    <button class="menu-btn" id="menuBtn" aria-label="القائمة">
+        <div class="ai-head">
+            <div class="ai-led"><span></span><span></span><span></span></div>
+            <div class="ai-visor">☰</div>
+            <div class="ai-emission"></div>
+        </div>
+    </button>
+
+    <!-- DROPDOWN -->
     <nav class="dropdown-menu" id="dropdownMenu">
         <a href="coaches.html"><span>👨‍🏫</span> المدربون</a>
         <a href="ai-coach.html"><span>🧠</span> المدرب الذكي</a>
@@ -570,6 +835,7 @@
         </a>
     </nav>
 
+    <!-- HOME SCREEN -->
     <section class="screen active" id="screen-home">
         <div class="screen-inner">
             <div class="hero-badge">◉ FUTURISTIC FOOTBALL UNIVERSE</div>
@@ -581,12 +847,17 @@
                 عالم تحليلي مستقبلي للاعبي <span style="color: #D4AF37;">eFootball</span><br>
                 استكشف أساليب اللعب • حلل مبارياتك • طوّر مستواك
             </p>
-            <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="goToScreen('screen-hub')">
-                    <span>ابدأ الآن</span>
-                    <span>←</span>
+
+            <div class="home-btn-wrap">
+                <button class="btn-primary-ai" onclick="goToScreen('screen-hub')">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor"><span class="btn-text">ابدأ الآن ←</span></div>
+                        <div class="ai-emission"></div>
+                    </div>
                 </button>
             </div>
+
             <div class="hero-stats">
                 <div class="stat"><div class="stat-value">5</div><div class="stat-label">أساليب اللعب</div></div>
                 <div class="stat-divider"></div>
@@ -597,44 +868,74 @@
         </div>
     </section>
 
+    <!-- HUB SCREEN -->
     <section class="screen with-navbar" id="screen-hub">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
             <div class="world-hub">
-                <div class="central-football">
-                    <div class="football-glow"></div>
-                    <div class="football-inner"><span class="football-icon">⚽</span></div>
-                    <div class="football-orbit"></div>
+                <!-- Central Core -->
+                <div class="central-core">
+                    <div class="core-glow"></div>
+                    <div class="core-inner">
+                        <span class="core-icon">⚽</span>
+                    </div>
+                    <div class="core-orbit"></div>
                 </div>
-                <button class="zone-node" style="--angle: 0deg;" onclick="goToScreen('screen-styles')">
-                    <div class="node-orb"><span class="node-icon">🏟️</span></div>
-                    <div class="node-name">STADIUM</div>
-                    <div class="node-sub">أساليب اللعب</div>
+
+                <!-- AI NODE: STADIUM (top) -->
+                <button class="ai-node" style="--angle: 0deg; --delay: 0s;" onclick="goToScreen('screen-styles')">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor">STADIUM</div>
+                        <div class="ai-emission"></div>
+                    </div>
+                    <div class="node-label"><div class="node-ar">أساليب اللعب</div></div>
                 </button>
-                <a href="coaches.html" class="zone-node" style="--angle: 72deg;">
-                    <div class="node-orb"><span class="node-icon">👨‍🏫</span></div>
-                    <div class="node-name">COACH</div>
-                    <div class="node-sub">المدربون</div>
+
+                <!-- AI NODE: COACH (right top) -->
+                <a href="coaches.html" class="ai-node" style="--angle: 72deg; --delay: 0.5s;">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor">COACH</div>
+                        <div class="ai-emission"></div>
+                    </div>
+                    <div class="node-label"><div class="node-ar">المدربون</div></div>
                 </a>
-                <a href="ai-coach.html" class="zone-node" style="--angle: 144deg;">
-                    <div class="node-orb"><span class="node-icon">🧠</span></div>
-                    <div class="node-name">AI LAB</div>
-                    <div class="node-sub">المدرب الذكي</div>
+
+                <!-- AI NODE: AI LAB (right bottom) -->
+                <a href="ai-coach.html" class="ai-node" style="--angle: 144deg; --delay: 1s;">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor">AI LAB</div>
+                        <div class="ai-emission"></div>
+                    </div>
+                    <div class="node-label"><div class="node-ar">المدرب الذكي</div></div>
                 </a>
-                <a href="tactic.html" class="zone-node" style="--angle: 216deg;">
-                    <div class="node-orb"><span class="node-icon">⚔️</span></div>
-                    <div class="node-name">TACTICAL</div>
-                    <div class="node-sub">الملعب 3D</div>
+
+                <!-- AI NODE: TACTICAL (left bottom) -->
+                <a href="tactic.html" class="ai-node" style="--angle: 216deg; --delay: 1.5s;">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor">TACTICAL</div>
+                        <div class="ai-emission"></div>
+                    </div>
+                    <div class="node-label"><div class="node-ar">الملعب 3D</div></div>
                 </a>
-                <a href="contact.html" class="zone-node" style="--angle: 288deg;">
-                    <div class="node-orb"><span class="node-icon">📡</span></div>
-                    <div class="node-name">COMMAND</div>
-                    <div class="node-sub">التواصل</div>
+
+                <!-- AI NODE: COMMAND (left top) -->
+                <a href="contact.html" class="ai-node" style="--angle: 288deg; --delay: 2s;">
+                    <div class="ai-head">
+                        <div class="ai-led"><span></span><span></span><span></span></div>
+                        <div class="ai-visor">COMMAND</div>
+                        <div class="ai-emission"></div>
+                    </div>
+                    <div class="node-label"><div class="node-ar">التواصل</div></div>
                 </a>
             </div>
         </div>
     </section>
 
+    <!-- STYLES SCREEN -->
     <section class="screen with-navbar" id="screen-styles">
         <button class="back-btn" onclick="goToScreen('screen-hub')">→ رجوع</button>
         <div class="screen-inner">
@@ -647,6 +948,7 @@
         </div>
     </section>
 
+    <!-- ABOUT SCREEN -->
     <section class="screen with-navbar" id="screen-about">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
@@ -692,6 +994,7 @@
             }
         }
 
+        // ═══════ Menu ═══════
         function toggleMenu() {
             var m = document.getElementById('dropdownMenu');
             var b = document.getElementById('menuBtn');
@@ -711,371 +1014,50 @@
             if (!m.contains(e.target) && !b.contains(e.target)) closeMenu();
         });
 
-        // ═══════════════════════════════════════════════════
-        // 2D CANVAS FOOTBALL MATCH — ROBOTS vs HUMANS
-        // ═══════════════════════════════════════════════════
+        // ═══════ EMISSION PARTICLES ═══════
         (function() {
-            var canvas = document.getElementById('bg3d');
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
+            var hub = document.getElementById('screen-hub');
+            if (!hub) return;
+
+            var container = document.createElement('div');
+            container.className = 'particle-field';
+            container.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden;';
+            hub.appendChild(container);
+
             var isMobile = window.innerWidth < 768;
+            var count = isMobile ? 30 : 60;
 
-            var W = 0, H = 0;
-            function resize() {
-                W = canvas.width = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            var camera = {
-                angle: 0,
-                radius: 24,
-                height: 10,
-                horizonY: 0.42
-            };
-
-            function project(wx, wy, wz) {
-                var cos = Math.cos(-camera.angle);
-                var sin = Math.sin(-camera.angle);
-                var rx = wx * cos - wz * sin;
-                var rz = wx * sin + wz * cos;
-
-                var dy = wy - camera.height;
-                var dz = rz + camera.radius;
-
-                if (dz < 0.5) return null;
-
-                var focal = 600;
-                var scale = focal / dz;
-                var sx = W / 2 + rx * scale;
-                var sy = H * camera.horizonY - dy * scale;
-
-                return { x: sx, y: sy, scale: scale / focal };
+            for (var i = 0; i < count; i++) {
+                var p = document.createElement('div');
+                var size = 1 + Math.random() * 2;
+                var color = Math.random() > 0.5 ? '0,240,255' : '212,175,55';
+                p.style.cssText =
+                    'position:absolute;' +
+                    'width:' + size + 'px;' +
+                    'height:' + size + 'px;' +
+                    'border-radius:50%;' +
+                    'background:rgba(' + color + ', 0.8);' +
+                    'box-shadow:0 0 10px rgba(' + color + ', 1);' +
+                    'left:' + (Math.random() * 100) + '%;' +
+                    'top:' + (Math.random() * 100) + '%;' +
+                    'animation: particleFloat ' + (4 + Math.random() * 4) + 's ease-in-out infinite;' +
+                    'animation-delay: ' + (Math.random() * 3) + 's;' +
+                    'opacity:0;';
+                container.appendChild(p);
             }
 
-            var PITCH_LEN = 40;
-            var PITCH_WID = 26;
-
-            function drawPitch() {
-                var c0 = project(-PITCH_LEN/2, 0, -PITCH_WID/2);
-                var c1 = project( PITCH_LEN/2, 0, -PITCH_WID/2);
-                var c2 = project( PITCH_LEN/2, 0,  PITCH_WID/2);
-                var c3 = project(-PITCH_LEN/2, 0,  PITCH_WID/2);
-
-                if (!c0 || !c1 || !c2 || !c3) return;
-
-                var grad = ctx.createLinearGradient(0, c0.y, 0, c2.y);
-                grad.addColorStop(0, 'rgba(10, 36, 22, 0.85)');
-                grad.addColorStop(0.5, 'rgba(15, 48, 30, 0.9)');
-                grad.addColorStop(1, 'rgba(8, 28, 18, 0.85)');
-
-                ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.moveTo(c0.x, c0.y);
-                ctx.lineTo(c1.x, c1.y);
-                ctx.lineTo(c2.x, c2.y);
-                ctx.lineTo(c3.x, c3.y);
-                ctx.closePath();
-                ctx.fill();
-
-                ctx.strokeStyle = 'rgba(74, 222, 128, 0.5)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-
-                ctx.strokeStyle = 'rgba(74, 222, 128, 0.35)';
-                ctx.beginPath();
-                var m1 = project(0, 0, -PITCH_WID/2);
-                var m2 = project(0, 0, PITCH_WID/2);
-                if (m1 && m2) {
-                    ctx.moveTo(m1.x, m1.y);
-                    ctx.lineTo(m2.x, m2.y);
-                    ctx.stroke();
-                }
-
-                var centerProj = project(0, 0, 0);
-                if (centerProj) {
-                    var r = centerProj.scale * 4 * 10;
-                    ctx.beginPath();
-                    ctx.ellipse(centerProj.x, centerProj.y, r * 2.5, r * 0.7, 0, 0, Math.PI * 2);
-                    ctx.strokeStyle = 'rgba(74, 222, 128, 0.4)';
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.arc(centerProj.x, centerProj.y, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(212, 175, 55, 0.9)';
-                    ctx.fill();
-                }
-            }
-
-            var pillarCount = isMobile ? 16 : 24;
-            var pillars = [];
-            for (var i = 0; i < pillarCount; i++) {
-                var angle = (i / pillarCount) * Math.PI * 2;
-                pillars.push({
-                    x: Math.cos(angle) * 22,
-                    z: Math.sin(angle) * 22,
-                    height: 5 + Math.random() * 4,
-                    phase: i * 0.4,
-                    color: Math.random() > 0.5 ? '0, 184, 255' : '212, 175, 55'
-                });
-            }
-
-            function drawPillars() {
-                var sorted = [];
-                pillars.forEach(function(p) {
-                    var base = project(p.x, 0, p.z);
-                    var top = project(p.x, p.height, p.z);
-                    if (base && top) {
-                        sorted.push({ p: p, base: base, top: top, scale: base.scale });
-                    }
-                });
-                sorted.sort(function(a, b) { return a.scale - b.scale; });
-
-                sorted.forEach(function(item) {
-                    var w = Math.max(3, 50 * item.scale);
-                    var alpha = Math.min(0.7, 0.25 + item.scale * 4);
-
-                    ctx.fillStyle = 'rgba(10, 14, 23, ' + alpha + ')';
-                    ctx.fillRect(item.base.x - w/2, item.top.y, w, item.base.y - item.top.y);
-
-                    ctx.shadowColor = 'rgba(' + item.p.color + ', 0.8)';
-                    ctx.shadowBlur = 12;
-                    ctx.strokeStyle = 'rgba(' + item.p.color + ', ' + alpha + ')';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(item.base.x - w/2, item.top.y, w, item.base.y - item.top.y);
-                    ctx.shadowBlur = 0;
-
-                    var pulse = 0.5 + Math.sin(Date.now() / 600 + item.p.phase) * 0.3;
-                    ctx.beginPath();
-                    ctx.arc(item.base.x, item.top.y, Math.max(2, w * 0.6), 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(' + item.p.color + ', ' + pulse + ')';
-                    ctx.shadowColor = 'rgba(' + item.p.color + ', 1)';
-                    ctx.shadowBlur = 15;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                });
-            }
-
-            function drawPlayer(wx, wz, type) {
-                var proj = project(wx, 1.0, wz);
-                if (!proj) return;
-
-                var scale = proj.scale * 10;
-                var bodyW = Math.max(3, 10 * scale);
-                var bodyH = Math.max(8, 22 * scale);
-                var headR = Math.max(2, 5 * scale);
-
-                var primary = type === 'robot' ? '#00B8FF' : '#D4AF37';
-                var secondary = type === 'robot' ? '#0077B6' : '#8B5A00';
-
-                // Shadow
-                ctx.beginPath();
-                ctx.ellipse(proj.x, proj.y, bodyW * 0.9, bodyW * 0.3, 0, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-                ctx.fill();
-
-                // Ring at feet
-                ctx.beginPath();
-                ctx.ellipse(proj.x, proj.y, bodyW * 0.8, bodyW * 0.3, 0, 0, Math.PI * 2);
-                ctx.strokeStyle = primary;
-                ctx.lineWidth = Math.max(1, scale * 0.4);
-                ctx.shadowColor = primary;
-                ctx.shadowBlur = 8;
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                var bodyTop = proj.y - bodyH;
-
-                if (type === 'robot') {
-                    ctx.fillStyle = '#0A1520';
-                    ctx.strokeStyle = primary;
-                    ctx.lineWidth = Math.max(1, scale * 0.4);
-                    ctx.shadowColor = primary;
-                    ctx.shadowBlur = 6;
-                    ctx.beginPath();
-                    ctx.moveTo(proj.x - bodyW/2, bodyTop);
-                    ctx.lineTo(proj.x + bodyW/2, bodyTop);
-                    ctx.lineTo(proj.x + bodyW/2 * 0.8, proj.y);
-                    ctx.lineTo(proj.x - bodyW/2 * 0.8, proj.y);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    ctx.shadowBlur = 0;
-
-                    ctx.fillStyle = '#0A1520';
-                    ctx.strokeStyle = primary;
-                    ctx.shadowColor = primary;
-                    ctx.shadowBlur = 8;
-                    ctx.fillRect(proj.x - headR, bodyTop - headR * 2.4, headR * 2, headR * 2);
-                    ctx.strokeRect(proj.x - headR, bodyTop - headR * 2.4, headR * 2, headR * 2);
-                    ctx.shadowBlur = 0;
-
-                    ctx.fillStyle = '#00F0FF';
-                    ctx.shadowColor = '#00F0FF';
-                    ctx.shadowBlur = 10;
-                    ctx.beginPath();
-                    ctx.arc(proj.x - headR * 0.5, bodyTop - headR * 1.4, Math.max(1, headR * 0.3), 0, Math.PI * 2);
-                    ctx.arc(proj.x + headR * 0.5, bodyTop - headR * 1.4, Math.max(1, headR * 0.3), 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                } else {
-                    ctx.fillStyle = secondary;
-                    ctx.shadowColor = primary;
-                    ctx.shadowBlur = 4;
-                    ctx.beginPath();
-                    ctx.ellipse(proj.x, bodyTop + bodyH * 0.4, bodyW * 0.55, bodyH * 0.4, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-
-                    ctx.fillStyle = '#F5D6B8';
-                    ctx.beginPath();
-                    ctx.arc(proj.x, bodyTop, headR * 1.1, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#2A1810';
-                    ctx.beginPath();
-                    ctx.arc(proj.x, bodyTop - headR * 0.3, headR, Math.PI, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                ctx.beginPath();
-                ctx.arc(proj.x, bodyTop - headR * 3.5, Math.max(2, headR * 0.8), 0, Math.PI * 2);
-                ctx.fillStyle = primary;
-                ctx.shadowColor = primary;
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            }
-
-            var robotFormation = [
-                { x: 16, z: 0 }, { x: 12, z: -8 }, { x: 12, z: -3 },
-                { x: 12, z: 3 }, { x: 12, z: 8 }, { x: 5, z: -9 },
-                { x: 5, z: -3 }, { x: 5, z: 3 }, { x: 5, z: 9 },
-                { x: -1, z: -4 }, { x: -1, z: 4 }
-            ];
-
-            var humanFormation = [
-                { x: -16, z: 0 }, { x: -12, z: -8 }, { x: -12, z: -3 },
-                { x: -12, z: 3 }, { x: -12, z: 8 }, { x: -5, z: -9 },
-                { x: -5, z: -3 }, { x: -5, z: 3 }, { x: -5, z: 9 },
-                { x: 1, z: -4 }, { x: 1, z: 4 }
-            ];
-
-            function drawBall(t) {
-                var bob = Math.sin(t * 2) * 0.2;
-                var proj = project(0, 0.8 + bob, 0);
-                if (!proj) return;
-
-                var r = Math.max(4, 80 * proj.scale);
-
-                ctx.beginPath();
-                ctx.arc(proj.x, proj.y, r * 2.5, 0, Math.PI * 2);
-                var glow = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, r * 2.5);
-                glow.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
-                glow.addColorStop(1, 'rgba(0, 240, 255, 0)');
-                ctx.fillStyle = glow;
-                ctx.fill();
-
-                ctx.beginPath();
-                ctx.arc(proj.x, proj.y, r, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fill();
-
-                ctx.fillStyle = '#1a1a1a';
-                ctx.beginPath();
-                ctx.arc(proj.x, proj.y, r * 0.3, 0, Math.PI * 2);
-                ctx.fill();
-
-                for (var i = 0; i < 5; i++) {
-                    var a = (i / 5) * Math.PI * 2;
-                    ctx.beginPath();
-                    ctx.arc(
-                        proj.x + Math.cos(a) * r * 0.6,
-                        proj.y + Math.sin(a) * r * 0.6,
-                        r * 0.15, 0, Math.PI * 2
-                    );
-                    ctx.fill();
-                }
-            }
-
-            var particles = [];
-            var particleCount = isMobile ? 60 : 120;
-            for (var j = 0; j < particleCount; j++) {
-                particles.push({
-                    x: (Math.random() - 0.5) * 80,
-                    y: Math.random() * 25 + 3,
-                    z: (Math.random() - 0.5) * 80,
-                    size: 0.5 + Math.random() * 1.2,
-                    color: Math.random() > 0.5 ? '0, 184, 255' : '212, 175, 55',
-                    phase: Math.random() * Math.PI * 2
-                });
-            }
-
-            function drawParticles(t) {
-                particles.forEach(function(p) {
-                    var proj = project(p.x, p.y, p.z);
-                    if (!proj) return;
-                    var r = Math.max(1, p.size * proj.scale * 60);
-                    var pulse = 0.5 + Math.sin(t * 2 + p.phase) * 0.4;
-
-                    ctx.beginPath();
-                    ctx.arc(proj.x, proj.y, r, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(' + p.color + ', ' + pulse + ')';
-                    ctx.shadowColor = 'rgba(' + p.color + ', 0.8)';
-                    ctx.shadowBlur = 8;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                });
-            }
-
-            var startTime = Date.now();
-            function animate() {
-                requestAnimationFrame(animate);
-                var t = (Date.now() - startTime) / 1000;
-
-                ctx.fillStyle = 'rgba(5, 5, 5, 0.35)';
-                ctx.fillRect(0, 0, W, H);
-
-                camera.angle = t * 0.03;
-
-                drawPitch();
-
-                var allPlayers = [];
-                humanFormation.forEach(function(p, i) {
-                    allPlayers.push({
-                        x: p.x + Math.sin(t * 0.4 + i) * 0.4,
-                        z: p.z + Math.sin(t * 0.8 + i) * 0.3,
-                        type: 'human',
-                        depth: Math.abs(p.x)
-                    });
-                });
-                robotFormation.forEach(function(p, i) {
-                    allPlayers.push({
-                        x: p.x + Math.sin(t * 0.4 + i + 5) * 0.4,
-                        z: p.z + Math.sin(t * 0.8 + i + 5) * 0.3,
-                        type: 'robot',
-                        depth: Math.abs(p.x)
-                    });
-                });
-
-                allPlayers.sort(function(a, b) { return b.depth - a.depth; });
-
-                allPlayers.forEach(function(p) {
-                    drawPlayer(p.x, p.z, p.type);
-                });
-
-                drawBall(t);
-
-                drawPillars();
-
-                drawParticles(t);
-            }
-
-            animate();
+            var style = document.createElement('style');
+            style.textContent =
+                '@keyframes particleFloat {' +
+                '  0% { opacity:0; transform:translate(0,0) scale(0); }' +
+                '  20% { opacity:0.9; }' +
+                '  80% { opacity:0.9; }' +
+                '  100% { opacity:0; transform:translate(' + (Math.random()*60-30) + 'px,' + (-100 - Math.random()*100) + 'px) scale(1.2); }' +
+                '}';
+            document.head.appendChild(style);
         })();
 
-        // Service Worker
+        // ═══════ Service Worker ═══════
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('service-worker.js')
