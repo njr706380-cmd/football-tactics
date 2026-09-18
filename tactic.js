@@ -1,8 +1,120 @@
-// tactic.js - ملعب 3D (كرة صفراء نظيفة) - يدعم المدربين
+// tactic.js - ملعب 3D مع تحرك منطقي (ربط بالدور)
 
 const FIELD_LENGTH = 140;
 const FIELD_WIDTH = 90;
 const PLAYER_RADIUS = 2;
+
+// ========== ترتيب الأدوار الثابت (11 لاعب) ==========
+// 0:GK  1:CB-R  2:CB-L  3:RB  4:LB  5:DMF  6:CMF-R  7:CMF-L  8:RW  9:LW  10:ST
+// كل التشكيلات لازم تكون بنفس الترتيب — عشان يتحرك نفس اللاعب لمنصبه الجديد
+
+const FORMATIONS = {
+    // ==== 4-3-3 ====
+    "4-3-3": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -25, z: 0 },
+        { x: -18, z: -12 }, { x: -18, z: 12 },
+        { x: 5, z: -30 },   { x: 5, z: 30 },
+        { x: 18, z: 0 }
+    ],
+    // ==== 4-3-3 هجومي (ضغط عالي - لامبارد) ====
+    "4-3-3-high": [
+        { x: -60, z: 0 },   { x: -42, z: -8 },   { x: -42, z: 8 },
+        { x: -20, z: -30 }, { x: -20, z: 30 },
+        { x: -22, z: 0 },
+        { x: -5, z: -14 },  { x: -5, z: 14 },
+        { x: 15, z: -32 },  { x: 15, z: 32 },
+        { x: 28, z: 0 }
+    ],
+    // ==== 4-4-2 ====
+    "4-4-2": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -25, z: -10 }, { x: -25, z: 10 },
+        { x: -8, z: -28 },  { x: -8, z: 28 },
+        { x: 8, z: -12 },   { x: 18, z: 12 }
+    ],
+    // ==== 4-2-3-1 ====
+    "4-2-3-1": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -30, z: -10 }, { x: -30, z: 10 },
+        { x: -8, z: -25 },  { x: -5, z: 0 },    { x: -8, z: 25 },
+        { x: 18, z: 0 }
+    ],
+    // ==== 3-4-3 ====
+    "3-4-3": [
+        { x: -62, z: 0 },   { x: -50, z: -14 },  { x: -50, z: 14 },
+        { x: -30, z: -30 }, { x: -30, z: 30 },
+        { x: -50, z: 0 },
+        { x: -22, z: -10 }, { x: -22, z: 10 },
+        { x: 5, z: -28 },   { x: 5, z: 28 },
+        { x: 18, z: 0 }
+    ],
+    // ==== 3-4-2-1 ====
+    "3-4-2-1": [
+        { x: -62, z: 0 },   { x: -50, z: -14 },  { x: -50, z: 14 },
+        { x: -28, z: -30 }, { x: -28, z: 30 },
+        { x: -50, z: 0 },
+        { x: -28, z: -10 }, { x: -28, z: 10 },
+        { x: -5, z: -14 },  { x: -5, z: 14 },
+        { x: 18, z: 0 }
+    ],
+    // ==== 3-2-4-1 (بيب) ====
+    "3-2-4-1": [
+        { x: -62, z: 0 },   { x: -45, z: -14 },  { x: -45, z: 14 },
+        { x: -22, z: -30 }, { x: -22, z: 30 },
+        { x: -42, z: 0 },
+        { x: -5, z: -12 },  { x: -5, z: 12 },
+        { x: 14, z: -30 },  { x: 14, z: 30 },
+        { x: 28, z: 0 }
+    ],
+    // ==== 3-2-5 (الكلوب/فليك/أموريم هجومياً) ====
+    "3-2-5": [
+        { x: -60, z: 0 },   { x: -42, z: -14 },  { x: -42, z: 14 },
+        { x: -18, z: -30 }, { x: -18, z: 30 },
+        { x: -40, z: 0 },
+        { x: -5, z: -12 },  { x: -5, z: 12 },
+        { x: 15, z: -30 },  { x: 15, z: 30 },
+        { x: 28, z: 0 }
+    ],
+    // ==== 5-4-1 ====
+    "5-4-1": [
+        { x: -62, z: 0 },   { x: -52, z: -18 },  { x: -52, z: 18 },
+        { x: -48, z: -32 }, { x: -48, z: 32 },
+        { x: -52, z: 0 },
+        { x: -30, z: -14 }, { x: -30, z: 14 },
+        { x: -22, z: -30 }, { x: -22, z: 30 },
+        { x: -5, z: 0 }
+    ],
+    // ==== 4-1-4-1 (كلوب دفاعياً) ====
+    "4-1-4-1": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -30, z: 0 },
+        { x: -18, z: -12 }, { x: -18, z: 12 },
+        { x: -8, z: -28 },  { x: -8, z: 28 },
+        { x: 10, z: 0 }
+    ],
+    // ==== 4-1-2-3 ====
+    "4-1-2-3": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -30, z: 0 },
+        { x: -15, z: -14 }, { x: -15, z: 14 },
+        { x: 8, z: -28 },   { x: 8, z: 28 },
+        { x: 20, z: 0 }
+    ],
+    // ==== 4-2-4 ====
+    "4-2-4": [
+        { x: -62, z: 0 },   { x: -48, z: -8 },   { x: -48, z: 8 },
+        { x: -40, z: -28 }, { x: -40, z: 28 },
+        { x: -25, z: -10 }, { x: -25, z: 10 },
+        { x: -5, z: -30 },  { x: -5, z: 30 },
+        { x: 8, z: -10 },   { x: 8, z: 10 }
+    ]
+};
 
 let scene, camera, renderer, controls;
 let ownPlayers = [];
@@ -17,92 +129,6 @@ let movePaused = false;
 let arrowsGroup = null;
 let demoRunning = false;
 let demoTimers = [];
-
-const FORMATIONS = {
-    "4-3-3": [
-        { x: -62, z: 0 },
-        { x: -45, z: -25 }, { x: -48, z: -8 }, { x: -48, z: 8 }, { x: -45, z: 25 },
-        { x: -20, z: -18 }, { x: -22, z: 0 }, { x: -20, z: 18 },
-        { x: 0, z: -28 }, { x: 18, z: 0 }, { x: 0, z: 28 }
-    ],
-    "3-2-4-1": [
-        { x: -62, z: 0 },
-        { x: -50, z: -18 }, { x: -52, z: 0 }, { x: -50, z: 18 },
-        { x: -28, z: -12 }, { x: -28, z: 12 },
-        { x: -5, z: -32 }, { x: -8, z: -8 }, { x: -8, z: 8 }, { x: -5, z: 32 },
-        { x: 20, z: 0 }
-    ],
-    "4-2-3-1": [
-        { x: -62, z: 0 },
-        { x: -45, z: -25 }, { x: -48, z: -8 }, { x: -48, z: 8 }, { x: -45, z: 25 },
-        { x: -25, z: -12 }, { x: -25, z: 12 },
-        { x: -5, z: -25 }, { x: -3, z: 0 }, { x: -5, z: 25 },
-        { x: 18, z: 0 }
-    ],
-    "4-4-2": [
-        { x: -62, z: 0 },
-        { x: -48, z: -28 }, { x: -50, z: -9 }, { x: -50, z: 9 }, { x: -48, z: 28 },
-        { x: -28, z: -30 }, { x: -30, z: -10 }, { x: -30, z: 10 }, { x: -28, z: 30 },
-        { x: -5, z: -10 }, { x: -5, z: 10 }
-    ],
-    "4-2-4": [
-        { x: -62, z: 0 },
-        { x: -42, z: -28 }, { x: -45, z: -9 }, { x: -45, z: 9 }, { x: -42, z: 28 },
-        { x: -18, z: -12 }, { x: -18, z: 12 },
-        { x: 5, z: -30 }, { x: 18, z: -8 }, { x: 18, z: 8 }, { x: 5, z: 30 }
-    ],
-    "2-3-5": [
-        { x: -62, z: 0 },
-        { x: -48, z: -12 }, { x: -48, z: 12 },
-        { x: -25, z: -22 }, { x: -25, z: 0 }, { x: -25, z: 22 },
-        { x: 5, z: -35 }, { x: 5, z: -12 }, { x: 10, z: 0 }, { x: 5, z: 12 }, { x: 5, z: 35 }
-    ],
-    "5-3-2": [
-        { x: -62, z: 0 },
-        { x: -52, z: -35 }, { x: -54, z: -18 }, { x: -55, z: 0 }, { x: -54, z: 18 }, { x: -52, z: 35 },
-        { x: -32, z: -18 }, { x: -35, z: 0 }, { x: -32, z: 18 },
-        { x: -12, z: -8 }, { x: -12, z: 8 }
-    ],
-    "3-4-3": [
-        { x: -62, z: 0 },
-        { x: -48, z: -22 }, { x: -50, z: 0 }, { x: -48, z: 22 },
-        { x: -25, z: -32 }, { x: -28, z: -10 }, { x: -28, z: 10 }, { x: -25, z: 32 },
-        { x: 5, z: -25 }, { x: 18, z: 0 }, { x: 5, z: 25 }
-    ],
-    "3-4-2-1": [
-        { x: -62, z: 0 },
-        { x: -48, z: -22 }, { x: -50, z: 0 }, { x: -48, z: 22 },
-        { x: -28, z: -32 }, { x: -30, z: -10 }, { x: -30, z: 10 }, { x: -28, z: 32 },
-        { x: -5, z: -15 }, { x: -5, z: 15 },
-        { x: 18, z: 0 }
-    ],
-    "5-4-1": [
-        { x: -62, z: 0 },
-        { x: -52, z: -35 }, { x: -54, z: -18 }, { x: -55, z: 0 }, { x: -54, z: 18 }, { x: -52, z: 35 },
-        { x: -32, z: -30 }, { x: -34, z: -10 }, { x: -34, z: 10 }, { x: -32, z: 30 },
-        { x: -10, z: 0 }
-    ],
-    "4-1-2-3": [
-        { x: -62, z: 0 },
-        { x: -42, z: -28 }, { x: -45, z: -9 }, { x: -45, z: 9 }, { x: -42, z: 28 },
-        { x: -28, z: 0 },
-        { x: -12, z: -18 }, { x: -12, z: 18 },
-        { x: 8, z: -28 }, { x: 20, z: 0 }, { x: 8, z: 28 }
-    ],
-    "3-2-5": [
-        { x: -62, z: 0 },
-        { x: -48, z: -18 }, { x: -50, z: 0 }, { x: -48, z: 18 },
-        { x: -25, z: -10 }, { x: -25, z: 10 },
-        { x: 5, z: -35 }, { x: 5, z: -18 }, { x: 10, z: 0 }, { x: 5, z: 18 }, { x: 5, z: 35 }
-    ],
-    "4-1-4-1": [
-        { x: -62, z: 0 },
-        { x: -45, z: -25 }, { x: -48, z: -8 }, { x: -48, z: 8 }, { x: -45, z: 25 },
-        { x: -30, z: 0 },
-        { x: -12, z: -28 }, { x: -15, z: -8 }, { x: -15, z: 8 }, { x: -12, z: 28 },
-        { x: 15, z: 0 }
-    ]
-};
 
 document.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
@@ -157,13 +183,11 @@ function toggleControls() {
     btn.classList.toggle("active");
 }
 
-function getActiveData(mode) {
+function getFormationName(mode) {
     if (activeCoach) {
-        return mode === "attacking"
-            ? { formation: activeCoach.attackingFormation, description: "خطة " + activeCoach.name + " الهجومية" }
-            : { formation: activeCoach.defendingFormation, description: "خطة " + activeCoach.name + " الدفاعية" };
+        return mode === "attacking" ? activeCoach.attackingFormation : activeCoach.defendingFormation;
     }
-    return mode === "attacking" ? currentStyle.attacking : currentStyle.defending;
+    return mode === "attacking" ? currentStyle.attackingFormation : currentStyle.defendingFormation;
 }
 
 function updateStyleInfo() {
@@ -172,11 +196,12 @@ function updateStyleInfo() {
         .map(f => `<span class="formation-tag">${f}</span>`)
         .join("");
 
-    const data = getActiveData(currentMode);
-    document.getElementById("currentMode").textContent = 
+    const formationName = getFormationName(currentMode);
+    document.getElementById("currentMode").textContent =
         currentMode === "attacking" ? "⚔️ هجوم" : "🛡️ دفاع";
-    document.getElementById("currentFormation").textContent = data.formation;
-    document.getElementById("currentDesc").textContent = data.description;
+    document.getElementById("currentFormation").textContent = formationName;
+    document.getElementById("currentDesc").textContent =
+        (currentMode === "attacking" ? "خطة هجومية" : "خطة دفاعية") + " - " + (activeCoach ? activeCoach.name : currentStyle.name);
 }
 
 function initScene() {
@@ -343,38 +368,11 @@ function createPlayers() {
     }
 }
 
-function matchPlayersToTargets() {
-    const targets = targetOwn.map(t => ({ x: t.x, z: t.z, taken: false }));
-    const result = new Array(ownPlayers.length);
-
-    if (targets[0]) {
-        result[0] = { x: targets[0].x, z: targets[0].z };
-        targets[0].taken = true;
-    }
-
-    for (let i = 1; i < ownPlayers.length; i++) {
-        const p = ownPlayers[i].position;
-        let closestIdx = -1;
-        let closestDist = Infinity;
-
-        for (let j = 0; j < targets.length; j++) {
-            if (targets[j].taken) continue;
-            const dx = targets[j].x - p.x;
-            const dz = targets[j].z - p.z;
-            const dist = dx * dx + dz * dz;
-            if (dist < closestDist) {
-                closestDist = dist;
-                closestIdx = j;
-            }
-        }
-
-        if (closestIdx >= 0) {
-            result[i] = { x: targets[closestIdx].x, z: targets[closestIdx].z };
-            targets[closestIdx].taken = true;
-        }
-    }
-
-    targetOwn = result;
+// ========== التعديل الأهم: ربط بالفهرس، بدون حساب المسافة ==========
+function applyFormation(formationName) {
+    const positions = FORMATIONS[formationName] || FORMATIONS["4-3-3"];
+    // كل لاعب (فهرس i) يتحرك لمنصبه في التشكيل الجديد (نفس الفهرس i)
+    targetOwn = positions.map(p => ({ x: p.x, z: p.z }));
 }
 
 function setMode(mode) {
@@ -382,11 +380,8 @@ function setMode(mode) {
     document.getElementById("btnAttack").classList.toggle("active", mode === "attacking");
     document.getElementById("btnDefend").classList.toggle("active", mode === "defending");
 
-    const data = getActiveData(mode);
-    const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
-
-    targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
-    matchPlayersToTargets();
+    const formationName = getFormationName(mode);
+    applyFormation(formationName);
     updateStyleInfo();
 }
 
@@ -433,7 +428,7 @@ function startDemo() {
         demoTimers = [];
         clearArrows();
         btn.classList.remove("active");
-        btn.innerHTML = '<span>📽️</span><span>شرح التحرك</span>';
+        btn.innerHTML = '<span>📽️</span><span>شرح التعلم</span>';
         return;
     }
 
@@ -446,11 +441,8 @@ function startDemo() {
         if (!demoRunning) return;
 
         const nextMode = currentMode === "attacking" ? "defending" : "attacking";
-        const data = getActiveData(nextMode);
-        const formation = FORMATIONS[data.formation] || FORMATIONS["4-3-3"];
-
-        targetOwn = formation.map(p => ({ x: p.x, z: p.z }));
-        matchPlayersToTargets();
+        const formationName = getFormationName(nextMode);
+        applyFormation(formationName);
 
         movePaused = true;
         createArrows();
