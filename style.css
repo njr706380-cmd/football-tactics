@@ -237,6 +237,20 @@ body {
     transform: translateY(-4px);
 }
 
+/* ============ زر التواصل ============ */
+.btn-contact {
+    background: linear-gradient(135deg, #E91E63, #C2185B);
+    color: #FFFFFF;
+    box-shadow: 0 10px 40px rgba(233, 30, 99, 0.3);
+    border-color: transparent;
+}
+
+.btn-contact:hover {
+    background: linear-gradient(135deg, #FF4B8B, #E91E63);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(233, 30, 99, 0.5);
+}
+
 .btn-arrow, .btn-icon {
     font-size: 20px;
     transition: transform 0.3s;
@@ -575,4 +589,18 @@ body {
     .stat-divider { height: 30px; }
     .styles-section { padding: 50px 15px; }
     .btn { padding: 14px 24px; font-size: 15px; }
+}
+
+/* ============ الجوال — 3 أزرار ============ */
+@media (max-width: 640px) {
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 0 10px;
+    }
+    .hero-buttons .btn {
+        justify-content: center;
+        width: 100%;
+    }
 }
