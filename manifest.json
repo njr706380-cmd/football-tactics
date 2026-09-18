@@ -1,0 +1,28 @@
+{
+    "name": "Football Tactics — تكتيكات كرة القدم",
+    "short_name": "Football Tactics",
+    "description": "موقع عربي متخصص في تكتيكات eFootball",
+    "lang": "ar",
+    "dir": "rtl",
+    "start_url": "/football-tactics/",
+    "scope": "/football-tactics/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#050505",
+    "theme_color": "#D4AF37",
+    "categories": ["sports", "education", "games"],
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
