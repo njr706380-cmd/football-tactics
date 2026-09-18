@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ═══════ FIXED VIEWPORT ═══════ */
         html, body {
             height: 100%;
             overflow: hidden !important;
@@ -37,22 +36,15 @@
         }
 
         /* ═══════ LAYERS ═══════ */
-        /* ترتيب الطبقات:
-           -5: Fallback gradient (أعمق)
-           -4: 3D Canvas
-           -2: Grid
-            0: Content
-        */
-
         .bg-fallback {
             position: fixed;
             inset: 0;
             z-index: -5;
             pointer-events: none;
             background:
-                radial-gradient(circle at 20% 30%, rgba(0, 184, 255, 0.12), transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.10), transparent 50%),
-                #050505;
+                radial-gradient(circle at 50% 40%, rgba(0, 184, 255, 0.08), transparent 55%),
+                radial-gradient(circle at 50% 80%, rgba(212, 175, 55, 0.06), transparent 60%),
+                linear-gradient(180deg, #050505 0%, #0A0E17 50%, #050505 100%);
         }
 
         #bg3d {
@@ -73,11 +65,11 @@
             inset: 0;
             z-index: -2;
             background-image:
-                linear-gradient(rgba(0, 184, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 184, 255, 0.03) 1px, transparent 1px);
-            background-size: 80px 80px;
-            mask-image: radial-gradient(ellipse at center, black 20%, transparent 85%);
-            -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 85%);
+                linear-gradient(rgba(0, 184, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 184, 255, 0.02) 1px, transparent 1px);
+            background-size: 100px 100px;
+            mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 90%);
             pointer-events: none;
         }
 
@@ -106,13 +98,9 @@
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-            color: #fff;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 900;
+            letter-spacing: 0.5px; color: #fff;
         }
         .logo-icon {
             font-size: 24px;
@@ -125,18 +113,14 @@
         }
 
         .menu-btn {
-            width: 42px;
-            height: 42px;
+            width: 42px; height: 42px;
             border-radius: 12px;
             background: rgba(0, 184, 255, 0.08);
             border: 1px solid rgba(0, 184, 255, 0.3);
             color: #00F0FF;
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 20px; font-weight: 700;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.3s;
             font-family: inherit;
         }
@@ -148,15 +132,12 @@
 
         /* ═══════ DROPDOWN ═══════ */
         .dropdown-menu {
-            position: fixed;
-            top: 70px;
-            left: 18px;
+            position: fixed; top: 70px; left: 18px;
             width: 210px;
             background: rgba(10, 14, 23, 0.98);
             border: 1px solid rgba(0, 184, 255, 0.3);
             border-radius: 16px;
-            padding: 8px;
-            z-index: 99;
+            padding: 8px; z-index: 99;
             backdrop-filter: blur(24px);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 184, 255, 0.15);
             opacity: 0;
@@ -170,14 +151,11 @@
             pointer-events: auto;
         }
         .dropdown-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             padding: 12px 14px;
             color: #e2e8f0;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 14px; font-weight: 700;
             border-radius: 10px;
             transition: all 0.25s;
         }
@@ -189,11 +167,8 @@
 
         /* ═══════ SCREENS ═══════ */
         .screen {
-            position: fixed;
-            top: 0;
-            left: 0; right: 0; bottom: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
+            position: fixed; inset: 0;
+            overflow-y: auto; overflow-x: hidden;
             opacity: 0;
             transform: translateY(30px);
             pointer-events: none;
@@ -212,32 +187,25 @@
         .screen::-webkit-scrollbar-thumb { background: rgba(0, 184, 255, 0.3); border-radius: 2px; }
 
         .screen-inner {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 900px; margin: 0 auto;
             min-height: 100%;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             justify-content: center;
             padding: 20px 0;
         }
 
         .back-btn {
-            position: absolute;
-            top: 16px;
-            right: 18px;
+            position: absolute; top: 16px; right: 18px;
             padding: 8px 16px;
             background: rgba(0, 184, 255, 0.08);
             border: 1px solid rgba(0, 184, 255, 0.3);
             border-radius: 10px;
             color: #00F0FF;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 13px; font-weight: 700;
             cursor: pointer;
             font-family: inherit;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            display: flex; align-items: center; gap: 6px;
             z-index: 10;
         }
         .back-btn:hover {
@@ -245,33 +213,25 @@
             border-color: #00F0FF;
         }
 
-        /* ═══════ HOME SCREEN ═══════ */
-        #screen-home .screen-inner {
-            text-align: center;
-            gap: 24px;
-        }
+        /* ═══════ HOME ═══════ */
+        #screen-home .screen-inner { text-align: center; gap: 24px; }
 
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            display: inline-flex; align-items: center; gap: 8px;
             padding: 9px 20px;
             background: linear-gradient(135deg, rgba(0, 184, 255, 0.12), rgba(139, 92, 246, 0.08));
             border: 1px solid rgba(0, 184, 255, 0.4);
             border-radius: 30px;
             color: #4DCCFF;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 11px; font-weight: 700;
             letter-spacing: 1.2px;
             margin: 0 auto;
         }
 
         .hero-title {
             font-size: clamp(38px, 10vw, 64px);
-            font-weight: 900;
-            line-height: 1;
-            margin: 0;
-            letter-spacing: -1.5px;
+            font-weight: 900; line-height: 1;
+            margin: 0; letter-spacing: -1.5px;
             color: #fff;
         }
         .hero-title .line-2 {
@@ -283,48 +243,35 @@
             background-clip: text;
             animation: shine 5s linear infinite;
         }
-        @keyframes shine {
-            to { background-position: 300% center; }
-        }
+        @keyframes shine { to { background-position: 300% center; } }
 
         .hero-subtitle {
-            font-size: 14px;
-            color: #94a3b8;
-            line-height: 1.8;
-            margin: 0 auto;
+            font-size: 14px; color: #94a3b8;
+            line-height: 1.8; margin: 0 auto;
             max-width: 460px;
         }
 
         .hero-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 360px;
-            margin: 0 auto;
-            width: 100%;
+            display: flex; flex-direction: column; gap: 12px;
+            max-width: 360px; margin: 0 auto; width: 100%;
         }
 
         .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             gap: 10px;
             padding: 17px 28px;
             font-family: inherit;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 15px; font-weight: 700;
             border-radius: 14px;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             border: 1px solid transparent;
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
         .btn::before {
             content: '';
-            position: absolute;
-            top: 0; left: -100%;
+            position: absolute; top: 0; left: -100%;
             width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
             transition: left 0.6s;
@@ -335,8 +282,7 @@
             background: linear-gradient(135deg, #D4AF37, #F4D03F);
             color: #050505;
             box-shadow: 0 10px 40px rgba(212, 175, 55, 0.35);
-            font-weight: 900;
-            font-size: 16px;
+            font-weight: 900; font-size: 16px;
         }
         .btn-primary:hover {
             transform: translateY(-3px) scale(1.02);
@@ -344,11 +290,8 @@
         }
 
         .hero-stats {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
+            display: flex; justify-content: center; align-items: center;
+            gap: 18px; flex-wrap: wrap;
             padding: 16px 22px;
             background: linear-gradient(135deg, rgba(14, 18, 25, 0.7), rgba(10, 14, 23, 0.6));
             border: 1px solid rgba(0, 184, 255, 0.2);
@@ -358,65 +301,49 @@
         }
         .stat { text-align: center; }
         .stat-value {
-            font-size: 24px;
-            font-weight: 900;
+            font-size: 24px; font-weight: 900;
             background: linear-gradient(135deg, #D4AF37, #F4D03F);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            line-height: 1;
-            margin-bottom: 4px;
+            line-height: 1; margin-bottom: 4px;
         }
         .stat-label {
-            font-size: 10px;
-            color: #94a3b8;
+            font-size: 10px; color: #94a3b8;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             font-weight: 600;
         }
         .stat-divider {
-            width: 1px;
-            height: 30px;
+            width: 1px; height: 30px;
             background: linear-gradient(180deg, transparent, rgba(0, 184, 255, 0.5), transparent);
         }
 
-        /* ═══════ HUB SCREEN ═══════ */
+        /* ═══════ HUB ═══════ */
         #screen-hub {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         #screen-hub .screen-inner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: none;
-            padding: 0;
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; max-width: none; padding: 0;
         }
 
         .world-hub {
             position: relative;
             width: min(90vw, 420px);
             aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .central-football {
-            position: absolute;
-            top: 50%; left: 50%;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 130px; height: 130px;
             z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .football-glow {
-            position: absolute;
-            inset: -40%;
+            position: absolute; inset: -40%;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(0, 184, 255, 0.35) 0%, rgba(212, 175, 55, 0.25) 30%, transparent 70%);
             animation: footballPulse 4s ease-in-out infinite;
@@ -433,9 +360,7 @@
             background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 50%), linear-gradient(145deg, rgba(0, 184, 255, 0.15), rgba(212, 175, 55, 0.1));
             border: 2px solid rgba(0, 184, 255, 0.5);
             box-shadow: 0 0 60px rgba(0, 184, 255, 0.5), inset 0 0 40px rgba(0, 184, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             animation: footballFloat 6s ease-in-out infinite;
         }
         @keyframes footballFloat {
@@ -452,44 +377,32 @@
             to { transform: rotate(360deg); }
         }
         .football-orbit {
-            position: absolute;
-            inset: -50px;
+            position: absolute; inset: -50px;
             border-radius: 50%;
             border: 1px dashed rgba(0, 184, 255, 0.3);
             animation: orbitSpin 30s linear infinite;
         }
         .football-orbit::before {
             content: '';
-            position: absolute;
-            top: -4px; left: 50%;
+            position: absolute; top: -4px; left: 50%;
             width: 8px; height: 8px;
-            background: #00F0FF;
-            border-radius: 50%;
+            background: #00F0FF; border-radius: 50%;
             box-shadow: 0 0 20px #00F0FF;
             transform: translateX(-50%);
         }
-        @keyframes orbitSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .zone-node {
-            position: absolute;
-            top: 50%; left: 50%;
+            position: absolute; top: 50%; left: 50%;
             width: 90px; height: 100px;
             margin: -55px 0 0 -45px;
             transform: rotate(var(--angle)) translateY(-160px) rotate(calc(-1 * var(--angle)));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            color: inherit;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 6px;
+            text-decoration: none; color: inherit;
             z-index: 5;
             animation: nodeFloat 5s ease-in-out infinite;
-            background: none;
-            border: none;
-            cursor: pointer;
+            background: none; border: none; cursor: pointer;
             font-family: inherit;
         }
         @keyframes nodeFloat {
@@ -502,9 +415,7 @@
             background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), transparent 60%), linear-gradient(145deg, rgba(14, 18, 25, 0.95), rgba(10, 14, 23, 0.85));
             border: 1.5px solid rgba(0, 184, 255, 0.35);
             box-shadow: 0 0 30px rgba(0, 184, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             backdrop-filter: blur(15px);
             flex-shrink: 0;
@@ -522,8 +433,7 @@
         }
         .zone-node:hover .node-icon { transform: scale(1.2) rotate(-8deg); }
         .node-name {
-            font-size: 9px;
-            font-weight: 900;
+            font-size: 9px; font-weight: 900;
             color: #D4AF37;
             letter-spacing: 1.2px;
             text-transform: uppercase;
@@ -531,53 +441,44 @@
             white-space: nowrap;
         }
         .node-sub {
-            font-size: 9px;
-            color: #94a3b8;
+            font-size: 9px; color: #94a3b8;
             white-space: nowrap;
         }
 
-        /* ═══════ STYLES SCREEN ═══════ */
+        /* ═══════ STYLES / ABOUT ═══════ */
         .section-header {
             text-align: center;
-            margin-bottom: 26px;
-            padding-top: 40px;
+            margin-bottom: 26px; padding-top: 40px;
         }
         .section-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            display: inline-flex; align-items: center; gap: 8px;
             padding: 8px 18px;
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(0, 184, 255, 0.08));
             border: 1px solid rgba(16, 185, 129, 0.4);
             border-radius: 30px;
             color: #4ADE80;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 11px; font-weight: 700;
             letter-spacing: 0.8px;
             margin-bottom: 14px;
         }
         .section-title {
             font-size: clamp(24px, 5vw, 34px);
-            font-weight: 900;
-            margin-bottom: 12px;
+            font-weight: 900; margin-bottom: 12px;
             background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         .section-desc {
-            color: #94a3b8;
-            font-size: 13px;
-            max-width: 500px;
-            margin: 0 auto;
+            color: #94a3b8; font-size: 13px;
+            max-width: 500px; margin: 0 auto;
             line-height: 1.7;
         }
 
         .styles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-            padding-bottom: 40px;
+            gap: 14px; padding-bottom: 40px;
         }
         .style-card {
             background: linear-gradient(145deg, rgba(14, 18, 25, 0.95), rgba(10, 14, 23, 0.9));
@@ -586,9 +487,7 @@
             padding: 20px 18px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            text-decoration: none;
-            color: inherit;
-            display: block;
+            text-decoration: none; color: inherit; display: block;
         }
         .style-card:hover {
             transform: translateY(-6px);
@@ -596,8 +495,7 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 184, 255, 0.15);
         }
         .style-card-icon {
-            font-size: 38px;
-            margin-bottom: 12px;
+            font-size: 38px; margin-bottom: 12px;
             display: block;
             filter: drop-shadow(0 0 15px rgba(0, 184, 255, 0.5));
         }
@@ -605,7 +503,8 @@
         .style-card-desc { color: #94a3b8; font-size: 12px; line-height: 1.6; margin-bottom: 12px; }
         .style-card-formations {
             display: flex; gap: 6px; flex-wrap: wrap;
-            padding-top: 12px; border-top: 1px solid rgba(0, 184, 255, 0.12);
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 184, 255, 0.12);
         }
         .formation-tag {
             padding: 3px 9px;
@@ -615,12 +514,10 @@
             font-size: 10px; font-weight: 700; color: #4DCCFF;
         }
 
-        /* ═══════ ABOUT ═══════ */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            padding-bottom: 40px;
+            gap: 14px; padding-bottom: 40px;
         }
         .feature {
             background: linear-gradient(145deg, rgba(14, 18, 25, 0.75), rgba(10, 14, 23, 0.65));
@@ -664,7 +561,6 @@
     <canvas id="bg3d"></canvas>
     <div class="bg-grid"></div>
 
-    <!-- NAVBAR -->
     <header class="navbar" id="mainNavbar">
         <div class="logo">
             <span class="logo-icon">⚽</span>
@@ -681,7 +577,7 @@
         </a>
     </nav>
 
-    <!-- SCREEN: HOME -->
+    <!-- HOME -->
     <section class="screen active" id="screen-home">
         <div class="screen-inner">
             <div class="hero-badge">◉ FUTURISTIC FOOTBALL UNIVERSE</div>
@@ -709,7 +605,7 @@
         </div>
     </section>
 
-    <!-- SCREEN: HUB -->
+    <!-- HUB -->
     <section class="screen with-navbar" id="screen-hub">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
@@ -748,7 +644,7 @@
         </div>
     </section>
 
-    <!-- SCREEN: STYLES -->
+    <!-- STYLES -->
     <section class="screen with-navbar" id="screen-styles">
         <button class="back-btn" onclick="goToScreen('screen-hub')">→ رجوع</button>
         <div class="screen-inner">
@@ -761,7 +657,7 @@
         </div>
     </section>
 
-    <!-- SCREEN: ABOUT -->
+    <!-- ABOUT -->
     <section class="screen with-navbar" id="screen-about">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
@@ -779,14 +675,13 @@
         </div>
     </section>
 
-    <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
     <script src="js/sounds.js"></script>
 
     <script>
-        // ═══════ Screen Navigation ═══════
+        // Screen Navigation
         function goToScreen(screenId) {
             var navbar = document.getElementById('mainNavbar');
             var isHome = (screenId === 'screen-home');
@@ -801,9 +696,7 @@
                     target.style.top = '0';
                 } else {
                     navbar.classList.add('visible');
-                    if (screenId !== 'screen-styles' && screenId !== 'screen-hub' && screenId !== 'screen-about') {
-                        // خارجي
-                    } else {
+                    if (screenId === 'screen-styles' || screenId === 'screen-hub' || screenId === 'screen-about') {
                         target.classList.add('with-navbar');
                         target.style.top = '66px';
                     }
@@ -811,7 +704,6 @@
             }
         }
 
-        // Menu
         function toggleMenu() {
             var m = document.getElementById('dropdownMenu');
             var b = document.getElementById('menuBtn');
@@ -832,32 +724,28 @@
         });
 
         // ═══════════════════════════════════════════════════
-        // 3D WORLD SCENE with Three.js
+        // 3D FOOTBALL MATCH — ROBOTS vs HUMANS
         // ═══════════════════════════════════════════════════
         (function() {
-            if (typeof THREE === 'undefined') {
-                console.log('Three.js not loaded — fallback active');
-                return;
-            }
-            console.log('Three.js loaded, starting 3D world...');
+            if (typeof THREE === 'undefined') return;
+            console.log('Starting 3D match scene...');
 
             var canvas = document.getElementById('bg3d');
             var isMobile = window.innerWidth < 768;
-            var quality = isMobile ? 0.6 : 1.0;
 
             var scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x050505, 0.018);
+            scene.fog = new THREE.FogExp2(0x050505, 0.012);
 
             var camera = new THREE.PerspectiveCamera(
-                55,
+                50,
                 window.innerWidth / window.innerHeight,
                 0.1,
-                300
+                400
             );
 
             var renderer = new THREE.WebGLRenderer({
                 canvas: canvas,
-                antialias: quality > 0.7,
+                antialias: !isMobile,
                 alpha: true,
                 powerPreference: 'low-power'
             });
@@ -866,228 +754,418 @@
             renderer.setClearColor(0x000000, 0);
 
             // ═══════ LIGHTS ═══════
-            var ambient = new THREE.AmbientLight(0x202535, 0.8);
-            scene.add(ambient);
+            scene.add(new THREE.AmbientLight(0x304050, 0.6));
 
-            var blueLight = new THREE.PointLight(0x00B8FF, 3, 80, 2);
-            blueLight.position.set(15, 12, 15);
+            var blueLight = new THREE.PointLight(0x00B8FF, 2.5, 100, 2);
+            blueLight.position.set(20, 25, 20);
             scene.add(blueLight);
 
-            var goldLight = new THREE.PointLight(0xD4AF37, 2.5, 80, 2);
-            goldLight.position.set(-15, 12, -15);
+            var goldLight = new THREE.PointLight(0xD4AF37, 2.2, 100, 2);
+            goldLight.position.set(-20, 25, -20);
             scene.add(goldLight);
 
-            var cyanLight = new THREE.PointLight(0x00F0FF, 1.8, 60, 2);
-            cyanLight.position.set(0, 20, 0);
-            scene.add(cyanLight);
+            var topLight = new THREE.PointLight(0xFFFFFF, 0.8, 80, 2);
+            topLight.position.set(0, 40, 0);
+            scene.add(topLight);
 
-            // ═══════ CENTRAL PITCH ═══════
+            // ═══════ FOOTBALL PITCH ═══════
             var pitchGroup = new THREE.Group();
-            pitchGroup.position.y = -3;
             scene.add(pitchGroup);
 
-            var pitchFloorGeo = new THREE.CircleGeometry(14, 48);
-            var pitchFloorMat = new THREE.MeshBasicMaterial({
-                color: 0x0A2416,
-                transparent: true,
-                opacity: 0.7
-            });
-            var pitchFloor = new THREE.Mesh(pitchFloorGeo, pitchFloorMat);
-            pitchFloor.rotation.x = -Math.PI / 2;
-            pitchGroup.add(pitchFloor);
+            var PITCH_LEN = 40;
+            var PITCH_WID = 26;
 
-            var pitchRingGeo = new THREE.RingGeometry(13.5, 14.2, 64);
-            var pitchRingMat = new THREE.MeshBasicMaterial({
+            // Ground - dark green
+            var pitchGeo = new THREE.PlaneGeometry(PITCH_LEN, PITCH_WID);
+            var pitchMat = new THREE.MeshStandardMaterial({
+                color: 0x0A2416,
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            var pitch = new THREE.Mesh(pitchGeo, pitchMat);
+            pitch.rotation.x = -Math.PI / 2;
+            pitch.receiveShadow = true;
+            pitchGroup.add(pitch);
+
+            // Field lines (white)
+            function addLine(x1, z1, x2, z2) {
+                var mat = new THREE.LineBasicMaterial({ color: 0x4ADE80, transparent: true, opacity: 0.5 });
+                var pts = [new THREE.Vector3(x1, 0.02, z1), new THREE.Vector3(x2, 0.02, z2)];
+                var geo = new THREE.BufferGeometry().setFromPoints(pts);
+                pitchGroup.add(new THREE.Line(geo, mat));
+            }
+
+            // Border
+            addLine(-PITCH_LEN/2, -PITCH_WID/2, PITCH_LEN/2, -PITCH_WID/2);
+            addLine(PITCH_LEN/2, -PITCH_WID/2, PITCH_LEN/2, PITCH_WID/2);
+            addLine(PITCH_LEN/2, PITCH_WID/2, -PITCH_LEN/2, PITCH_WID/2);
+            addLine(-PITCH_LEN/2, PITCH_WID/2, -PITCH_LEN/2, -PITCH_WID/2);
+            // Middle line
+            addLine(0, -PITCH_WID/2, 0, PITCH_WID/2);
+
+            // Center circle
+            var circleGeo = new THREE.RingGeometry(3.8, 4, 48);
+            var circleMat = new THREE.MeshBasicMaterial({
+                color: 0x4ADE80, transparent: true, opacity: 0.4, side: THREE.DoubleSide
+            });
+            var circle = new THREE.Mesh(circleGeo, circleMat);
+            circle.rotation.x = -Math.PI / 2;
+            circle.position.y = 0.02;
+            pitchGroup.add(circle);
+
+            // ═══════ FOOTBALL (center) ═══════
+            var ballGeo = new THREE.SphereGeometry(0.8, 32, 32);
+            var ballMat = new THREE.MeshStandardMaterial({
+                color: 0xFFFFFF,
+                roughness: 0.4,
+                metalness: 0.3,
+                emissive: 0xFFFFFF,
+                emissiveIntensity: 0.3
+            });
+            var ball = new THREE.Mesh(ballGeo, ballMat);
+            ball.position.set(0, 0.8, 0);
+            ball.castShadow = true;
+            pitchGroup.add(ball);
+
+            // Ball glow
+            var ballGlowGeo = new THREE.SphereGeometry(1.2, 16, 16);
+            var ballGlowMat = new THREE.MeshBasicMaterial({
+                color: 0x00F0FF,
+                transparent: true,
+                opacity: 0.15
+            });
+            var ballGlow = new THREE.Mesh(ballGlowGeo, ballGlowMat);
+            ballGlow.position.set(0, 0.8, 0);
+            pitchGroup.add(ballGlow);
+
+            // ═══════ PLAYER BUILDER ═══════
+            function createPlayer(type, colorPrimary, colorSecondary, isGoalkeeper) {
+                var group = new THREE.Group();
+                var height = isGoalkeeper ? 1.9 : 1.75;
+
+                if (type === 'robot') {
+                    // ROBOT: metallic, sharp edges
+                    // Body - cylinder
+                    var bodyGeo = new THREE.CylinderGeometry(0.28, 0.35, 0.9, 6);
+                    var bodyMat = new THREE.MeshStandardMaterial({
+                        color: 0x0A1520,
+                        emissive: colorPrimary,
+                        emissiveIntensity: 0.6,
+                        metalness: 0.95,
+                        roughness: 0.15
+                    });
+                    var body = new THREE.Mesh(bodyGeo, bodyMat);
+                    body.position.y = height * 0.45;
+                    body.castShadow = true;
+                    group.add(body);
+
+                    // Head - cube
+                    var headGeo = new THREE.BoxGeometry(0.38, 0.38, 0.38);
+                    var headMat = new THREE.MeshStandardMaterial({
+                        color: 0x0A1520,
+                        emissive: colorPrimary,
+                        emissiveIntensity: 0.8,
+                        metalness: 0.95,
+                        roughness: 0.1
+                    });
+                    var head = new THREE.Mesh(headGeo, headMat);
+                    head.position.y = height * 0.95;
+                    head.rotation.y = Math.PI / 4;
+                    head.castShadow = true;
+                    group.add(head);
+
+                    // Eyes (glowing)
+                    var eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
+                    var eyeMat = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
+                    var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+                    eyeL.position.set(-0.1, height * 0.97, 0.2);
+                    group.add(eyeL);
+                    var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+                    eyeR.position.set(0.1, height * 0.97, 0.2);
+                    group.add(eyeR);
+
+                    // Legs
+                    var legGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.6, 5);
+                    var legMat = new THREE.MeshStandardMaterial({
+                        color: 0x0A1520,
+                        metalness: 0.9,
+                        roughness: 0.2
+                    });
+                    var legL = new THREE.Mesh(legGeo, legMat);
+                    legL.position.set(-0.15, 0.3, 0);
+                    group.add(legL);
+                    var legR = new THREE.Mesh(legGeo, legMat);
+                    legR.position.set(0.15, 0.3, 0);
+                    group.add(legR);
+
+                } else {
+                    // HUMAN: smooth, organic
+                    // Body - capsule
+                    var bodyGeo = new THREE.CapsuleGeometry(0.3, 0.7, 8, 12);
+                    var bodyMat = new THREE.MeshStandardMaterial({
+                        color: colorPrimary,
+                        roughness: 0.7,
+                        metalness: 0.2,
+                        emissive: colorPrimary,
+                        emissiveIntensity: 0.15
+                    });
+                    var body = new THREE.Mesh(bodyGeo, bodyMat);
+                    body.position.y = height * 0.45;
+                    body.castShadow = true;
+                    group.add(body);
+
+                    // Head - sphere
+                    var headGeo = new THREE.SphereGeometry(0.22, 16, 16);
+                    var headMat = new THREE.MeshStandardMaterial({
+                        color: 0xF5D6B8,
+                        roughness: 0.8,
+                        metalness: 0
+                    });
+                    var head = new THREE.Mesh(headGeo, headMat);
+                    head.position.y = height * 0.95;
+                    head.castShadow = true;
+                    group.add(head);
+
+                    // Hair
+                    var hairGeo = new THREE.SphereGeometry(0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                    var hairMat = new THREE.MeshStandardMaterial({ color: 0x2A1810, roughness: 0.9 });
+                    var hair = new THREE.Mesh(hairGeo, hairMat);
+                    hair.position.y = height * 0.97;
+                    group.add(hair);
+
+                    // Legs
+                    var legGeo = new THREE.CapsuleGeometry(0.1, 0.5, 6, 8);
+                    var legMat = new THREE.MeshStandardMaterial({
+                        color: colorSecondary,
+                        roughness: 0.7
+                    });
+                    var legL = new THREE.Mesh(legGeo, legMat);
+                    legL.position.set(-0.14, 0.32, 0);
+                    group.add(legL);
+                    var legR = new THREE.Mesh(legGeo, legMat);
+                    legR.position.set(0.14, 0.32, 0);
+                    group.add(legR);
+                }
+
+                // Team marker (glowing ring at feet)
+                var ringGeo = new THREE.RingGeometry(0.5, 0.6, 24);
+                var ringMat = new THREE.MeshBasicMaterial({
+                    color: colorPrimary,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
+                });
+                var ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = -Math.PI / 2;
+                ring.position.y = 0.03;
+                group.add(ring);
+
+                // Number badge (small sphere above head)
+                var badgeGeo = new THREE.SphereGeometry(0.12, 12, 12);
+                var badgeMat = new THREE.MeshBasicMaterial({ color: colorPrimary });
+                var badge = new THREE.Mesh(badgeGeo, badgeMat);
+                badge.position.y = height * 1.25;
+                group.add(badge);
+
+                return group;
+            }
+
+            // ═══════ FORMATIONS ═══════
+            // Robot team (blue) - right side
+            var robotFormation = [
+                { x: 16, z: 0, type: 'gk' },        // GK
+                { x: 12, z: -8, type: 'def' },      // DEF
+                { x: 12, z: -3, type: 'def' },
+                { x: 12, z: 3, type: 'def' },
+                { x: 12, z: 8, type: 'def' },
+                { x: 5, z: -9, type: 'mid' },       // MID
+                { x: 5, z: -3, type: 'mid' },
+                { x: 5, z: 3, type: 'mid' },
+                { x: 5, z: 9, type: 'mid' },
+                { x: -1, z: -4, type: 'fwd' },      // FWD
+                { x: -1, z: 4, type: 'fwd' }
+            ];
+
+            // Human team (gold) - left side
+            var humanFormation = [
+                { x: -16, z: 0, type: 'gk' },
+                { x: -12, z: -8, type: 'def' },
+                { x: -12, z: -3, type: 'def' },
+                { x: -12, z: 3, type: 'def' },
+                { x: -12, z: 8, type: 'def' },
+                { x: -5, z: -9, type: 'mid' },
+                { x: -5, z: -3, type: 'mid' },
+                { x: -5, z: 3, type: 'mid' },
+                { x: -5, z: 9, type: 'mid' },
+                { x: 1, z: -4, type: 'fwd' },
+                { x: 1, z: 4, type: 'fwd' }
+            ];
+
+            // Robots (Blue)
+            var robotPlayers = [];
+            robotFormation.forEach(function(pos) {
+                var isGK = pos.type === 'gk';
+                var p = createPlayer('robot', 0x00B8FF, 0x0077B6, isGK);
+                p.position.set(pos.x, 0, pos.z);
+                p.rotation.y = -Math.PI / 2; // facing left
+                pitchGroup.add(p);
+                robotPlayers.push({ mesh: p, baseZ: pos.z, phase: Math.random() * 6 });
+            });
+
+            // Humans (Gold)
+            var humanPlayers = [];
+            humanFormation.forEach(function(pos) {
+                var isGK = pos.type === 'gk';
+                var p = createPlayer('human', 0xD4AF37, 0x8B5A00, isGK);
+                p.position.set(pos.x, 0, pos.z);
+                p.rotation.y = Math.PI / 2; // facing right
+                pitchGroup.add(p);
+                humanPlayers.push({ mesh: p, baseZ: pos.z, phase: Math.random() * 6 });
+            });
+
+            // ═══════ STADIUM SURROUNDINGS ═══════
+            // Stadium floor (circle around pitch)
+            var stadiumFloorGeo = new THREE.RingGeometry(22, 45, 64);
+            var stadiumFloorMat = new THREE.MeshBasicMaterial({
+                color: 0x080C14,
+                transparent: true,
+                opacity: 0.9,
+                side: THREE.DoubleSide
+            });
+            var stadiumFloor = new THREE.Mesh(stadiumFloorGeo, stadiumFloorMat);
+            stadiumFloor.rotation.x = -Math.PI / 2;
+            stadiumFloor.position.y = -0.05;
+            scene.add(stadiumFloor);
+
+            // Glowing ring around stadium
+            var glowRingGeo = new THREE.RingGeometry(22, 22.5, 64);
+            var glowRingMat = new THREE.MeshBasicMaterial({
                 color: 0x00B8FF,
                 transparent: true,
-                opacity: 0.6,
+                opacity: 0.5,
                 side: THREE.DoubleSide
             });
-            var pitchRing = new THREE.Mesh(pitchRingGeo, pitchRingMat);
-            pitchRing.rotation.x = -Math.PI / 2;
-            pitchRing.position.y = 0.02;
-            pitchGroup.add(pitchRing);
+            var glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
+            glowRing.rotation.x = -Math.PI / 2;
+            glowRing.position.y = 0.02;
+            scene.add(glowRing);
 
-            var centerCircleGeo = new THREE.RingGeometry(3.5, 3.7, 48);
-            var centerCircleMat = new THREE.MeshBasicMaterial({
-                color: 0xD4AF37,
-                transparent: true,
-                opacity: 0.7,
-                side: THREE.DoubleSide
-            });
-            var centerCircle = new THREE.Mesh(centerCircleGeo, centerCircleMat);
-            centerCircle.rotation.x = -Math.PI / 2;
-            centerCircle.position.y = 0.03;
-            pitchGroup.add(centerCircle);
-
-            var spotGeo = new THREE.CircleGeometry(0.3, 16);
-            var spotMat = new THREE.MeshBasicMaterial({ color: 0xD4AF37 });
-            var spot = new THREE.Mesh(spotGeo, spotMat);
-            spot.rotation.x = -Math.PI / 2;
-            spot.position.y = 0.04;
-            pitchGroup.add(spot);
-
-            // ═══════ STADIUM PILLARS ═══════
-            var pillarCount = isMobile ? 16 : 24;
-            var pillarRadius = 26;
+            // Stadium pillars (towers)
+            var pillarCount = isMobile ? 20 : 32;
             var pillars = [];
 
             for (var i = 0; i < pillarCount; i++) {
                 var angle = (i / pillarCount) * Math.PI * 2;
-                var x = Math.cos(angle) * pillarRadius;
-                var z = Math.sin(angle) * pillarRadius;
+                var radius = 32;
+                var x = Math.cos(angle) * radius;
+                var z = Math.sin(angle) * radius;
 
-                var pillarHeight = 6 + Math.random() * 3;
-                var pillarGeo = new THREE.CylinderGeometry(0.25, 0.35, pillarHeight, 6);
-                var pillarMat = new THREE.MeshStandardMaterial({
+                var ph = 8 + Math.random() * 4;
+                var pGeo = new THREE.CylinderGeometry(0.4, 0.5, ph, 6);
+                var pMat = new THREE.MeshStandardMaterial({
                     color: 0x0A0E17,
                     emissive: 0x00B8FF,
-                    emissiveIntensity: 0.5,
-                    metalness: 0.8,
-                    roughness: 0.3
+                    emissiveIntensity: 0.4,
+                    metalness: 0.9,
+                    roughness: 0.2
                 });
-                var pillar = new THREE.Mesh(pillarGeo, pillarMat);
-                pillar.position.set(x, pillarHeight / 2 - 3, z);
+                var pillar = new THREE.Mesh(pGeo, pMat);
+                pillar.position.set(x, ph / 2, z);
                 scene.add(pillar);
-                pillars.push({ mesh: pillar, phase: i });
+                pillars.push({ mesh: pillar, phase: i * 0.3 });
 
-                var topLightGeo = new THREE.SphereGeometry(0.4, 8, 8);
-                var topLightMat = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
-                var topLight = new THREE.Mesh(topLightGeo, topLightMat);
-                topLight.position.set(x, pillarHeight - 3, z);
-                scene.add(topLight);
+                // Top light
+                var topG = new THREE.SphereGeometry(0.5, 8, 8);
+                var topM = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
+                var top = new THREE.Mesh(topG, topM);
+                top.position.set(x, ph, z);
+                scene.add(top);
             }
 
-            // ═══════ HOLOGRAPHIC PANELS ═══════
-            var panels = [];
-            var panelPositions = [
-                { x: -18, y: 6, z: -8, rotY: 0.5 },
-                { x: 20, y: 8, z: -10, rotY: -0.4 },
-                { x: -14, y: 5, z: 15, rotY: -0.6 },
-                { x: 16, y: 7, z: 14, rotY: 0.5 }
-            ];
-
-            for (var p = 0; p < panelPositions.length; p++) {
-                var pos = panelPositions[p];
-                var panelGroup = new THREE.Group();
-                panelGroup.position.set(pos.x, pos.y, pos.z);
-                panelGroup.rotation.y = pos.rotY;
-
-                var borderGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(4, 2.5));
-                var borderMat = new THREE.LineBasicMaterial({
-                    color: 0x00B8FF,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                var border = new THREE.LineSegments(borderGeo, borderMat);
-                panelGroup.add(border);
-
-                var fillGeo = new THREE.PlaneGeometry(4, 2.5);
-                var fillMat = new THREE.MeshBasicMaterial({
-                    color: 0x00B8FF,
-                    transparent: true,
-                    opacity: 0.1,
-                    side: THREE.DoubleSide
-                });
-                var fill = new THREE.Mesh(fillGeo, fillMat);
-                panelGroup.add(fill);
-
-                for (var g = 0; g < 3; g++) {
-                    var yLine = -0.9 + g * 0.9;
-                    var pts = [
-                        new THREE.Vector3(-1.8, yLine, 0.01),
-                        new THREE.Vector3(1.8, yLine, 0.01)
-                    ];
-                    var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-                    var lineMat = new THREE.LineBasicMaterial({
-                        color: 0x4DCCFF,
-                        transparent: true,
-                        opacity: 0.4
-                    });
-                    var line = new THREE.Line(lineGeo, lineMat);
-                    panelGroup.add(line);
-                }
-
-                scene.add(panelGroup);
-                panels.push({
-                    group: panelGroup,
-                    baseY: pos.y,
-                    baseRotY: pos.rotY,
-                    phase: p * 1.3
-                });
-            }
-
-            // ═══════ PARTICLES ═══════
-            var particleCount = isMobile ? 150 : 300;
-            var particleGeo = new THREE.BufferGeometry();
-            var positions = new Float32Array(particleCount * 3);
-            var colors = new Float32Array(particleCount * 3);
+            // ═══════ CROWD / ATMOSPHERE PARTICLES ═══════
+            var particleCount = isMobile ? 200 : 400;
+            var pGeo = new THREE.BufferGeometry();
+            var pPositions = new Float32Array(particleCount * 3);
+            var pColors = new Float32Array(particleCount * 3);
 
             for (var k = 0; k < particleCount; k++) {
-                var r = 8 + Math.random() * 35;
+                var r = 5 + Math.random() * 40;
                 var theta = Math.random() * Math.PI * 2;
-                var phi = Math.random() * Math.PI - Math.PI / 2;
+                var phi = Math.random() * Math.PI * 0.4 - Math.PI * 0.2;
 
-                positions[k * 3] = Math.cos(theta) * Math.cos(phi) * r;
-                positions[k * 3 + 1] = Math.sin(phi) * r * 0.5 + 5;
-                positions[k * 3 + 2] = Math.sin(theta) * Math.cos(phi) * r;
+                pPositions[k*3] = Math.cos(theta) * r;
+                pPositions[k*3+1] = 3 + Math.random() * 20;
+                pPositions[k*3+2] = Math.sin(theta) * r;
 
                 if (Math.random() > 0.5) {
-                    colors[k * 3] = 0; colors[k * 3 + 1] = 0.72; colors[k * 3 + 2] = 1;
+                    pColors[k*3] = 0; pColors[k*3+1] = 0.72; pColors[k*3+2] = 1;
                 } else {
-                    colors[k * 3] = 0.83; colors[k * 3 + 1] = 0.69; colors[k * 3 + 2] = 0.22;
+                    pColors[k*3] = 0.83; pColors[k*3+1] = 0.69; pColors[k*3+2] = 0.22;
                 }
             }
 
-            particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+            pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
 
-            var particleMat = new THREE.PointsMaterial({
-                size: 0.4,
+            var pMat = new THREE.PointsMaterial({
+                size: 0.35,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.9,
+                opacity: 0.7,
                 sizeAttenuation: true,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
 
-            var particles = new THREE.Points(particleGeo, particleMat);
+            var particles = new THREE.Points(pGeo, pMat);
             scene.add(particles);
 
             // ═══════ ANIMATION ═══════
             var clock = new THREE.Clock();
-            var cameraRadius = 32;
-            var cameraHeight = 12;
+            var cameraRadius = 45;
+            var cameraHeight = 22;
 
             function animate() {
                 requestAnimationFrame(animate);
                 var t = clock.getElapsedTime();
 
-                camera.position.x = Math.cos(t * 0.08) * cameraRadius;
-                camera.position.z = Math.sin(t * 0.08) * cameraRadius;
-                camera.position.y = cameraHeight + Math.sin(t * 0.15) * 2;
+                // Slow cinematic orbit
+                var camAngle = t * 0.05;
+                camera.position.x = Math.cos(camAngle) * cameraRadius;
+                camera.position.z = Math.sin(camAngle) * cameraRadius;
+                camera.position.y = cameraHeight + Math.sin(t * 0.1) * 3;
 
-                camera.lookAt(0, -2, 0);
+                camera.lookAt(0, 1, 0);
 
-                particles.rotation.y = t * 0.02;
+                // Ball gentle spin
+                ball.rotation.y = t * 2;
+                ballGlow.rotation.y = -t * 1.5;
+                ballGlow.scale.setScalar(1 + Math.sin(t * 3) * 0.1);
 
-                for (var i = 0; i < panels.length; i++) {
-                    var pnl = panels[i];
-                    pnl.group.position.y = pnl.baseY + Math.sin(t * 0.7 + pnl.phase) * 0.4;
-                    pnl.group.rotation.y = pnl.baseRotY + Math.sin(t * 0.3 + pnl.phase) * 0.15;
-                }
+                // Players breathing/moving
+                robotPlayers.forEach(function(pl) {
+                    pl.mesh.position.z = pl.baseZ + Math.sin(t * 0.8 + pl.phase) * 0.3;
+                    pl.mesh.children[0].scale.y = 1 + Math.sin(t * 2 + pl.phase) * 0.03;
+                });
+                humanPlayers.forEach(function(pl) {
+                    pl.mesh.position.z = pl.baseZ + Math.sin(t * 0.8 + pl.phase + 1) * 0.3;
+                    pl.mesh.children[0].scale.y = 1 + Math.sin(t * 2 + pl.phase) * 0.03;
+                });
 
-                for (var j = 0; j < pillars.length; j++) {
-                    var pl = pillars[j];
-                    var pulse = 0.3 + Math.sin(t * 1.5 + pl.phase) * 0.2;
-                    pl.mesh.material.emissiveIntensity = pulse;
-                }
+                // Particles drift
+                particles.rotation.y = t * 0.01;
 
-                blueLight.position.x = Math.cos(t * 0.3) * 20;
-                blueLight.position.z = Math.sin(t * 0.3) * 20;
-                goldLight.position.x = Math.cos(t * 0.3 + Math.PI) * 20;
-                goldLight.position.z = Math.sin(t * 0.3 + Math.PI) * 20;
+                // Pillar glow
+                pillars.forEach(function(p) {
+                    var pulse = 0.3 + Math.sin(t * 1.5 + p.phase) * 0.2;
+                    p.mesh.material.emissiveIntensity = pulse;
+                });
+
+                // Lights orbit
+                blueLight.position.x = Math.cos(t * 0.2) * 25;
+                blueLight.position.z = Math.sin(t * 0.2) * 25;
+                goldLight.position.x = Math.cos(t * 0.2 + Math.PI) * 25;
+                goldLight.position.z = Math.sin(t * 0.2 + Math.PI) * 25;
 
                 renderer.render(scene, camera);
             }
@@ -1105,8 +1183,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('service-worker.js')
-                    .then(function() { console.log('SW registered'); })
-                    .catch(function() { console.log('SW failed'); });
+                    .then(function() {})
+                    .catch(function() {});
             });
         }
     </script>
