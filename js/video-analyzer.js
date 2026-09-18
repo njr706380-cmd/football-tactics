@@ -1,200 +1,230 @@
-// video-analyzer.js — Video created off-DOM only when needed
+// video-analyzer.js
 
 let selectedVideoFile = null;
 let extractedFrames = [];
 
 const WORKER_URL = "https://tactics-ai.njr706380.workers.dev";
-const MAX_VIDEO_SIZE_MB = 50;
-const MAX_VIDEO_DURATION = 60;
+const MAX_VIDEO_SIZE_MB = 100;
+const MAX_VIDEO_DURATION = 90;
 const FRAME_COUNT = 12;
 const FRAME_MAX_WIDTH = 480;
 
-let $fileInput, $analyzeBtn, $progress, $framesGrid, $error;
+let $fileInput, $analyzeBtn, $progress, $framesGrid, $error, $status, $uploadText;
 
 function initVideoAnalyzer() {
+    console.log("[VA] init");
     $fileInput  = document.getElementById("videoFileInput");
     $analyzeBtn = document.getElementById("analyzeVideoBtn");
     $progress   = document.getElementById("videoProgress");
     $framesGrid = document.getElementById("framesGrid");
     $error      = document.getElementById("videoError");
+    $status     = document.getElementById("videoStatus");
+    $uploadText = document.getElementById("uploadText");
 
-    if (!$fileInput) return;
+    if (!$fileInput || !$analyzeBtn) { console.log("[VA] missing elements"); return; }
 
     $fileInput.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files[0]) handleVideoFile(e.target.files[0]);
+        console.log("[VA] change fired, files:", e.target.files);
+        if (e.target.files && e.target.files.length > 0) {
+            handleVideoFile(e.target.files[0]);
+        }
     });
+
     $analyzeBtn.addEventListener("click", analyzeVideo);
+    console.log("[VA] ready");
 }
 
 function showError(msg) {
+    console.log("[VA] error:", msg);
     if (!$error) return;
-    $error.textContent = msg;
+    $error.textContent = "❌ " + msg;
     $error.style.display = "block";
+    if ($status) $status.style.display = "none";
+    $error.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-function hideError() {
-    if (!$error) return;
-    $error.style.display = "none";
+function showStatus(msg) {
+    console.log("[VA] status:", msg);
+    if (!$status) return;
+    $status.textContent = "✅ " + msg;
+    $status.style.display = "block";
+    if ($error) $error.style.display = "none";
+}
+
+function hideMessages() {
+    if ($error) $error.style.display = "none";
+    if ($status) $status.style.display = "none";
 }
 
 function handleVideoFile(file) {
-    hideError();
+    console.log("[VA] handleVideoFile:", file.name, file.size, file.type);
+    hideMessages();
     extractedFrames = [];
     if ($framesGrid) $framesGrid.innerHTML = "";
+    const title = document.getElementById("framesTitle");
+    if (title) title.classList.remove("show");
+    const existing = document.getElementById("analysisResult");
+    if (existing) existing.remove();
 
-    if (!file.type.startsWith("video/")) {
-        showError("الملف المختار ليس فيديو.");
-        return;
-    }
-    if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-        showError("حجم الفيديو كبير — الحد " + MAX_VIDEO_SIZE_MB + " ميجابايت.");
+    const sizeMB = file.size / (1024 * 1024);
+    console.log("[VA] size MB:", sizeMB.toFixed(2));
+
+    if (sizeMB > MAX_VIDEO_SIZE_MB) {
+        showError("حجم الفيديو كبير (" + sizeMB.toFixed(1) + " ميجابايت). الحد " + MAX_VIDEO_SIZE_MB + " ميجابايت.");
         return;
     }
 
     selectedVideoFile = file;
     $analyzeBtn.disabled = false;
+
+    if ($uploadText) {
+        $uploadText.textContent = "✅ " + file.name;
+    }
+    showStatus("الفيديو جاهز — اضغط (استخراج اللقطات)");
+    console.log("[VA] file accepted, button enabled");
 }
 
 async function analyzeVideo() {
+    console.log("[VA] analyzeVideo");
     if (!selectedVideoFile) return;
-    hideError();
+    hideMessages();
     extractedFrames = [];
     if ($framesGrid) $framesGrid.innerHTML = "";
     $analyzeBtn.disabled = true;
 
-    if ($progress) {
-        $progress.style.display = "block";
-        $progress.value = 0;
-    }
+    if ($progress) { $progress.style.display = "block"; $progress.value = 0; }
 
-    // ننشئ الفيديو داخل JS فقط — ما يلمس الصفحة
     const video = document.createElement("video");
     video.preload = "metadata";
     video.muted = true;
-    video.playsInline = true;
-    video.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1;";
     document.body.appendChild(video);
-    video.src = URL.createObjectURL(selectedVideoFile);
+
+    const url = URL.createObjectURL(selectedVideoFile);
+    video.src = url;
 
     try {
-        await waitForMetadata(video);
-        const duration = video.duration;
+        console.log("[VA] waiting metadata");
+        await waitMetadata(video);
+        console.log("[VA] duration:", video.duration, "dims:", video.videoWidth, "x", video.videoHeight);
 
-        if (duration > MAX_VIDEO_DURATION) {
-            showError("مدة الفيديو طويلة — الحد " + MAX_VIDEO_DURATION + " ثانية.");
-            cleanup(video);
-            resetAnalyzeUI();
+        if (video.duration > MAX_VIDEO_DURATION) {
+            showError("مدة الفيديو طويلة (" + Math.round(video.duration) + " ثانية). الحد " + MAX_VIDEO_DURATION + " ثانية.");
+            cleanup(video, url);
+            resetUI();
             return;
         }
 
+        showStatus("جاري استخراج اللقطات...");
         const frames = await extractFrames(video, FRAME_COUNT);
+        console.log("[VA] extracted:", frames.length);
         extractedFrames = frames;
         renderFrames(frames);
 
         if ($progress) $progress.style.display = "none";
+        cleanup(video, url);
 
-        // ننظف الفيديو قبل الإرسال
-        cleanup(video);
-
+        showStatus("تم استخراج " + frames.length + " لقطة — جاري إرسالها للتحليل...");
         await sendFramesToWorker(frames);
 
     } catch (err) {
-        console.error("Error:", err);
-        cleanup(video);
-        showError("تعذر معالجة الفيديو. حاول مرة أخرى.");
-        resetAnalyzeUI();
+        console.error("[VA] error:", err);
+        showError("تعذر معالجة الفيديو: " + err.message);
+        cleanup(video, url);
+        resetUI();
     }
 }
 
-function cleanup(video) {
+function cleanup(video, url) {
     try {
         video.pause();
-        video.src = "";
+        video.removeAttribute("src");
         video.load();
         if (video.parentNode) video.parentNode.removeChild(video);
-    } catch (e) { /* ignore */ }
+        if (url) URL.revokeObjectURL(url);
+    } catch (e) {}
 }
 
-function resetAnalyzeUI() {
+function resetUI() {
     if ($progress) $progress.style.display = "none";
     if ($analyzeBtn) $analyzeBtn.disabled = false;
 }
 
-function waitForMetadata(video) {
+function waitMetadata(video) {
     return new Promise((resolve, reject) => {
-        if (video.readyState >= 1) return resolve();
-        const onLoaded = () => { cleanup_listeners(); resolve(); };
-        const onError = () => { cleanup_listeners(); reject(new Error("load error")); };
-        const cleanup_listeners = () => {
-            video.removeEventListener("loadedmetadata", onLoaded);
-            video.removeEventListener("error", onError);
+        if (video.readyState >= 1 && video.duration) { resolve(); return; }
+        let done = false;
+        const ok = () => { if (done) return; done = true; clean(); resolve(); };
+        const err = () => { if (done) return; done = true; clean(); reject(new Error("فشل تحميل الفيديو")); };
+        const clean = () => {
+            video.removeEventListener("loadedmetadata", ok);
+            video.removeEventListener("error", err);
+            clearTimeout(t);
         };
-        video.addEventListener("loadedmetadata", onLoaded);
-        video.addEventListener("error", onError);
-        setTimeout(() => { cleanup_listeners(); reject(new Error("timeout")); }, 5000);
+        video.addEventListener("loadedmetadata", ok);
+        video.addEventListener("error", err);
+        const t = setTimeout(() => {
+            if (done) return; done = true; clean();
+            if (video.videoWidth && video.duration) resolve();
+            else reject(new Error("انتهت المهلة"));
+        }, 8000);
     });
 }
 
 async function extractFrames(video, count) {
     const canvas = document.createElement("canvas");
-    const ratio = video.videoWidth / video.videoHeight || 16 / 9;
-    const width = Math.min(FRAME_MAX_WIDTH, video.videoWidth || 480);
+    const vw = video.videoWidth || 640;
+    const vh = video.videoHeight || 360;
+    const ratio = vw / vh;
+    const width = Math.min(FRAME_MAX_WIDTH, vw);
     const height = Math.round(width / ratio);
     canvas.width = width;
     canvas.height = height;
-
     const ctx = canvas.getContext("2d");
+
     const duration = video.duration;
     const frames = [];
 
     for (let i = 0; i < count; i++) {
         const t = (duration * (i + 0.5)) / count;
-        await seekVideo(video, t);
+        await seek(video, t);
         ctx.drawImage(video, 0, 0, width, height);
         frames.push({ timestamp: t, dataUrl: canvas.toDataURL("image/jpeg", 0.7) });
         if ($progress) $progress.value = ((i + 1) / count) * 100;
+        console.log("[VA] frame", i + 1, "at", t.toFixed(1) + "s");
     }
-
     return frames;
 }
 
-function seekVideo(video, time) {
+function seek(video, time) {
     return new Promise((resolve) => {
         let done = false;
-        const onSeeked = () => {
-            if (done) return;
-            done = true;
-            video.removeEventListener("seeked", onSeeked);
-            resolve();
-        };
-        video.addEventListener("seeked", onSeeked);
-        video.currentTime = time;
-        setTimeout(() => {
-            if (done) return;
-            done = true;
-            video.removeEventListener("seeked", onSeeked);
-            resolve();
-        }, 1500);
+        const ok = () => { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); };
+        video.addEventListener("seeked", ok);
+        try { video.currentTime = time; } catch(e) { resolve(); return; }
+        setTimeout(() => { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); }, 2000);
     });
 }
 
 function renderFrames(frames) {
     if (!$framesGrid) return;
     $framesGrid.innerHTML = "";
-    frames.forEach((frame, i) => {
+    const title = document.getElementById("framesTitle");
+    if (title) title.classList.add("show");
+    frames.forEach((f, i) => {
         const div = document.createElement("div");
         div.className = "frame-item";
-        div.innerHTML =
-            '<img src="' + frame.dataUrl + '" alt="' + (i + 1) + '">' +
-            '<span class="frame-time">' + formatTime(frame.timestamp) + '</span>';
+        div.innerHTML = '<img src="' + f.dataUrl + '" alt="' + (i + 1) + '"><span class="frame-time">' + fmtTime(f.timestamp) + '</span>';
         $framesGrid.appendChild(div);
     });
 }
 
-function formatTime(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+function fmtTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
 }
 
 async function sendFramesToWorker(frames) {
@@ -216,20 +246,21 @@ async function sendFramesToWorker(frames) {
 
         const data = await res.json();
         loading.remove();
+        console.log("[VA] worker response:", data);
 
         if (!res.ok || !data.success) {
-            showError("فشل التحليل: " + (data.details || data.error || "خطأ"));
-            resetAnalyzeUI();
+            showError("فشل التحليل: " + (data.details || data.error || "خطأ غير معروف"));
             return;
         }
 
+        hideMessages();
         renderAnalysis(data.analysis);
     } catch (err) {
-        console.error("Analysis error:", err);
+        console.error("[VA] worker error:", err);
         loading.remove();
-        showError("تعذر الاتصال بالخدمة. حاول مرة أخرى.");
+        showError("تعذر الاتصال بالخدمة: " + err.message);
     } finally {
-        resetAnalyzeUI();
+        resetUI();
     }
 }
 
