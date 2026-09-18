@@ -105,6 +105,7 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 }
 
 .upload-area {
+    display: block;
     border: 2px dashed rgba(212,175,55,0.4);
     border-radius: 16px;
     padding: 35px 20px;
@@ -273,13 +274,13 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
         <p>ارفع مقطع من مباراة eFootball (حتى 60 ثانية، 50 ميجابايت).<br>سيتم استخراج 12 لقطة للتحليل.</p>
     </div>
 
-    <div class="upload-area" id="uploadArea">
+    <label class="upload-area" for="videoFileInput" id="uploadArea">
         <span class="upload-icon">📹</span>
         <div class="upload-text">اضغط لاختيار فيديو</div>
         <div class="upload-hint">MP4 • WebM • MOV</div>
-    </div>
+    </label>
 
-    <input type="file" id="videoFileInput" accept="video/*" style="display:none">
+    <input type="file" id="videoFileInput" accept="video/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
 
     <video id="videoPreview" controls preload="metadata"></video>
 
