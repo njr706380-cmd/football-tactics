@@ -43,7 +43,6 @@
             pointer-events: none;
             background:
                 radial-gradient(circle at 50% 40%, rgba(0, 184, 255, 0.08), transparent 55%),
-                radial-gradient(circle at 50% 80%, rgba(212, 175, 55, 0.06), transparent 60%),
                 linear-gradient(180deg, #050505 0%, #0A0E17 50%, #050505 100%);
         }
 
@@ -52,12 +51,6 @@
             inset: 0;
             z-index: -4;
             pointer-events: none;
-            background: transparent;
-        }
-        #bg3d canvas {
-            display: block !important;
-            width: 100% !important;
-            height: 100% !important;
         }
 
         .bg-grid {
@@ -577,7 +570,6 @@
         </a>
     </nav>
 
-    <!-- HOME -->
     <section class="screen active" id="screen-home">
         <div class="screen-inner">
             <div class="hero-badge">◉ FUTURISTIC FOOTBALL UNIVERSE</div>
@@ -605,7 +597,6 @@
         </div>
     </section>
 
-    <!-- HUB -->
     <section class="screen with-navbar" id="screen-hub">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
@@ -644,7 +635,6 @@
         </div>
     </section>
 
-    <!-- STYLES -->
     <section class="screen with-navbar" id="screen-styles">
         <button class="back-btn" onclick="goToScreen('screen-hub')">→ رجوع</button>
         <div class="screen-inner">
@@ -657,7 +647,6 @@
         </div>
     </section>
 
-    <!-- ABOUT -->
     <section class="screen with-navbar" id="screen-about">
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
@@ -675,13 +664,12 @@
         </div>
     </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="data.js"></script>
     <script src="app.js"></script>
     <script src="js/sounds.js"></script>
 
     <script>
-        // Screen Navigation
+        // ═══════ Screen Navigation ═══════
         function goToScreen(screenId) {
             var navbar = document.getElementById('mainNavbar');
             var isHome = (screenId === 'screen-home');
@@ -724,457 +712,365 @@
         });
 
         // ═══════════════════════════════════════════════════
-        // 3D FOOTBALL MATCH — ROBOTS vs HUMANS
+        // 2D CANVAS FOOTBALL MATCH — ROBOTS vs HUMANS
         // ═══════════════════════════════════════════════════
         (function() {
-            if (typeof THREE === 'undefined') return;
-            console.log('Starting 3D match scene...');
-
             var canvas = document.getElementById('bg3d');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
             var isMobile = window.innerWidth < 768;
 
-            var scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x050505, 0.012);
+            var W = 0, H = 0;
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
 
-            var camera = new THREE.PerspectiveCamera(
-                50,
-                window.innerWidth / window.innerHeight,
-                0.1,
-                400
-            );
+            var camera = {
+                angle: 0,
+                radius: 24,
+                height: 10,
+                horizonY: 0.42
+            };
 
-            var renderer = new THREE.WebGLRenderer({
-                canvas: canvas,
-                antialias: !isMobile,
-                alpha: true,
-                powerPreference: 'low-power'
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
-            renderer.setClearColor(0x000000, 0);
+            function project(wx, wy, wz) {
+                var cos = Math.cos(-camera.angle);
+                var sin = Math.sin(-camera.angle);
+                var rx = wx * cos - wz * sin;
+                var rz = wx * sin + wz * cos;
 
-            // ═══════ LIGHTS ═══════
-            scene.add(new THREE.AmbientLight(0x304050, 0.6));
+                var dy = wy - camera.height;
+                var dz = rz + camera.radius;
 
-            var blueLight = new THREE.PointLight(0x00B8FF, 2.5, 100, 2);
-            blueLight.position.set(20, 25, 20);
-            scene.add(blueLight);
+                if (dz < 0.5) return null;
 
-            var goldLight = new THREE.PointLight(0xD4AF37, 2.2, 100, 2);
-            goldLight.position.set(-20, 25, -20);
-            scene.add(goldLight);
+                var focal = 600;
+                var scale = focal / dz;
+                var sx = W / 2 + rx * scale;
+                var sy = H * camera.horizonY - dy * scale;
 
-            var topLight = new THREE.PointLight(0xFFFFFF, 0.8, 80, 2);
-            topLight.position.set(0, 40, 0);
-            scene.add(topLight);
-
-            // ═══════ FOOTBALL PITCH ═══════
-            var pitchGroup = new THREE.Group();
-            scene.add(pitchGroup);
+                return { x: sx, y: sy, scale: scale / focal };
+            }
 
             var PITCH_LEN = 40;
             var PITCH_WID = 26;
 
-            // Ground - dark green
-            var pitchGeo = new THREE.PlaneGeometry(PITCH_LEN, PITCH_WID);
-            var pitchMat = new THREE.MeshStandardMaterial({
-                color: 0x0A2416,
-                roughness: 0.9,
-                metalness: 0.1
-            });
-            var pitch = new THREE.Mesh(pitchGeo, pitchMat);
-            pitch.rotation.x = -Math.PI / 2;
-            pitch.receiveShadow = true;
-            pitchGroup.add(pitch);
+            function drawPitch() {
+                var c0 = project(-PITCH_LEN/2, 0, -PITCH_WID/2);
+                var c1 = project( PITCH_LEN/2, 0, -PITCH_WID/2);
+                var c2 = project( PITCH_LEN/2, 0,  PITCH_WID/2);
+                var c3 = project(-PITCH_LEN/2, 0,  PITCH_WID/2);
 
-            // Field lines (white)
-            function addLine(x1, z1, x2, z2) {
-                var mat = new THREE.LineBasicMaterial({ color: 0x4ADE80, transparent: true, opacity: 0.5 });
-                var pts = [new THREE.Vector3(x1, 0.02, z1), new THREE.Vector3(x2, 0.02, z2)];
-                var geo = new THREE.BufferGeometry().setFromPoints(pts);
-                pitchGroup.add(new THREE.Line(geo, mat));
-            }
+                if (!c0 || !c1 || !c2 || !c3) return;
 
-            // Border
-            addLine(-PITCH_LEN/2, -PITCH_WID/2, PITCH_LEN/2, -PITCH_WID/2);
-            addLine(PITCH_LEN/2, -PITCH_WID/2, PITCH_LEN/2, PITCH_WID/2);
-            addLine(PITCH_LEN/2, PITCH_WID/2, -PITCH_LEN/2, PITCH_WID/2);
-            addLine(-PITCH_LEN/2, PITCH_WID/2, -PITCH_LEN/2, -PITCH_WID/2);
-            // Middle line
-            addLine(0, -PITCH_WID/2, 0, PITCH_WID/2);
+                var grad = ctx.createLinearGradient(0, c0.y, 0, c2.y);
+                grad.addColorStop(0, 'rgba(10, 36, 22, 0.85)');
+                grad.addColorStop(0.5, 'rgba(15, 48, 30, 0.9)');
+                grad.addColorStop(1, 'rgba(8, 28, 18, 0.85)');
 
-            // Center circle
-            var circleGeo = new THREE.RingGeometry(3.8, 4, 48);
-            var circleMat = new THREE.MeshBasicMaterial({
-                color: 0x4ADE80, transparent: true, opacity: 0.4, side: THREE.DoubleSide
-            });
-            var circle = new THREE.Mesh(circleGeo, circleMat);
-            circle.rotation.x = -Math.PI / 2;
-            circle.position.y = 0.02;
-            pitchGroup.add(circle);
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.moveTo(c0.x, c0.y);
+                ctx.lineTo(c1.x, c1.y);
+                ctx.lineTo(c2.x, c2.y);
+                ctx.lineTo(c3.x, c3.y);
+                ctx.closePath();
+                ctx.fill();
 
-            // ═══════ FOOTBALL (center) ═══════
-            var ballGeo = new THREE.SphereGeometry(0.8, 32, 32);
-            var ballMat = new THREE.MeshStandardMaterial({
-                color: 0xFFFFFF,
-                roughness: 0.4,
-                metalness: 0.3,
-                emissive: 0xFFFFFF,
-                emissiveIntensity: 0.3
-            });
-            var ball = new THREE.Mesh(ballGeo, ballMat);
-            ball.position.set(0, 0.8, 0);
-            ball.castShadow = true;
-            pitchGroup.add(ball);
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.5)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
 
-            // Ball glow
-            var ballGlowGeo = new THREE.SphereGeometry(1.2, 16, 16);
-            var ballGlowMat = new THREE.MeshBasicMaterial({
-                color: 0x00F0FF,
-                transparent: true,
-                opacity: 0.15
-            });
-            var ballGlow = new THREE.Mesh(ballGlowGeo, ballGlowMat);
-            ballGlow.position.set(0, 0.8, 0);
-            pitchGroup.add(ballGlow);
-
-            // ═══════ PLAYER BUILDER ═══════
-            function createPlayer(type, colorPrimary, colorSecondary, isGoalkeeper) {
-                var group = new THREE.Group();
-                var height = isGoalkeeper ? 1.9 : 1.75;
-
-                if (type === 'robot') {
-                    // ROBOT: metallic, sharp edges
-                    // Body - cylinder
-                    var bodyGeo = new THREE.CylinderGeometry(0.28, 0.35, 0.9, 6);
-                    var bodyMat = new THREE.MeshStandardMaterial({
-                        color: 0x0A1520,
-                        emissive: colorPrimary,
-                        emissiveIntensity: 0.6,
-                        metalness: 0.95,
-                        roughness: 0.15
-                    });
-                    var body = new THREE.Mesh(bodyGeo, bodyMat);
-                    body.position.y = height * 0.45;
-                    body.castShadow = true;
-                    group.add(body);
-
-                    // Head - cube
-                    var headGeo = new THREE.BoxGeometry(0.38, 0.38, 0.38);
-                    var headMat = new THREE.MeshStandardMaterial({
-                        color: 0x0A1520,
-                        emissive: colorPrimary,
-                        emissiveIntensity: 0.8,
-                        metalness: 0.95,
-                        roughness: 0.1
-                    });
-                    var head = new THREE.Mesh(headGeo, headMat);
-                    head.position.y = height * 0.95;
-                    head.rotation.y = Math.PI / 4;
-                    head.castShadow = true;
-                    group.add(head);
-
-                    // Eyes (glowing)
-                    var eyeGeo = new THREE.SphereGeometry(0.06, 8, 8);
-                    var eyeMat = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
-                    var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-                    eyeL.position.set(-0.1, height * 0.97, 0.2);
-                    group.add(eyeL);
-                    var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-                    eyeR.position.set(0.1, height * 0.97, 0.2);
-                    group.add(eyeR);
-
-                    // Legs
-                    var legGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.6, 5);
-                    var legMat = new THREE.MeshStandardMaterial({
-                        color: 0x0A1520,
-                        metalness: 0.9,
-                        roughness: 0.2
-                    });
-                    var legL = new THREE.Mesh(legGeo, legMat);
-                    legL.position.set(-0.15, 0.3, 0);
-                    group.add(legL);
-                    var legR = new THREE.Mesh(legGeo, legMat);
-                    legR.position.set(0.15, 0.3, 0);
-                    group.add(legR);
-
-                } else {
-                    // HUMAN: smooth, organic
-                    // Body - capsule
-                    var bodyGeo = new THREE.CapsuleGeometry(0.3, 0.7, 8, 12);
-                    var bodyMat = new THREE.MeshStandardMaterial({
-                        color: colorPrimary,
-                        roughness: 0.7,
-                        metalness: 0.2,
-                        emissive: colorPrimary,
-                        emissiveIntensity: 0.15
-                    });
-                    var body = new THREE.Mesh(bodyGeo, bodyMat);
-                    body.position.y = height * 0.45;
-                    body.castShadow = true;
-                    group.add(body);
-
-                    // Head - sphere
-                    var headGeo = new THREE.SphereGeometry(0.22, 16, 16);
-                    var headMat = new THREE.MeshStandardMaterial({
-                        color: 0xF5D6B8,
-                        roughness: 0.8,
-                        metalness: 0
-                    });
-                    var head = new THREE.Mesh(headGeo, headMat);
-                    head.position.y = height * 0.95;
-                    head.castShadow = true;
-                    group.add(head);
-
-                    // Hair
-                    var hairGeo = new THREE.SphereGeometry(0.23, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-                    var hairMat = new THREE.MeshStandardMaterial({ color: 0x2A1810, roughness: 0.9 });
-                    var hair = new THREE.Mesh(hairGeo, hairMat);
-                    hair.position.y = height * 0.97;
-                    group.add(hair);
-
-                    // Legs
-                    var legGeo = new THREE.CapsuleGeometry(0.1, 0.5, 6, 8);
-                    var legMat = new THREE.MeshStandardMaterial({
-                        color: colorSecondary,
-                        roughness: 0.7
-                    });
-                    var legL = new THREE.Mesh(legGeo, legMat);
-                    legL.position.set(-0.14, 0.32, 0);
-                    group.add(legL);
-                    var legR = new THREE.Mesh(legGeo, legMat);
-                    legR.position.set(0.14, 0.32, 0);
-                    group.add(legR);
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.35)';
+                ctx.beginPath();
+                var m1 = project(0, 0, -PITCH_WID/2);
+                var m2 = project(0, 0, PITCH_WID/2);
+                if (m1 && m2) {
+                    ctx.moveTo(m1.x, m1.y);
+                    ctx.lineTo(m2.x, m2.y);
+                    ctx.stroke();
                 }
 
-                // Team marker (glowing ring at feet)
-                var ringGeo = new THREE.RingGeometry(0.5, 0.6, 24);
-                var ringMat = new THREE.MeshBasicMaterial({
-                    color: colorPrimary,
-                    transparent: true,
-                    opacity: 0.6,
-                    side: THREE.DoubleSide
-                });
-                var ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.rotation.x = -Math.PI / 2;
-                ring.position.y = 0.03;
-                group.add(ring);
+                var centerProj = project(0, 0, 0);
+                if (centerProj) {
+                    var r = centerProj.scale * 4 * 10;
+                    ctx.beginPath();
+                    ctx.ellipse(centerProj.x, centerProj.y, r * 2.5, r * 0.7, 0, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(74, 222, 128, 0.4)';
+                    ctx.stroke();
 
-                // Number badge (small sphere above head)
-                var badgeGeo = new THREE.SphereGeometry(0.12, 12, 12);
-                var badgeMat = new THREE.MeshBasicMaterial({ color: colorPrimary });
-                var badge = new THREE.Mesh(badgeGeo, badgeMat);
-                badge.position.y = height * 1.25;
-                group.add(badge);
-
-                return group;
+                    ctx.beginPath();
+                    ctx.arc(centerProj.x, centerProj.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+                    ctx.fill();
+                }
             }
 
-            // ═══════ FORMATIONS ═══════
-            // Robot team (blue) - right side
-            var robotFormation = [
-                { x: 16, z: 0, type: 'gk' },        // GK
-                { x: 12, z: -8, type: 'def' },      // DEF
-                { x: 12, z: -3, type: 'def' },
-                { x: 12, z: 3, type: 'def' },
-                { x: 12, z: 8, type: 'def' },
-                { x: 5, z: -9, type: 'mid' },       // MID
-                { x: 5, z: -3, type: 'mid' },
-                { x: 5, z: 3, type: 'mid' },
-                { x: 5, z: 9, type: 'mid' },
-                { x: -1, z: -4, type: 'fwd' },      // FWD
-                { x: -1, z: 4, type: 'fwd' }
-            ];
-
-            // Human team (gold) - left side
-            var humanFormation = [
-                { x: -16, z: 0, type: 'gk' },
-                { x: -12, z: -8, type: 'def' },
-                { x: -12, z: -3, type: 'def' },
-                { x: -12, z: 3, type: 'def' },
-                { x: -12, z: 8, type: 'def' },
-                { x: -5, z: -9, type: 'mid' },
-                { x: -5, z: -3, type: 'mid' },
-                { x: -5, z: 3, type: 'mid' },
-                { x: -5, z: 9, type: 'mid' },
-                { x: 1, z: -4, type: 'fwd' },
-                { x: 1, z: 4, type: 'fwd' }
-            ];
-
-            // Robots (Blue)
-            var robotPlayers = [];
-            robotFormation.forEach(function(pos) {
-                var isGK = pos.type === 'gk';
-                var p = createPlayer('robot', 0x00B8FF, 0x0077B6, isGK);
-                p.position.set(pos.x, 0, pos.z);
-                p.rotation.y = -Math.PI / 2; // facing left
-                pitchGroup.add(p);
-                robotPlayers.push({ mesh: p, baseZ: pos.z, phase: Math.random() * 6 });
-            });
-
-            // Humans (Gold)
-            var humanPlayers = [];
-            humanFormation.forEach(function(pos) {
-                var isGK = pos.type === 'gk';
-                var p = createPlayer('human', 0xD4AF37, 0x8B5A00, isGK);
-                p.position.set(pos.x, 0, pos.z);
-                p.rotation.y = Math.PI / 2; // facing right
-                pitchGroup.add(p);
-                humanPlayers.push({ mesh: p, baseZ: pos.z, phase: Math.random() * 6 });
-            });
-
-            // ═══════ STADIUM SURROUNDINGS ═══════
-            // Stadium floor (circle around pitch)
-            var stadiumFloorGeo = new THREE.RingGeometry(22, 45, 64);
-            var stadiumFloorMat = new THREE.MeshBasicMaterial({
-                color: 0x080C14,
-                transparent: true,
-                opacity: 0.9,
-                side: THREE.DoubleSide
-            });
-            var stadiumFloor = new THREE.Mesh(stadiumFloorGeo, stadiumFloorMat);
-            stadiumFloor.rotation.x = -Math.PI / 2;
-            stadiumFloor.position.y = -0.05;
-            scene.add(stadiumFloor);
-
-            // Glowing ring around stadium
-            var glowRingGeo = new THREE.RingGeometry(22, 22.5, 64);
-            var glowRingMat = new THREE.MeshBasicMaterial({
-                color: 0x00B8FF,
-                transparent: true,
-                opacity: 0.5,
-                side: THREE.DoubleSide
-            });
-            var glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
-            glowRing.rotation.x = -Math.PI / 2;
-            glowRing.position.y = 0.02;
-            scene.add(glowRing);
-
-            // Stadium pillars (towers)
-            var pillarCount = isMobile ? 20 : 32;
+            var pillarCount = isMobile ? 16 : 24;
             var pillars = [];
-
             for (var i = 0; i < pillarCount; i++) {
                 var angle = (i / pillarCount) * Math.PI * 2;
-                var radius = 32;
-                var x = Math.cos(angle) * radius;
-                var z = Math.sin(angle) * radius;
-
-                var ph = 8 + Math.random() * 4;
-                var pGeo = new THREE.CylinderGeometry(0.4, 0.5, ph, 6);
-                var pMat = new THREE.MeshStandardMaterial({
-                    color: 0x0A0E17,
-                    emissive: 0x00B8FF,
-                    emissiveIntensity: 0.4,
-                    metalness: 0.9,
-                    roughness: 0.2
+                pillars.push({
+                    x: Math.cos(angle) * 22,
+                    z: Math.sin(angle) * 22,
+                    height: 5 + Math.random() * 4,
+                    phase: i * 0.4,
+                    color: Math.random() > 0.5 ? '0, 184, 255' : '212, 175, 55'
                 });
-                var pillar = new THREE.Mesh(pGeo, pMat);
-                pillar.position.set(x, ph / 2, z);
-                scene.add(pillar);
-                pillars.push({ mesh: pillar, phase: i * 0.3 });
-
-                // Top light
-                var topG = new THREE.SphereGeometry(0.5, 8, 8);
-                var topM = new THREE.MeshBasicMaterial({ color: 0x00F0FF });
-                var top = new THREE.Mesh(topG, topM);
-                top.position.set(x, ph, z);
-                scene.add(top);
             }
 
-            // ═══════ CROWD / ATMOSPHERE PARTICLES ═══════
-            var particleCount = isMobile ? 200 : 400;
-            var pGeo = new THREE.BufferGeometry();
-            var pPositions = new Float32Array(particleCount * 3);
-            var pColors = new Float32Array(particleCount * 3);
+            function drawPillars() {
+                var sorted = [];
+                pillars.forEach(function(p) {
+                    var base = project(p.x, 0, p.z);
+                    var top = project(p.x, p.height, p.z);
+                    if (base && top) {
+                        sorted.push({ p: p, base: base, top: top, scale: base.scale });
+                    }
+                });
+                sorted.sort(function(a, b) { return a.scale - b.scale; });
 
-            for (var k = 0; k < particleCount; k++) {
-                var r = 5 + Math.random() * 40;
-                var theta = Math.random() * Math.PI * 2;
-                var phi = Math.random() * Math.PI * 0.4 - Math.PI * 0.2;
+                sorted.forEach(function(item) {
+                    var w = Math.max(3, 50 * item.scale);
+                    var alpha = Math.min(0.7, 0.25 + item.scale * 4);
 
-                pPositions[k*3] = Math.cos(theta) * r;
-                pPositions[k*3+1] = 3 + Math.random() * 20;
-                pPositions[k*3+2] = Math.sin(theta) * r;
+                    ctx.fillStyle = 'rgba(10, 14, 23, ' + alpha + ')';
+                    ctx.fillRect(item.base.x - w/2, item.top.y, w, item.base.y - item.top.y);
 
-                if (Math.random() > 0.5) {
-                    pColors[k*3] = 0; pColors[k*3+1] = 0.72; pColors[k*3+2] = 1;
+                    ctx.shadowColor = 'rgba(' + item.p.color + ', 0.8)';
+                    ctx.shadowBlur = 12;
+                    ctx.strokeStyle = 'rgba(' + item.p.color + ', ' + alpha + ')';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(item.base.x - w/2, item.top.y, w, item.base.y - item.top.y);
+                    ctx.shadowBlur = 0;
+
+                    var pulse = 0.5 + Math.sin(Date.now() / 600 + item.p.phase) * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(item.base.x, item.top.y, Math.max(2, w * 0.6), 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(' + item.p.color + ', ' + pulse + ')';
+                    ctx.shadowColor = 'rgba(' + item.p.color + ', 1)';
+                    ctx.shadowBlur = 15;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            function drawPlayer(wx, wz, type) {
+                var proj = project(wx, 1.0, wz);
+                if (!proj) return;
+
+                var scale = proj.scale * 10;
+                var bodyW = Math.max(3, 10 * scale);
+                var bodyH = Math.max(8, 22 * scale);
+                var headR = Math.max(2, 5 * scale);
+
+                var primary = type === 'robot' ? '#00B8FF' : '#D4AF37';
+                var secondary = type === 'robot' ? '#0077B6' : '#8B5A00';
+
+                // Shadow
+                ctx.beginPath();
+                ctx.ellipse(proj.x, proj.y, bodyW * 0.9, bodyW * 0.3, 0, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fill();
+
+                // Ring at feet
+                ctx.beginPath();
+                ctx.ellipse(proj.x, proj.y, bodyW * 0.8, bodyW * 0.3, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = primary;
+                ctx.lineWidth = Math.max(1, scale * 0.4);
+                ctx.shadowColor = primary;
+                ctx.shadowBlur = 8;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                var bodyTop = proj.y - bodyH;
+
+                if (type === 'robot') {
+                    ctx.fillStyle = '#0A1520';
+                    ctx.strokeStyle = primary;
+                    ctx.lineWidth = Math.max(1, scale * 0.4);
+                    ctx.shadowColor = primary;
+                    ctx.shadowBlur = 6;
+                    ctx.beginPath();
+                    ctx.moveTo(proj.x - bodyW/2, bodyTop);
+                    ctx.lineTo(proj.x + bodyW/2, bodyTop);
+                    ctx.lineTo(proj.x + bodyW/2 * 0.8, proj.y);
+                    ctx.lineTo(proj.x - bodyW/2 * 0.8, proj.y);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    ctx.fillStyle = '#0A1520';
+                    ctx.strokeStyle = primary;
+                    ctx.shadowColor = primary;
+                    ctx.shadowBlur = 8;
+                    ctx.fillRect(proj.x - headR, bodyTop - headR * 2.4, headR * 2, headR * 2);
+                    ctx.strokeRect(proj.x - headR, bodyTop - headR * 2.4, headR * 2, headR * 2);
+                    ctx.shadowBlur = 0;
+
+                    ctx.fillStyle = '#00F0FF';
+                    ctx.shadowColor = '#00F0FF';
+                    ctx.shadowBlur = 10;
+                    ctx.beginPath();
+                    ctx.arc(proj.x - headR * 0.5, bodyTop - headR * 1.4, Math.max(1, headR * 0.3), 0, Math.PI * 2);
+                    ctx.arc(proj.x + headR * 0.5, bodyTop - headR * 1.4, Math.max(1, headR * 0.3), 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
                 } else {
-                    pColors[k*3] = 0.83; pColors[k*3+1] = 0.69; pColors[k*3+2] = 0.22;
+                    ctx.fillStyle = secondary;
+                    ctx.shadowColor = primary;
+                    ctx.shadowBlur = 4;
+                    ctx.beginPath();
+                    ctx.ellipse(proj.x, bodyTop + bodyH * 0.4, bodyW * 0.55, bodyH * 0.4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    ctx.fillStyle = '#F5D6B8';
+                    ctx.beginPath();
+                    ctx.arc(proj.x, bodyTop, headR * 1.1, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#2A1810';
+                    ctx.beginPath();
+                    ctx.arc(proj.x, bodyTop - headR * 0.3, headR, Math.PI, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.beginPath();
+                ctx.arc(proj.x, bodyTop - headR * 3.5, Math.max(2, headR * 0.8), 0, Math.PI * 2);
+                ctx.fillStyle = primary;
+                ctx.shadowColor = primary;
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            var robotFormation = [
+                { x: 16, z: 0 }, { x: 12, z: -8 }, { x: 12, z: -3 },
+                { x: 12, z: 3 }, { x: 12, z: 8 }, { x: 5, z: -9 },
+                { x: 5, z: -3 }, { x: 5, z: 3 }, { x: 5, z: 9 },
+                { x: -1, z: -4 }, { x: -1, z: 4 }
+            ];
+
+            var humanFormation = [
+                { x: -16, z: 0 }, { x: -12, z: -8 }, { x: -12, z: -3 },
+                { x: -12, z: 3 }, { x: -12, z: 8 }, { x: -5, z: -9 },
+                { x: -5, z: -3 }, { x: -5, z: 3 }, { x: -5, z: 9 },
+                { x: 1, z: -4 }, { x: 1, z: 4 }
+            ];
+
+            function drawBall(t) {
+                var bob = Math.sin(t * 2) * 0.2;
+                var proj = project(0, 0.8 + bob, 0);
+                if (!proj) return;
+
+                var r = Math.max(4, 80 * proj.scale);
+
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, r * 2.5, 0, Math.PI * 2);
+                var glow = ctx.createRadialGradient(proj.x, proj.y, 0, proj.x, proj.y, r * 2.5);
+                glow.addColorStop(0, 'rgba(0, 240, 255, 0.4)');
+                glow.addColorStop(1, 'rgba(0, 240, 255, 0)');
+                ctx.fillStyle = glow;
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, r, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, r * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                for (var i = 0; i < 5; i++) {
+                    var a = (i / 5) * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.arc(
+                        proj.x + Math.cos(a) * r * 0.6,
+                        proj.y + Math.sin(a) * r * 0.6,
+                        r * 0.15, 0, Math.PI * 2
+                    );
+                    ctx.fill();
                 }
             }
 
-            pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-            pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
-
-            var pMat = new THREE.PointsMaterial({
-                size: 0.35,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.7,
-                sizeAttenuation: true,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false
-            });
-
-            var particles = new THREE.Points(pGeo, pMat);
-            scene.add(particles);
-
-            // ═══════ ANIMATION ═══════
-            var clock = new THREE.Clock();
-            var cameraRadius = 45;
-            var cameraHeight = 22;
-
-            function animate() {
-                requestAnimationFrame(animate);
-                var t = clock.getElapsedTime();
-
-                // Slow cinematic orbit
-                var camAngle = t * 0.05;
-                camera.position.x = Math.cos(camAngle) * cameraRadius;
-                camera.position.z = Math.sin(camAngle) * cameraRadius;
-                camera.position.y = cameraHeight + Math.sin(t * 0.1) * 3;
-
-                camera.lookAt(0, 1, 0);
-
-                // Ball gentle spin
-                ball.rotation.y = t * 2;
-                ballGlow.rotation.y = -t * 1.5;
-                ballGlow.scale.setScalar(1 + Math.sin(t * 3) * 0.1);
-
-                // Players breathing/moving
-                robotPlayers.forEach(function(pl) {
-                    pl.mesh.position.z = pl.baseZ + Math.sin(t * 0.8 + pl.phase) * 0.3;
-                    pl.mesh.children[0].scale.y = 1 + Math.sin(t * 2 + pl.phase) * 0.03;
+            var particles = [];
+            var particleCount = isMobile ? 60 : 120;
+            for (var j = 0; j < particleCount; j++) {
+                particles.push({
+                    x: (Math.random() - 0.5) * 80,
+                    y: Math.random() * 25 + 3,
+                    z: (Math.random() - 0.5) * 80,
+                    size: 0.5 + Math.random() * 1.2,
+                    color: Math.random() > 0.5 ? '0, 184, 255' : '212, 175, 55',
+                    phase: Math.random() * Math.PI * 2
                 });
-                humanPlayers.forEach(function(pl) {
-                    pl.mesh.position.z = pl.baseZ + Math.sin(t * 0.8 + pl.phase + 1) * 0.3;
-                    pl.mesh.children[0].scale.y = 1 + Math.sin(t * 2 + pl.phase) * 0.03;
-                });
-
-                // Particles drift
-                particles.rotation.y = t * 0.01;
-
-                // Pillar glow
-                pillars.forEach(function(p) {
-                    var pulse = 0.3 + Math.sin(t * 1.5 + p.phase) * 0.2;
-                    p.mesh.material.emissiveIntensity = pulse;
-                });
-
-                // Lights orbit
-                blueLight.position.x = Math.cos(t * 0.2) * 25;
-                blueLight.position.z = Math.sin(t * 0.2) * 25;
-                goldLight.position.x = Math.cos(t * 0.2 + Math.PI) * 25;
-                goldLight.position.z = Math.sin(t * 0.2 + Math.PI) * 25;
-
-                renderer.render(scene, camera);
             }
 
-            window.addEventListener('resize', function() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
+            function drawParticles(t) {
+                particles.forEach(function(p) {
+                    var proj = project(p.x, p.y, p.z);
+                    if (!proj) return;
+                    var r = Math.max(1, p.size * proj.scale * 60);
+                    var pulse = 0.5 + Math.sin(t * 2 + p.phase) * 0.4;
+
+                    ctx.beginPath();
+                    ctx.arc(proj.x, proj.y, r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(' + p.color + ', ' + pulse + ')';
+                    ctx.shadowColor = 'rgba(' + p.color + ', 0.8)';
+                    ctx.shadowBlur = 8;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            var startTime = Date.now();
+            function animate() {
+                requestAnimationFrame(animate);
+                var t = (Date.now() - startTime) / 1000;
+
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.35)';
+                ctx.fillRect(0, 0, W, H);
+
+                camera.angle = t * 0.03;
+
+                drawPitch();
+
+                var allPlayers = [];
+                humanFormation.forEach(function(p, i) {
+                    allPlayers.push({
+                        x: p.x + Math.sin(t * 0.4 + i) * 0.4,
+                        z: p.z + Math.sin(t * 0.8 + i) * 0.3,
+                        type: 'human',
+                        depth: Math.abs(p.x)
+                    });
+                });
+                robotFormation.forEach(function(p, i) {
+                    allPlayers.push({
+                        x: p.x + Math.sin(t * 0.4 + i + 5) * 0.4,
+                        z: p.z + Math.sin(t * 0.8 + i + 5) * 0.3,
+                        type: 'robot',
+                        depth: Math.abs(p.x)
+                    });
+                });
+
+                allPlayers.sort(function(a, b) { return b.depth - a.depth; });
+
+                allPlayers.forEach(function(p) {
+                    drawPlayer(p.x, p.z, p.type);
+                });
+
+                drawBall(t);
+
+                drawPillars();
+
+                drawParticles(t);
+            }
 
             animate();
         })();
