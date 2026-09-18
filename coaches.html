@@ -3,310 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>المدربون | تكتيكات كرة القدم</title>
+    <title>المدربون | Football Tactics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: #050505;
-            color: #FFF;
-            min-height: 100vh;
-            padding: 15px;
+        html, body {
+            min-height: 100%;
             overflow-x: hidden;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            background: #050505;
+            color: #fff;
+            position: relative;
+            min-height: 100vh;
         }
 
-        /* منع long-press popup */
-        a, button, .coach-card, .tab, .back-btn {
+        a, button, .coach-card, .tab-pill, .back-btn {
             -webkit-touch-callout: none !important;
             -webkit-user-select: none !important;
             user-select: none !important;
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        .bg-animation {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
+        /* ═══════ WORLD BACKGROUND ═══════ */
+        .world-bg {
+            position: fixed; inset: 0; z-index: 0;
+            background-image: url('file_0000000043a48210a567fbce11c924e2.png');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.5) saturate(1.15) contrast(1.05);
+            pointer-events: none;
+        }
+        .world-bg::after {
+            content: '';
+            position: absolute; inset: 0;
             background:
-                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.12), transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(27, 94, 32, 0.15), transparent 50%),
-                #050505;
+                radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.85) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 25%, transparent 60%, rgba(0,0,0,0.85) 100%);
+        }
+        .bg-fallback {
+            position: fixed; inset: 0; z-index: -1;
+            background: #050505;
         }
 
+        /* ═══════ NAVBAR ═══════ */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(5, 5, 5, 0.75);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 15px; font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 12px rgba(0,240,255,0.5);
+        }
+        .logo-icon {
+            font-size: 24px;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.7));
+        }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            border-radius: 10px;
+            color: #00F0FF;
+            font-size: 13px; font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-shadow: 0 0 8px #00F0FF;
+            box-shadow: 0 0 15px rgba(0,240,255,0.3);
+            font-family: inherit;
+        }
+        .back-btn:hover, .back-btn:active {
+            background: rgba(0, 240, 255, 0.25);
+            box-shadow: 0 0 25px rgba(0,240,255,0.6);
+        }
+
+        /* ═══════ CONTENT ═══════ */
         .container {
+            position: relative;
+            z-index: 2;
             max-width: 1200px;
             margin: 0 auto;
+            padding: 90px 18px 40px;
         }
 
         .header {
             text-align: center;
-            padding: 30px 0 40px;
+            margin-bottom: 26px;
         }
-
-        .back-btn {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            color: #D4AF37;
-            text-decoration: none;
-            font-weight: 700;
-            padding: 10px 18px;
-            border: 2px solid rgba(212,175,55,0.3);
-            border-radius: 12px;
-            background: rgba(0,0,0,0.5);
-            font-size: 14px;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .back-btn:hover {
-            background: rgba(212,175,55,0.2);
-        }
-
         .header h1 {
-            font-size: clamp(30px, 6vw, 48px);
+            font-size: clamp(28px, 6vw, 42px);
             font-weight: 900;
-            background: linear-gradient(135deg, #D4AF37, #F4D03F);
+            background: linear-gradient(135deg, #D4AF37, #00F0FF, #D4AF37);
+            background-size: 300% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
+            animation: shine 5s linear infinite;
+            margin: 0 0 8px;
+            filter: drop-shadow(0 0 25px rgba(0,240,255,0.4));
         }
-
+        @keyframes shine { to { background-position: 300% center; } }
         .header p {
-            color: #888;
-            font-size: 15px;
+            color: #cbd5e1;
+            font-size: 13px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
         }
 
+        /* ═══════ TABS — AI Pills ═══════ */
         .tabs {
             display: flex;
-            gap: 8px;
-            padding: 8px;
-            background: rgba(15, 15, 15, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            padding: 12px 14px;
+            background: rgba(10, 14, 23, 0.7);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 18px;
+            margin-bottom: 26px;
             overflow-x: auto;
             scrollbar-width: none;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 30px rgba(0,240,255,0.1);
         }
-
         .tabs::-webkit-scrollbar { display: none; }
 
-        .tab {
-            padding: 10px 18px;
-            background: transparent;
-            border: 2px solid transparent;
-            color: #888;
-            border-radius: 10px;
-            font-family: inherit;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-            display: flex;
+        .tab-pill {
+            flex-shrink: 0;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            padding: 10px 18px;
+            background: rgba(0, 240, 255, 0.06);
+            border: 1.5px solid rgba(0, 240, 255, 0.3);
+            color: #94a3b8;
+            border-radius: 30px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-pill::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: radial-gradient(circle, rgba(0,240,255,0.4), transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: all 0.5s;
+            border-radius: 50%;
+        }
+        .tab-pill:hover::before { width: 200%; height: 200%; }
+        .tab-pill:hover {
+            color: #00F0FF;
+            border-color: #00F0FF;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,240,255,0.3);
+        }
+        .tab-pill.active {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(212, 175, 55, 0.15));
+            color: #fff;
+            border-color: #00F0FF;
+            box-shadow:
+                0 0 25px rgba(0,240,255,0.6),
+                inset 0 0 15px rgba(0,240,255,0.2);
+            text-shadow: 0 0 10px #00F0FF;
+            animation: tabPulse 2s ease-in-out infinite;
+        }
+        @keyframes tabPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(0,240,255,0.6), inset 0 0 15px rgba(0,240,255,0.2); }
+            50% { box-shadow: 0 0 35px rgba(0,240,255,0.9), inset 0 0 20px rgba(0,240,255,0.3); }
+        }
+        .tab-pill .tab-icon {
+            font-size: 16px;
+            filter: drop-shadow(0 0 6px currentColor);
         }
 
-        .tab:hover {
-            color: #D4AF37;
-        }
-
-        .tab.active {
-            background: #D4AF37;
-            color: #050505;
-        }
-
+        /* ═══════ COACHES GRID ═══════ */
         .coaches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 18px;
         }
 
         .coach-card {
-            background: linear-gradient(145deg, rgba(20, 20, 20, 0.95), rgba(10, 10, 10, 0.95));
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            border-radius: 20px;
-            padding: 25px 20px;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
-            overflow: hidden;
+            background: linear-gradient(145deg, rgba(10, 14, 23, 0.85), rgba(5, 8, 15, 0.9));
+            border: 1.5px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            padding: 24px 20px;
+            cursor: pointer;
+            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             text-decoration: none;
             color: inherit;
             display: block;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 25px rgba(0,240,255,0.08);
         }
-
-        .coach-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(212, 175, 55, 0.5);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        /* Glowing corner accent */
+        .coach-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle at top right, var(--card-color, rgba(0,240,255,0.3)), transparent 70%);
+            opacity: 0.6;
+            transition: opacity 0.4s;
         }
-
+        /* Bottom emission line */
         .coach-card::after {
             content: '';
             position: absolute;
-            top: -50%; right: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, var(--accent-color, rgba(212, 175, 55, 0.15)), transparent 70%);
-            opacity: 0;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--card-color, #00F0FF), transparent);
+            opacity: 0.4;
             transition: opacity 0.4s;
-            pointer-events: none;
         }
 
-        .coach-card:hover::after { opacity: 1; }
+        .coach-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-color, #00F0FF);
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.7),
+                0 0 50px var(--card-glow, rgba(0,240,255,0.3));
+        }
+        .coach-card:hover::before,
+        .coach-card:hover::after {
+            opacity: 1;
+        }
 
-        .coach-icon {
-            font-size: 45px;
-            margin-bottom: 15px;
-            display: block;
+        .coach-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
             position: relative;
             z-index: 2;
         }
+        .coach-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(0, 240, 255, 0.15), rgba(212, 175, 55, 0.1));
+            border: 2px solid var(--card-color, #00F0FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px var(--card-glow, rgba(0,240,255,0.3));
+            position: relative;
+            overflow: hidden;
+        }
+        .coach-avatar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: avatarShine 3s infinite;
+        }
+        @keyframes avatarShine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
 
+        .coach-info {
+            flex: 1;
+            min-width: 0;
+        }
         .coach-name {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 900;
-            color: #D4AF37;
-            margin-bottom: 4px;
-            position: relative;
-            z-index: 2;
+            color: var(--card-color, #00F0FF);
+            margin-bottom: 3px;
+            text-shadow: 0 0 10px var(--card-glow, rgba(0,240,255,0.5));
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
         .coach-club {
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 2;
+            font-size: 12px;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .coach-desc {
             font-size: 13px;
-            color: #aaa;
+            color: #cbd5e1;
             line-height: 1.7;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             position: relative;
             z-index: 2;
-            min-height: 60px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .coach-formations {
+        .coach-tags {
             display: flex;
-            gap: 6px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 240, 255, 0.15);
             position: relative;
             z-index: 2;
-            flex-wrap: wrap;
         }
-
-        .formation-tag {
+        .tag {
             padding: 4px 10px;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.35);
             border-radius: 8px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
+            color: #4DCCFF;
+            letter-spacing: 0.3px;
+        }
+        .tag.gold {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.4);
             color: #D4AF37;
         }
 
-        .formation-tag.def {
-            background: rgba(74, 144, 226, 0.1);
-            border-color: rgba(74, 144, 226, 0.4);
-            color: #4A90E2;
+        /* ═══════ EMPTY STATE ═══════ */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 14px;
+            grid-column: 1 / -1;
         }
 
-        @media (max-width: 768px) {
-            .coach-card { padding: 20px 16px; }
-            .coach-name { font-size: 19px; }
+        /* ═══════ FOOTER SPACING ═══════ */
+        .bottom-space {
+            height: 40px;
+        }
+
+        /* ═══════ Mobile ═══════ */
+        @media (max-width: 640px) {
+            .coaches-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+            .coach-card { padding: 20px 18px; }
+            .coach-avatar { width: 54px; height: 54px; font-size: 26px; }
+            .coach-name { font-size: 17px; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-animation"></div>
+    <div class="bg-fallback"></div>
+    <div class="world-bg"></div>
 
-    <a href="index.html" class="back-btn">→ رجوع</a>
+    <header class="navbar">
+        <div class="logo">
+            <span class="logo-icon">⚽</span>
+            <span>FOOTBALL TACTICS</span>
+        </div>
+        <a href="index.html" class="back-btn">→ الرئيسية</a>
+    </header>
 
     <div class="container">
         <div class="header">
-            <h1>⚽ المدربون</h1>
-            <p>اختر أسلوبه وتحولاته التكتيكية</p>
+            <h1>👨‍🏫 المدربون</h1>
+            <p>اختر أسلوب اللعب لعرض المدربين العالميين</p>
         </div>
 
         <div class="tabs" id="tabs"></div>
 
         <div class="coaches-grid" id="coachesGrid"></div>
+
+        <div class="bottom-space"></div>
     </div>
 
     <script src="data.js"></script>
+    <script src="js/sounds.js"></script>
     <script>
-        let activeStyle = null;
+        // ═══════ State ═══════
+        var activeStyle = 'possession';
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const params = new URLSearchParams(window.location.search);
-            activeStyle = params.get("style") || "possession";
+        // ═══════ Init ═══════
+        document.addEventListener('DOMContentLoaded', function() {
+            var params = new URLSearchParams(window.location.search);
+            activeStyle = params.get('style') || 'possession';
             buildTabs();
             loadCoaches();
         });
 
+        // ═══════ Tabs Builder ═══════
         function buildTabs() {
-            const tabs = document.getElementById("tabs");
-            tabs.innerHTML = "";
+            var tabs = document.getElementById('tabs');
+            tabs.innerHTML = '';
 
-            STYLES.forEach(style => {
-                const btn = document.createElement("button");
-                btn.className = "tab" + (style.id === activeStyle ? " active" : "");
-                btn.innerHTML = `<span>${style.icon}</span><span>${style.name}</span>`;
-                btn.onclick = () => {
+            STYLES.forEach(function(style) {
+                var btn = document.createElement('button');
+                btn.className = 'tab-pill' + (style.id === activeStyle ? ' active' : '');
+                btn.innerHTML = '<span class="tab-icon">' + style.icon + '</span><span>' + style.name + '</span>';
+                btn.onclick = function() {
                     activeStyle = style.id;
                     buildTabs();
                     loadCoaches();
-                    window.history.replaceState(null, "", `?style=${style.id}`);
+                    try {
+                        window.history.replaceState(null, '', '?style=' + style.id);
+                    } catch (e) {}
                 };
                 tabs.appendChild(btn);
             });
         }
 
+        // ═══════ Coaches Loader ═══════
         function loadCoaches() {
-            const grid = document.getElementById("coachesGrid");
-            grid.innerHTML = "";
+            var grid = document.getElementById('coachesGrid');
+            grid.innerHTML = '';
 
-            const style = STYLES.find(s => s.id === activeStyle);
-            const coaches = COACHES.filter(c => c.style === activeStyle);
+            var style = STYLES.find(function(s) { return s.id === activeStyle; });
+            var coaches = COACHES.filter(function(c) { return c.style === activeStyle; });
 
             if (coaches.length === 0) {
-                grid.innerHTML = `<div style="text-align:center;padding:40px;color:#666;grid-column:1/-1">لا يوجد مدربون في هذا الأسلوب بعد</div>`;
+                grid.innerHTML = '<div class="empty">لا يوجد مدربون في هذا الأسلوب بعد</div>';
                 return;
             }
 
-            coaches.forEach((coach, i) => {
-                const card = document.createElement("a");
-                card.className = "coach-card";
-                card.href = `tactic.html?style=${coach.style}&coach=${coach.id}`;
-                card.style.setProperty("--accent-color", style.colorAlpha);
-                card.style.animation = `fadeInUp 0.6s ease ${i * 0.1}s both`;
+            // Color based on style
+            var styleColor = '#00F0FF';
+            var styleGlow = 'rgba(0,240,255,0.3)';
+            if (style && style.color) {
+                styleColor = style.color;
+                styleGlow = style.colorAlpha || styleGlow;
+            }
 
-                card.innerHTML = `
-                    <span class="coach-icon">${coach.icon}</span>
-                    <div class="coach-name">${coach.name}</div>
-                    <div class="coach-club">${coach.club} • ${coach.era}</div>
-                    <div class="coach-desc">${coach.description.substring(0, 120)}...</div>
-                    <div class="coach-formations">
-                        <span class="formation-tag">⚔️ ${coach.attackingFormation}</span>
-                        <span class="formation-tag def">🛡️ ${coach.defendingFormation}</span>
-                    </div>
-                `;
+            coaches.forEach(function(coach, i) {
+                var card = document.createElement('a');
+                card.className = 'coach-card';
+                card.href = 'tactic.html?style=' + coach.style + '&coach=' + coach.id;
+                card.style.setProperty('--card-color', styleColor);
+                card.style.setProperty('--card-glow', styleGlow);
+                card.style.animation = 'fadeInUp 0.6s ease ' + (i * 0.08) + 's both';
+
+                var desc = coach.description || '';
+                if (desc.length > 120) desc = desc.substring(0, 120) + '...';
+
+                card.innerHTML =
+                    '<div class="coach-header">' +
+                        '<div class="coach-avatar">' + (coach.icon || '⚽') + '</div>' +
+                        '<div class="coach-info">' +
+                            '<div class="coach-name">' + coach.name + '</div>' +
+                            '<div class="coach-club">' + (coach.club || '') + ' • ' + (coach.era || '') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="coach-desc">' + desc + '</div>' +
+                    '<div class="coach-tags">' +
+                        '<span class="tag">⚔️ ' + (coach.attackingFormation || '-') + '</span>' +
+                        '<span class="tag gold">🛡️ ' + (coach.defendingFormation || '-') + '</span>' +
+                    '</div>';
+
                 grid.appendChild(card);
             });
         }
+
+        // ═══════ fadeInUp keyframe (injected) ═══════
+        (function() {
+            var style = document.createElement('style');
+            style.textContent = '@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }';
+            document.head.appendChild(style);
+        })();
     </script>
-    <script src="js/sounds.js"></script>
 </body>
 </html>
