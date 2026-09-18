@@ -1,4 +1,6 @@
-// video-analyzer.js
+// video-analyzer.js — with debug alerts
+
+alert("[1] video-analyzer.js LOADED");
 
 let selectedVideoFile = null;
 let extractedFrames = [];
@@ -12,7 +14,8 @@ const FRAME_MAX_WIDTH = 480;
 let $fileInput, $analyzeBtn, $progress, $framesGrid, $error, $status, $uploadText;
 
 function initVideoAnalyzer() {
-    console.log("[VA] init");
+    alert("[2] initVideoAnalyzer CALLED");
+
     $fileInput  = document.getElementById("videoFileInput");
     $analyzeBtn = document.getElementById("analyzeVideoBtn");
     $progress   = document.getElementById("videoProgress");
@@ -21,33 +24,39 @@ function initVideoAnalyzer() {
     $status     = document.getElementById("videoStatus");
     $uploadText = document.getElementById("uploadText");
 
-    if (!$fileInput || !$analyzeBtn) { console.log("[VA] missing elements"); return; }
+    if (!$fileInput) { alert("[ERROR] videoFileInput NOT FOUND"); return; }
+    if (!$analyzeBtn) { alert("[ERROR] analyzeVideoBtn NOT FOUND"); return; }
+
+    alert("[3] elements found. attaching listeners...");
 
     $fileInput.addEventListener("change", (e) => {
-        console.log("[VA] change fired, files:", e.target.files);
+        alert("[4] CHANGE EVENT FIRED. files: " + (e.target.files ? e.target.files.length : "null"));
         if (e.target.files && e.target.files.length > 0) {
             handleVideoFile(e.target.files[0]);
         }
     });
 
-    $analyzeBtn.addEventListener("click", analyzeVideo);
-    console.log("[VA] ready");
+    $analyzeBtn.addEventListener("click", () => {
+        alert("[5] ANALYZE BUTTON CLICKED");
+        analyzeVideo();
+    });
+
+    alert("[6] listeners attached. READY!");
 }
 
 function showError(msg) {
-    console.log("[VA] error:", msg);
-    if (!$error) return;
-    $error.textContent = "❌ " + msg;
-    $error.style.display = "block";
+    if ($error) {
+        $error.textContent = "❌ " + msg;
+        $error.style.display = "block";
+    }
     if ($status) $status.style.display = "none";
-    $error.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function showStatus(msg) {
-    console.log("[VA] status:", msg);
-    if (!$status) return;
-    $status.textContent = "✅ " + msg;
-    $status.style.display = "block";
+    if ($status) {
+        $status.textContent = "✅ " + msg;
+        $status.style.display = "block";
+    }
     if ($error) $error.style.display = "none";
 }
 
@@ -57,7 +66,7 @@ function hideMessages() {
 }
 
 function handleVideoFile(file) {
-    console.log("[VA] handleVideoFile:", file.name, file.size, file.type);
+    alert("[7] handleVideoFile: " + file.name + " | " + (file.size / 1024 / 1024).toFixed(2) + " MB");
     hideMessages();
     extractedFrames = [];
     if ($framesGrid) $framesGrid.innerHTML = "";
@@ -67,26 +76,28 @@ function handleVideoFile(file) {
     if (existing) existing.remove();
 
     const sizeMB = file.size / (1024 * 1024);
-    console.log("[VA] size MB:", sizeMB.toFixed(2));
 
     if (sizeMB > MAX_VIDEO_SIZE_MB) {
-        showError("حجم الفيديو كبير (" + sizeMB.toFixed(1) + " ميجابايت). الحد " + MAX_VIDEO_SIZE_MB + " ميجابايت.");
+        showError("حجم الفيديو كبير (" + sizeMB.toFixed(1) + " MB). الحد " + MAX_VIDEO_SIZE_MB + " MB.");
         return;
     }
 
     selectedVideoFile = file;
     $analyzeBtn.disabled = false;
 
-    if ($uploadText) {
-        $uploadText.textContent = "✅ " + file.name;
-    }
+    if ($uploadText) $uploadText.textContent = "✅ " + file.name;
+
     showStatus("الفيديو جاهز — اضغط (استخراج اللقطات)");
-    console.log("[VA] file accepted, button enabled");
+    alert("[8] file accepted, button enabled");
 }
 
 async function analyzeVideo() {
-    console.log("[VA] analyzeVideo");
-    if (!selectedVideoFile) return;
+    alert("[9] analyzeVideo started");
+
+    if (!selectedVideoFile) {
+        alert("[ERROR] no file selected");
+        return;
+    }
     hideMessages();
     extractedFrames = [];
     if ($framesGrid) $framesGrid.innerHTML = "";
@@ -106,20 +117,21 @@ async function analyzeVideo() {
     video.src = url;
 
     try {
-        console.log("[VA] waiting metadata");
+        alert("[10] waiting for metadata...");
         await waitMetadata(video);
-        console.log("[VA] duration:", video.duration, "dims:", video.videoWidth, "x", video.videoHeight);
+        alert("[11] metadata loaded. duration=" + video.duration.toFixed(1) + "s dims=" + video.videoWidth + "x" + video.videoHeight);
 
         if (video.duration > MAX_VIDEO_DURATION) {
-            showError("مدة الفيديو طويلة (" + Math.round(video.duration) + " ثانية). الحد " + MAX_VIDEO_DURATION + " ثانية.");
+            showError("مدة الفيديو طويلة (" + Math.round(video.duration) + "s). الحد " + MAX_VIDEO_DURATION + "s.");
             cleanup(video, url);
             resetUI();
             return;
         }
 
         showStatus("جاري استخراج اللقطات...");
+        alert("[12] extracting frames...");
         const frames = await extractFrames(video, FRAME_COUNT);
-        console.log("[VA] extracted:", frames.length);
+        alert("[13] extracted " + frames.length + " frames");
         extractedFrames = frames;
         renderFrames(frames);
 
@@ -127,10 +139,11 @@ async function analyzeVideo() {
         cleanup(video, url);
 
         showStatus("تم استخراج " + frames.length + " لقطة — جاري إرسالها للتحليل...");
+        alert("[14] sending to worker...");
         await sendFramesToWorker(frames);
 
     } catch (err) {
-        console.error("[VA] error:", err);
+        alert("[ERROR] " + err.message);
         showError("تعذر معالجة الفيديو: " + err.message);
         cleanup(video, url);
         resetUI();
@@ -193,7 +206,6 @@ async function extractFrames(video, count) {
         ctx.drawImage(video, 0, 0, width, height);
         frames.push({ timestamp: t, dataUrl: canvas.toDataURL("image/jpeg", 0.7) });
         if ($progress) $progress.value = ((i + 1) / count) * 100;
-        console.log("[VA] frame", i + 1, "at", t.toFixed(1) + "s");
     }
     return frames;
 }
@@ -245,8 +257,8 @@ async function sendFramesToWorker(frames) {
         });
 
         const data = await res.json();
+        alert("[15] worker response received. ok=" + res.ok + " success=" + data.success);
         loading.remove();
-        console.log("[VA] worker response:", data);
 
         if (!res.ok || !data.success) {
             showError("فشل التحليل: " + (data.details || data.error || "خطأ غير معروف"));
@@ -254,9 +266,10 @@ async function sendFramesToWorker(frames) {
         }
 
         hideMessages();
+        alert("[16] rendering analysis!");
         renderAnalysis(data.analysis);
     } catch (err) {
-        console.error("[VA] worker error:", err);
+        alert("[ERROR worker] " + err.message);
         loading.remove();
         showError("تعذر الاتصال بالخدمة: " + err.message);
     } finally {
