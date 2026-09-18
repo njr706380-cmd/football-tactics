@@ -135,15 +135,6 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
     font-size: 11px;
 }
 
-#videoPreview {
-    width: 100%;
-    max-height: 220px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    display: none;
-    background: #000;
-}
-
 .analyze-btn {
     width: 100%;
     padding: 14px;
@@ -282,7 +273,7 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 
     <input type="file" id="videoFileInput" accept="video/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
 
-    <video id="videoPreview" controls preload="metadata"></video>
+    <video id="videoPreview" preload="metadata" muted playsinline style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
 
     <button class="analyze-btn" id="analyzeVideoBtn" disabled>استخراج اللقطات</button>
 
