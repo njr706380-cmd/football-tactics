@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>المدربون | تكتيكات كرة القدم</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,14 @@
             min-height: 100vh;
             padding: 15px;
             overflow-x: hidden;
+        }
+
+        /* منع long-press popup */
+        a, button, .coach-card, .tab, .back-btn {
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
 
         .bg-animation {
@@ -35,7 +43,6 @@
             margin: 0 auto;
         }
 
-        /* الهيدر */
         .header {
             text-align: center;
             padding: 30px 0 40px;
@@ -76,7 +83,6 @@
             font-size: 15px;
         }
 
-        /* التابات */
         .tabs {
             display: flex;
             gap: 8px;
@@ -117,7 +123,6 @@
             color: #050505;
         }
 
-        /* شبكة المدربين */
         .coaches-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
