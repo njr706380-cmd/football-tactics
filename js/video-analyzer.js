@@ -1,7 +1,6 @@
-// video-analyzer.js — Client-side Frame Extraction + Gemini Analysis
+// video-analyzer.js — Video created off-DOM only when needed
 
 let selectedVideoFile = null;
-let videoUrl = null;
 let extractedFrames = [];
 
 const WORKER_URL = "https://tactics-ai.njr706380.workers.dev";
@@ -10,20 +9,17 @@ const MAX_VIDEO_DURATION = 60;
 const FRAME_COUNT = 12;
 const FRAME_MAX_WIDTH = 480;
 
-let $uploadArea, $fileInput, $videoPreview, $analyzeBtn, $progress, $framesGrid, $error;
+let $fileInput, $analyzeBtn, $progress, $framesGrid, $error;
 
 function initVideoAnalyzer() {
-    $uploadArea   = document.getElementById("uploadArea");
-    $fileInput    = document.getElementById("videoFileInput");
-    $videoPreview = document.getElementById("videoPreview");
-    $analyzeBtn   = document.getElementById("analyzeVideoBtn");
-    $progress     = document.getElementById("videoProgress");
-    $framesGrid   = document.getElementById("framesGrid");
-    $error        = document.getElementById("videoError");
+    $fileInput  = document.getElementById("videoFileInput");
+    $analyzeBtn = document.getElementById("analyzeVideoBtn");
+    $progress   = document.getElementById("videoProgress");
+    $framesGrid = document.getElementById("framesGrid");
+    $error      = document.getElementById("videoError");
 
-    if (!$uploadArea) return;
+    if (!$fileInput) return;
 
-    $uploadArea.addEventListener("click", () => $fileInput.click());
     $fileInput.addEventListener("change", (e) => {
         if (e.target.files && e.target.files[0]) handleVideoFile(e.target.files[0]);
     });
@@ -45,7 +41,6 @@ function handleVideoFile(file) {
     hideError();
     extractedFrames = [];
     if ($framesGrid) $framesGrid.innerHTML = "";
-    removeAnalysisUI();
 
     if (!file.type.startsWith("video/")) {
         showError("الملف المختار ليس فيديو.");
@@ -57,10 +52,6 @@ function handleVideoFile(file) {
     }
 
     selectedVideoFile = file;
-    if (videoUrl) URL.revokeObjectURL(videoUrl);
-    videoUrl = URL.createObjectURL(file);
-    $videoPreview.src = videoUrl;
-    $videoPreview.style.display = "block";
     $analyzeBtn.disabled = false;
 }
 
@@ -68,7 +59,6 @@ async function analyzeVideo() {
     if (!selectedVideoFile) return;
     hideError();
     extractedFrames = [];
-    removeAnalysisUI();
     if ($framesGrid) $framesGrid.innerHTML = "";
     $analyzeBtn.disabled = true;
 
@@ -77,30 +67,52 @@ async function analyzeVideo() {
         $progress.value = 0;
     }
 
+    // ننشئ الفيديو داخل JS فقط — ما يلمس الصفحة
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
+    video.style.cssText = "position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;";
+    document.body.appendChild(video);
+    video.src = URL.createObjectURL(selectedVideoFile);
+
     try {
-        await waitForMetadata($videoPreview);
-        const duration = $videoPreview.duration;
+        await waitForMetadata(video);
+        const duration = video.duration;
 
         if (duration > MAX_VIDEO_DURATION) {
             showError("مدة الفيديو طويلة — الحد " + MAX_VIDEO_DURATION + " ثانية.");
+            cleanup(video);
             resetAnalyzeUI();
             return;
         }
 
-        const frames = await extractFrames($videoPreview, FRAME_COUNT);
+        const frames = await extractFrames(video, FRAME_COUNT);
         extractedFrames = frames;
         renderFrames(frames);
 
         if ($progress) $progress.style.display = "none";
 
-        // الآن نرسل للتحليل
+        // ننظف الفيديو قبل الإرسال
+        cleanup(video);
+
         await sendFramesToWorker(frames);
 
     } catch (err) {
         console.error("Error:", err);
+        cleanup(video);
         showError("تعذر معالجة الفيديو. حاول مرة أخرى.");
         resetAnalyzeUI();
     }
+}
+
+function cleanup(video) {
+    try {
+        video.pause();
+        video.src = "";
+        video.load();
+        if (video.parentNode) video.parentNode.removeChild(video);
+    } catch (e) { /* ignore */ }
 }
 
 function resetAnalyzeUI() {
@@ -109,9 +121,17 @@ function resetAnalyzeUI() {
 }
 
 function waitForMetadata(video) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         if (video.readyState >= 1) return resolve();
-        video.addEventListener("loadedmetadata", () => resolve(), { once: true });
+        const onLoaded = () => { cleanup_listeners(); resolve(); };
+        const onError = () => { cleanup_listeners(); reject(new Error("load error")); };
+        const cleanup_listeners = () => {
+            video.removeEventListener("loadedmetadata", onLoaded);
+            video.removeEventListener("error", onError);
+        };
+        video.addEventListener("loadedmetadata", onLoaded);
+        video.addEventListener("error", onError);
+        setTimeout(() => { cleanup_listeners(); reject(new Error("timeout")); }, 5000);
     });
 }
 
@@ -135,25 +155,26 @@ async function extractFrames(video, count) {
         if ($progress) $progress.value = ((i + 1) / count) * 100;
     }
 
-    video.currentTime = 0;
     return frames;
 }
 
 function seekVideo(video, time) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+        let done = false;
         const onSeeked = () => {
+            if (done) return;
+            done = true;
             video.removeEventListener("seeked", onSeeked);
-            video.removeEventListener("error", onError);
             resolve();
         };
-        const onError = () => {
-            video.removeEventListener("seeked", onSeeked);
-            video.removeEventListener("error", onError);
-            reject(new Error("seek error"));
-        };
         video.addEventListener("seeked", onSeeked);
-        video.addEventListener("error", onError);
         video.currentTime = time;
+        setTimeout(() => {
+            if (done) return;
+            done = true;
+            video.removeEventListener("seeked", onSeeked);
+            resolve();
+        }, 1500);
     });
 }
 
@@ -164,7 +185,7 @@ function renderFrames(frames) {
         const div = document.createElement("div");
         div.className = "frame-item";
         div.innerHTML =
-            '<img src="' + frame.dataUrl + '" alt="إطار ' + (i + 1) + '">' +
+            '<img src="' + frame.dataUrl + '" alt="' + (i + 1) + '">' +
             '<span class="frame-time">' + formatTime(frame.timestamp) + '</span>';
         $framesGrid.appendChild(div);
     });
@@ -176,16 +197,14 @@ function formatTime(seconds) {
     return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 }
 
-// ============ Gemini Analysis via Worker ============
 async function sendFramesToWorker(frames) {
     const videoMode = document.getElementById("videoMode");
     if (!videoMode) return;
 
-    // Loading UI
     const loading = document.createElement("div");
     loading.id = "analysisLoading";
     loading.style.cssText = "text-align:center;padding:30px 15px;color:#D4AF37;font-size:14px;";
-    loading.innerHTML = '<div style="font-size:40px;margin-bottom:10px;animation:pulse 1.5s infinite;">🧠</div>جاري تحليل اللقطات بالذكاء الاصطناعي...<br><span style="font-size:11px;color:#888;">قد يستغرق 10-20 ثانية</span>';
+    loading.innerHTML = '<div style="font-size:40px;margin-bottom:10px;">🧠</div>جاري تحليل اللقطات بالذكاء الاصطناعي...<br><span style="font-size:11px;color:#888;">قد يستغرق 10-20 ثانية</span>';
     videoMode.appendChild(loading);
 
     try {
@@ -199,14 +218,12 @@ async function sendFramesToWorker(frames) {
         loading.remove();
 
         if (!res.ok || !data.success) {
-            const msg = data.details || data.error || "خطأ غير معروف";
-            showError("فشل التحليل: " + msg);
+            showError("فشل التحليل: " + (data.details || data.error || "خطأ"));
             resetAnalyzeUI();
             return;
         }
 
         renderAnalysis(data.analysis);
-
     } catch (err) {
         console.error("Analysis error:", err);
         loading.remove();
@@ -220,38 +237,27 @@ function renderAnalysis(text) {
     const videoMode = document.getElementById("videoMode");
     if (!videoMode) return;
 
+    const existing = document.getElementById("analysisResult");
+    if (existing) existing.remove();
+
     const card = document.createElement("div");
     card.id = "analysisResult";
     card.style.cssText = "background:rgba(20,20,20,0.95);border:1px solid rgba(212,175,55,0.4);border-radius:16px;padding:20px;margin-top:20px;text-align:right;direction:rtl;";
 
-    // العنوان
     const title = document.createElement("div");
-    title.style.cssText = "color:#D4AF37;font-size:16px;font-weight:900;margin-bottom:15px;display:flex;align-items:center;gap:8px;";
-    title.innerHTML = '<span style="font-size:22px;">📊</span> التحليل التكتيكي';
+    title.style.cssText = "color:#D4AF37;font-size:16px;font-weight:900;margin-bottom:15px;";
+    title.textContent = "📊 التحليل التكتيكي";
     card.appendChild(title);
 
-    // النص
     const content = document.createElement("div");
     content.style.cssText = "color:#EEE;font-size:14px;line-height:1.9;white-space:pre-wrap;word-wrap:break-word;";
     content.textContent = text;
     card.appendChild(content);
 
     videoMode.appendChild(card);
-
-    // اسحب للنتيجة
-    setTimeout(() => {
-        card.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+    setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
 }
 
-function removeAnalysisUI() {
-    const existing = document.getElementById("analysisResult");
-    if (existing) existing.remove();
-    const loading = document.getElementById("analysisLoading");
-    if (loading) loading.remove();
-}
-
-// Auto-init
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initVideoAnalyzer);
 } else {
