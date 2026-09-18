@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { min-height: 100vh; }
 body {
     background: radial-gradient(circle at 20% 30%, rgba(212,175,55,0.12), transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(74,144,226,0.15), transparent 50%),
@@ -15,6 +14,7 @@ body {
     background-attachment: fixed;
     font-family: 'Cairo', sans-serif;
     color: #FFF;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -23,9 +23,9 @@ body {
     padding: 12px 15px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .back-btn { color: #D4AF37; text-decoration: none; width: 38px; height: 38px; display: flex;
     align-items: center; justify-content: center; border-radius: 10px;
-    border: 1px solid rgba(212,175,55,0.3); background: rgba(0,0,0,0.3); font-size: 18px; flex-shrink: 0; }
+    border: 1px solid rgba(212,175,55,0.3); background: rgba(0,0,0,0.3); font-size: 18px; }
 .ai-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #D4AF37, #F4D03F);
-    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    display: flex; align-items: center; justify-content: center; font-size: 22px; }
 .header-title-wrap { flex: 1; }
 .header-title { font-size: 16px; font-weight: 900; color: #D4AF37; }
 .header-status { font-size: 11px; color: #4CAF50; display: flex; align-items: center; gap: 5px; }
@@ -35,20 +35,19 @@ body {
     padding: 6px 10px; border-radius: 8px; font-size: 12px; font-family: inherit; cursor: pointer; }
 
 .mode-tabs { display: flex; padding: 10px 15px; gap: 8px; background: rgba(10,10,10,0.98);
-    border-bottom: 1px solid rgba(212,175,55,0.2); flex-shrink: 0; }
+    border-bottom: 1px solid rgba(212,175,55,0.2); }
 .mode-tab { flex: 1; padding: 10px; background: transparent; border: 2px solid rgba(212,175,55,0.2);
     color: #888; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    cursor: pointer; }
 .mode-tab.active { background: linear-gradient(135deg, #D4AF37, #F4D03F); color: #050505; border-color: #D4AF37; }
 
-.chat-mode { display: none; flex-direction: column; flex: 1; min-height: 0; }
+.chat-mode { display: none; flex-direction: column; flex: 1; }
 .video-mode { display: none; flex-direction: column; padding: 15px; }
 .video-mode.active { display: flex; }
 .chat-mode.active { display: flex; }
 
 .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-.message { display: flex; gap: 10px; animation: fadeIn 0.4s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.message { display: flex; gap: 10px; }
 .message.user { flex-direction: row-reverse; }
 .msg-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center;
     justify-content: center; font-size: 16px; flex-shrink: 0; }
@@ -65,17 +64,17 @@ body {
 @keyframes typing { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-8px); opacity: 1; } }
 
 .welcome { text-align: center; padding: 30px 20px; }
-.welcome-icon { font-size: 60px; margin-bottom: 15px; display: inline-block; animation: pulse 2s infinite; }
+.welcome-icon { font-size: 60px; margin-bottom: 15px; display: inline-block; }
 .welcome h2 { font-size: 20px; font-weight: 900; color: #D4AF37; margin-bottom: 8px; }
 .welcome p { color: #888; font-size: 13px; line-height: 1.7; max-width: 400px; margin: 0 auto; }
 
-.suggestions { display: flex; gap: 8px; padding: 10px 15px; overflow-x: auto; flex-shrink: 0; }
+.suggestions { display: flex; gap: 8px; padding: 10px 15px; overflow-x: auto; }
 .suggestion-btn { padding: 8px 14px; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3);
     color: #D4AF37; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 700;
-    cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    cursor: pointer; white-space: nowrap; }
 
 .input-area { padding: 12px 15px; background: rgba(10,10,10,0.98); border-top: 1px solid rgba(212,175,55,0.2);
-    display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+    display: flex; gap: 10px; align-items: flex-end; }
 .input-wrap { flex: 1; }
 #userInput { width: 100%; background: rgba(20,20,20,0.9); border: 1px solid rgba(212,175,55,0.2);
     border-radius: 20px; padding: 12px 18px; color: #FFF; font-family: inherit; font-size: 14px;
@@ -84,54 +83,53 @@ body {
 #userInput::placeholder { color: #666; }
 .send-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #D4AF37, #F4D03F);
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: #050505; flex-shrink: 0; }
+    font-size: 18px; color: #050505; }
 
 .video-header { text-align: center; margin-bottom: 15px; }
 .video-header h2 { color: #D4AF37; font-size: 18px; font-weight: 900; margin-bottom: 6px; }
 .video-header p { color: #888; font-size: 12px; line-height: 1.6; }
 
-/* Upload area = label with input covering it */
-.upload-area {
-    position: relative;
-    display: block;
-    border: 2px dashed rgba(212,175,55,0.4);
+.file-input-wrap {
+    background: rgba(20,20,20,0.6);
+    border: 2px dashed rgba(212,175,55,0.5);
     border-radius: 16px;
-    padding: 35px 20px;
-    text-align: center;
-    cursor: pointer;
-    background: rgba(20,20,20,0.5);
+    padding: 20px;
     margin-bottom: 15px;
-    transition: all 0.3s;
 }
-.upload-area:hover { border-color: #D4AF37; background: rgba(212,175,55,0.05); }
-.upload-area input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
+.file-input-wrap .file-label-text {
+    color: #D4AF37;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-align: center;
+}
+.file-input-wrap input[type="file"] {
+    display: block;
     width: 100%;
-    height: 100%;
-    opacity: 0;
+    padding: 12px;
+    background: rgba(0,0,0,0.5);
+    color: #FFF;
+    border: 2px solid #D4AF37;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
     cursor: pointer;
-    z-index: 10;
 }
-.upload-area .upload-icon { font-size: 50px; display: block; margin-bottom: 10px; }
-.upload-area .upload-text { color: #D4AF37; font-size: 15px; font-weight: 700; margin-bottom: 5px; }
-.upload-area .upload-hint { color: #666; font-size: 11px; }
 
-.analyze-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #D4AF37, #F4D03F);
-    color: #050505; border: none; border-radius: 12px; font-family: inherit; font-size: 15px;
+#videoStatus { background: rgba(76, 175, 80, 0.2); border: 2px solid #4CAF50;
+    color: #81C784; border-radius: 12px; padding: 14px 16px; font-size: 14px;
+    margin-bottom: 15px; line-height: 1.6; font-weight: 700; text-align: center; }
+
+#videoError { background: rgba(244, 67, 54, 0.2); border: 2px solid #F44336;
+    color: #FF6B6B; border-radius: 12px; padding: 14px 16px; font-size: 14px;
+    margin-bottom: 15px; line-height: 1.6; font-weight: 700; text-align: center; }
+
+.analyze-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #D4AF37, #F4D03F);
+    color: #050505; border: none; border-radius: 12px; font-family: inherit; font-size: 16px;
     font-weight: 900; cursor: pointer; margin-bottom: 15px; }
-.analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.analyze-btn:disabled { background: #333; color: #666; cursor: not-allowed; opacity: 0.6; }
 
-#videoProgress { width: 100%; height: 8px; border-radius: 4px; margin-bottom: 15px; display: none; accent-color: #D4AF37; }
-
-#videoError { background: rgba(244, 67, 54, 0.15); border: 1px solid rgba(244, 67, 54, 0.5);
-    color: #FF6B6B; border-radius: 12px; padding: 12px 15px; font-size: 13px;
-    margin-bottom: 15px; display: none; line-height: 1.6; font-weight: 600; }
-
-#videoStatus { background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.5);
-    color: #81C784; border-radius: 12px; padding: 12px 15px; font-size: 13px;
-    margin-bottom: 15px; display: none; line-height: 1.6; font-weight: 600; }
+#videoProgress { width: 100%; height: 10px; border-radius: 4px; margin-bottom: 15px; display: none; }
 
 .frames-title { color: #D4AF37; font-size: 13px; font-weight: 700; margin-bottom: 10px; display: none; }
 .frames-title.show { display: block; }
@@ -142,6 +140,11 @@ body {
 .frame-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .frame-time { position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.75);
     color: #D4AF37; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+
+#analysisResult { background: rgba(20,20,20,0.95); border: 1px solid rgba(212,175,55,0.4);
+    border-radius: 16px; padding: 20px; margin-top: 20px; text-align: right; }
+#analysisResult h3 { color: #D4AF37; font-size: 16px; font-weight: 900; margin-bottom: 15px; }
+#analysisResult .content { color: #EEE; font-size: 14px; line-height: 1.9; white-space: pre-wrap; word-wrap: break-word; }
 </style>
 </head>
 <body>
@@ -187,45 +190,293 @@ body {
 <div class="video-mode" id="videoMode">
     <div class="video-header">
         <h2>🎥 تحليل الفيديو التكتيكي</h2>
-        <p>ارفع مقطع من مباراة eFootball (حتى 90 ثانية، 100 ميجابايت).<br>سيتم استخراج 12 لقطة للتحليل.</p>
+        <p>ارفع مقطع من مباراة eFootball (حتى 90 ثانية، 100 ميجابايت)</p>
     </div>
 
-    <label class="upload-area" id="uploadArea">
+    <div class="file-input-wrap">
+        <div class="file-label-text">📹 اختر فيديو من جهازك:</div>
         <input type="file" id="videoFileInput" accept="video/*">
-        <span class="upload-icon">📹</span>
-        <div class="upload-text" id="uploadText">اضغط لاختيار فيديو</div>
-        <div class="upload-hint">MP4 • WebM • MOV</div>
-    </label>
+    </div>
+
+    <div id="videoStatus" style="display:none;">✅ تم اختيار الفيديو</div>
+    <div id="videoError" style="display:none;">❌ خطأ</div>
 
     <button class="analyze-btn" id="analyzeVideoBtn" disabled>استخراج اللقطات</button>
 
     <progress id="videoProgress" value="0" max="100"></progress>
-
-    <div id="videoStatus"></div>
-    <div id="videoError"></div>
 
     <div class="frames-title" id="framesTitle">📸 اللقطات المستخرجة:</div>
     <div id="framesGrid"></div>
 </div>
 
 <script>
+// ========== CONFIG ==========
 const WORKER_URL = "https://tactics-ai.njr706380.workers.dev";
 const MODEL = "openai/gpt-oss-120b";
+const MAX_VIDEO_SIZE_MB = 100;
+const MAX_VIDEO_DURATION = 90;
+const FRAME_COUNT = 12;
+const FRAME_MAX_WIDTH = 480;
 
-let conversationHistory = [];
-let isProcessing = false;
+let selectedVideoFile = null;
 
-const SYSTEM_PROMPT = `أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball من Konami.
+// ========== FILE INPUT HANDLER (inline) ==========
+document.getElementById("videoFileInput").onchange = function(event) {
+    var files = event.target.files;
+    console.log("[VA] onchange fired, files:", files);
 
-شخصيتك:
-- تتكلم بالعربية الفصحى المبسطة
-- ودود ومتحمس
-- محلل تكتيكي عميق
-- تعطي نصائح عملية فورية
+    var statusEl = document.getElementById("videoStatus");
+    var errorEl = document.getElementById("videoError");
+    var analyzeBtn = document.getElementById("analyzeVideoBtn");
 
-خبرتك: كل أساليب اللعب، الخطط، المدربين، تحليل الخصوم.
+    errorEl.style.display = "none";
 
-قواعدك: لا تخترع معلومات، اعطي إجابات مفصلة ومباشرة، اذكر السبب.`;
+    if (!files || files.length === 0) {
+        errorEl.textContent = "❌ لم يتم اختيار أي ملف";
+        errorEl.style.display = "block";
+        return;
+    }
+
+    var file = files[0];
+    console.log("[VA] file:", file.name, file.size, file.type);
+
+    var sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > MAX_VIDEO_SIZE_MB) {
+        errorEl.textContent = "❌ حجم الفيديو كبير (" + sizeMB.toFixed(1) + " MB). الحد " + MAX_VIDEO_SIZE_MB + " MB";
+        errorEl.style.display = "block";
+        return;
+    }
+
+    selectedVideoFile = file;
+    analyzeBtn.disabled = false;
+
+    statusEl.textContent = "✅ الفيديو جاهز: " + file.name + " (" + sizeMB.toFixed(2) + " MB) — اضغط (استخراج اللقطات)";
+    statusEl.style.display = "block";
+
+    console.log("[VA] file accepted, button enabled");
+};
+
+// ========== ANALYZE BUTTON ==========
+document.getElementById("analyzeVideoBtn").onclick = function() {
+    console.log("[VA] analyze clicked, file:", selectedVideoFile);
+    if (!selectedVideoFile) {
+        alert("الرجاء اختيار فيديو أولاً");
+        return;
+    }
+    startAnalysis(selectedVideoFile);
+};
+
+async function startAnalysis(file) {
+    var analyzeBtn = document.getElementById("analyzeVideoBtn");
+    var progress = document.getElementById("videoProgress");
+    var statusEl = document.getElementById("videoStatus");
+    var errorEl = document.getElementById("videoError");
+    var framesGrid = document.getElementById("framesGrid");
+    var framesTitle = document.getElementById("framesTitle");
+
+    analyzeBtn.disabled = true;
+    errorEl.style.display = "none";
+    framesGrid.innerHTML = "";
+    framesTitle.classList.remove("show");
+    var oldResult = document.getElementById("analysisResult");
+    if (oldResult) oldResult.remove();
+
+    progress.style.display = "block";
+    progress.value = 0;
+
+    var video = document.createElement("video");
+    video.preload = "metadata";
+    video.muted = true;
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+    video.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1;";
+    document.body.appendChild(video);
+
+    var url = URL.createObjectURL(file);
+    video.src = url;
+
+    try {
+        statusEl.textContent = "⏳ جاري قراءة الفيديو...";
+        statusEl.style.display = "block";
+
+        await waitMetadata(video);
+        console.log("[VA] metadata:", video.duration, video.videoWidth, video.videoHeight);
+
+        if (video.duration > MAX_VIDEO_DURATION) {
+            errorEl.textContent = "❌ مدة الفيديو طويلة (" + Math.round(video.duration) + "s). الحد " + MAX_VIDEO_DURATION + "s";
+            errorEl.style.display = "block";
+            statusEl.style.display = "none";
+            cleanupVideo(video, url);
+            analyzeBtn.disabled = false;
+            progress.style.display = "none";
+            return;
+        }
+
+        statusEl.textContent = "⏳ جاري استخراج 12 لقطة...";
+        var frames = await extractFrames(video, FRAME_COUNT);
+        console.log("[VA] extracted:", frames.length);
+
+        renderFrames(frames);
+        progress.style.display = "none";
+        cleanupVideo(video, url);
+
+        statusEl.textContent = "⏳ جاري إرسال اللقطات للتحليل...";
+        await sendToWorker(frames);
+
+    } catch (err) {
+        console.error("[VA] error:", err);
+        errorEl.textContent = "❌ خطأ: " + err.message;
+        errorEl.style.display = "block";
+        statusEl.style.display = "none";
+        cleanupVideo(video, url);
+        analyzeBtn.disabled = false;
+        progress.style.display = "none";
+    }
+}
+
+function cleanupVideo(video, url) {
+    try {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+        if (video.parentNode) video.parentNode.removeChild(video);
+        if (url) URL.revokeObjectURL(url);
+    } catch (e) {}
+}
+
+function waitMetadata(video) {
+    return new Promise(function(resolve, reject) {
+        if (video.readyState >= 1 && video.duration) { resolve(); return; }
+        var done = false;
+        function ok() { if (done) return; done = true; cleanup(); resolve(); }
+        function err() { if (done) return; done = true; cleanup(); reject(new Error("فشل تحميل الفيديو")); }
+        function cleanup() {
+            video.removeEventListener("loadedmetadata", ok);
+            video.removeEventListener("error", err);
+            clearTimeout(t);
+        }
+        video.addEventListener("loadedmetadata", ok);
+        video.addEventListener("error", err);
+        var t = setTimeout(function() {
+            if (done) return; done = true; cleanup();
+            if (video.videoWidth && video.duration) resolve();
+            else reject(new Error("انتهت المهلة - الفيديو غير مدعوم"));
+        }, 10000);
+    });
+}
+
+async function extractFrames(video, count) {
+    var canvas = document.createElement("canvas");
+    var vw = video.videoWidth || 640;
+    var vh = video.videoHeight || 360;
+    var ratio = vw / vh;
+    var width = Math.min(FRAME_MAX_WIDTH, vw);
+    var height = Math.round(width / ratio);
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext("2d");
+
+    var duration = video.duration;
+    var frames = [];
+    var progress = document.getElementById("videoProgress");
+
+    for (var i = 0; i < count; i++) {
+        var t = (duration * (i + 0.5)) / count;
+        await seekVideo(video, t);
+        ctx.drawImage(video, 0, 0, width, height);
+        frames.push({ timestamp: t, dataUrl: canvas.toDataURL("image/jpeg", 0.7) });
+        progress.value = ((i + 1) / count) * 100;
+    }
+    return frames;
+}
+
+function seekVideo(video, time) {
+    return new Promise(function(resolve) {
+        var done = false;
+        function ok() { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); }
+        video.addEventListener("seeked", ok);
+        try { video.currentTime = time; } catch(e) { resolve(); return; }
+        setTimeout(function() { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); }, 2000);
+    });
+}
+
+function renderFrames(frames) {
+    var grid = document.getElementById("framesGrid");
+    var title = document.getElementById("framesTitle");
+    grid.innerHTML = "";
+    title.classList.add("show");
+    for (var i = 0; i < frames.length; i++) {
+        var f = frames[i];
+        var div = document.createElement("div");
+        div.className = "frame-item";
+        div.innerHTML = '<img src="' + f.dataUrl + '"><span class="frame-time">' + fmtTime(f.timestamp) + '</span>';
+        grid.appendChild(div);
+    }
+}
+
+function fmtTime(s) {
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return (m < 10 ? "0" : "") + m + ":" + (sec < 10 ? "0" : "") + sec;
+}
+
+async function sendToWorker(frames) {
+    var videoMode = document.getElementById("videoMode");
+    var statusEl = document.getElementById("videoStatus");
+    var errorEl = document.getElementById("videoError");
+    var analyzeBtn = document.getElementById("analyzeVideoBtn");
+
+    var loading = document.createElement("div");
+    loading.id = "analysisLoading";
+    loading.style.cssText = "text-align:center;padding:30px 15px;color:#D4AF37;font-size:14px;";
+    loading.innerHTML = '<div style="font-size:40px;margin-bottom:10px;">🧠</div>جاري تحليل اللقطات بالذكاء الاصطناعي...<br><span style="font-size:11px;color:#888;">قد يستغرق 15-30 ثانية</span>';
+    videoMode.appendChild(loading);
+
+    try {
+        var res = await fetch(WORKER_URL + "/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ frames: frames })
+        });
+
+        var data = await res.json();
+        loading.remove();
+
+        if (!res.ok || !data.success) {
+            errorEl.textContent = "❌ فشل التحليل: " + (data.details || data.error || "خطأ غير معروف");
+            errorEl.style.display = "block";
+            statusEl.style.display = "none";
+            analyzeBtn.disabled = false;
+            return;
+        }
+
+        statusEl.style.display = "none";
+        renderAnalysis(data.analysis);
+        analyzeBtn.disabled = false;
+    } catch (err) {
+        loading.remove();
+        errorEl.textContent = "❌ تعذر الاتصال بالخدمة: " + err.message;
+        errorEl.style.display = "block";
+        statusEl.style.display = "none";
+        analyzeBtn.disabled = false;
+    }
+}
+
+function renderAnalysis(text) {
+    var videoMode = document.getElementById("videoMode");
+    var card = document.createElement("div");
+    card.id = "analysisResult";
+    card.innerHTML = '<h3>📊 التحليل التكتيكي</h3><div class="content"></div>';
+    card.querySelector(".content").textContent = text;
+    videoMode.appendChild(card);
+    setTimeout(function() { card.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
+}
+
+// ========== CHAT ==========
+var conversationHistory = [];
+var isProcessing = false;
+
+var SYSTEM_PROMPT = 'أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball من Konami.\n\nشخصيتك:\n- تتكلم بالعربية الفصحى المبسطة\n- ودود ومتحمس\n- محلل تكتيكي عميق\n- تعطي نصائح عملية فورية\n\nخبرتك: كل أساليب اللعب، الخطط، المدربين، تحليل الخصوم.\n\nقواعدك: لا تخترع معلومات، اعطي إجابات مفصلة ومباشرة، اذكر السبب.';
 
 function switchMode(mode) {
     document.getElementById("chatTab").classList.toggle("active", mode === "chat");
@@ -235,13 +486,13 @@ function switchMode(mode) {
 }
 
 function setupChat() {
-    const input = document.getElementById("userInput");
-    const btn = document.getElementById("sendBtn");
-    input.addEventListener("input", () => {
+    var input = document.getElementById("userInput");
+    var btn = document.getElementById("sendBtn");
+    input.addEventListener("input", function() {
         input.style.height = "auto";
         input.style.height = Math.min(input.scrollHeight, 120) + "px";
     });
-    input.addEventListener("keydown", (e) => {
+    input.addEventListener("keydown", function(e) {
         if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
     });
     btn.addEventListener("click", sendMessage);
@@ -254,20 +505,20 @@ function quickAsk(text) {
 
 async function sendMessage() {
     if (isProcessing) return;
-    const input = document.getElementById("userInput");
-    const text = input.value.trim();
+    var input = document.getElementById("userInput");
+    var text = input.value.trim();
     if (!text) return;
     input.value = "";
     input.style.height = "auto";
-    const welcome = document.getElementById("welcome");
+    var welcome = document.getElementById("welcome");
     if (welcome) welcome.style.display = "none";
     addMessage("user", text);
     conversationHistory.push({ role: "user", content: text });
     isProcessing = true;
     document.getElementById("sendBtn").disabled = true;
-    const typingId = showTyping();
+    var typingId = showTyping();
     try {
-        const response = await callWorker();
+        var response = await callWorker();
         removeTyping(typingId);
         addMessage("ai", response);
         conversationHistory.push({ role: "assistant", content: response });
@@ -281,74 +532,67 @@ async function sendMessage() {
 }
 
 async function callWorker() {
-    const messages = [{ role: "system", content: SYSTEM_PROMPT }, ...conversationHistory];
-    const response = await fetch(WORKER_URL + "/api/chat", {
+    var messages = [{ role: "system", content: SYSTEM_PROMPT }].concat(conversationHistory);
+    var response = await fetch(WORKER_URL + "/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ model: MODEL, messages: messages, temperature: 0.85, max_tokens: 2000 })
     });
     if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `خطأ ${response.status}`);
+        var errData = await response.json().catch(function() { return {}; });
+        throw new Error((errData.error && errData.error.message) || ("خطأ " + response.status));
     }
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content;
+    var data = await response.json();
+    var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if (!text) throw new Error("رد فارغ");
     return text.trim();
 }
 
 function addMessage(role, text) {
-    const chatArea = document.getElementById("chatArea");
-    const msg = document.createElement("div");
+    var chatArea = document.getElementById("chatArea");
+    var msg = document.createElement("div");
     msg.className = "message " + role;
-    const avatar = role === "user" ? "👤" : "🤖";
-    msg.innerHTML = `<div class="msg-avatar">${avatar}</div><div class="msg-content"></div>`;
+    var avatar = role === "user" ? "👤" : "🤖";
+    msg.innerHTML = '<div class="msg-avatar">' + avatar + '</div><div class="msg-content"></div>';
     msg.querySelector(".msg-content").textContent = text;
     chatArea.appendChild(msg);
-    setTimeout(() => { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
+    setTimeout(function() { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
 }
 
 function showTyping() {
-    const chatArea = document.getElementById("chatArea");
-    const id = "typing-" + Date.now();
-    const msg = document.createElement("div");
+    var chatArea = document.getElementById("chatArea");
+    var id = "typing-" + Date.now();
+    var msg = document.createElement("div");
     msg.className = "message ai";
     msg.id = id;
-    msg.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-content"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    msg.innerHTML = '<div class="msg-avatar">🤖</div><div class="msg-content"><div class="typing"><span></span><span></span><span></span></div></div>';
     chatArea.appendChild(msg);
-    setTimeout(() => { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
+    setTimeout(function() { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
     return id;
 }
 
 function removeTyping(id) {
-    const el = document.getElementById(id);
+    var el = document.getElementById(id);
     if (el) el.remove();
 }
 
 function clearChat() {
     if (!confirm("تمسح المحادثة؟")) return;
     conversationHistory = [];
-    document.getElementById("chatArea").innerHTML = `
-        <div class="welcome" id="welcome">
-            <span class="welcome-icon">⚽</span>
-            <h2>أهلاً بك في المدرب الذكي</h2>
-            <p>اسألني عن أي شي في eFootball: خطط، مدربين، تبديلات، تكتيكات...</p>
-        </div>
-    `;
+    document.getElementById("chatArea").innerHTML = '<div class="welcome" id="welcome"><span class="welcome-icon">⚽</span><h2>أهلاً بك في المدرب الذكي</h2><p>اسألني عن أي شي في eFootball: خطط، مدربين، تبديلات، تكتيكات...</p></div>';
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("load", function() {
     setupChat();
-    document.getElementById("chatTab").addEventListener("click", () => switchMode("chat"));
-    document.getElementById("videoTab").addEventListener("click", () => switchMode("video"));
+    document.getElementById("chatTab").addEventListener("click", function() { switchMode("chat"); });
+    document.getElementById("videoTab").addEventListener("click", function() { switchMode("video"); });
     document.getElementById("clearBtn").addEventListener("click", clearChat);
-    document.querySelectorAll(".suggestion-btn").forEach(btn => {
-        btn.addEventListener("click", () => quickAsk(btn.dataset.q));
-    });
+    var btns = document.querySelectorAll(".suggestion-btn");
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", function() { quickAsk(this.dataset.q); });
+    }
 });
 </script>
-
-<script src="js/video-analyzer.js"></script>
 
 </body>
 </html>
