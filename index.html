@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* ═══════ FIXED VIEWPORT ═══════ */
         html, body {
             height: 100%;
             overflow: hidden !important;
@@ -35,15 +34,12 @@
             -webkit-tap-highlight-color: transparent !important;
         }
 
-        /* ═══════ WORLD BACKGROUND IMAGE ═══════ */
+        /* ═══════ WORLD BACKGROUND ═══════ */
         .world-bg {
-            position: fixed;
-            inset: 0;
-            z-index: -6;
+            position: fixed; inset: 0; z-index: -6;
             background-image: url('file_0000000043a48210a567fbce11c924e2.png');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
             filter: brightness(0.55) saturate(1.15) contrast(1.05);
             animation: worldSlowZoom 60s ease-in-out infinite;
         }
@@ -51,38 +47,27 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.06); }
         }
-
-        /* Darkening overlay for readability */
         .world-bg::after {
             content: '';
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background:
                 radial-gradient(circle at 50% 50%, transparent 20%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.85) 100%),
                 linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.8) 100%);
         }
-
-        /* Fallback gradient */
         .bg-fallback {
-            position: fixed;
-            inset: 0;
-            z-index: -7;
+            position: fixed; inset: 0; z-index: -7;
             background: #050505;
         }
 
         /* ═══════ NAVBAR ═══════ */
         .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             z-index: 100;
             background: rgba(5, 5, 5, 0.7);
             backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
             border-bottom: 1px solid rgba(0, 184, 255, 0.15);
             padding: 12px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             opacity: 0;
             transform: translateY(-100%);
             pointer-events: none;
@@ -93,7 +78,6 @@
             transform: translateY(0);
             pointer-events: auto;
         }
-
         .logo {
             display: flex; align-items: center; gap: 10px;
             font-size: 15px; font-weight: 900;
@@ -105,187 +89,80 @@
             animation: spinSlow 12s linear infinite;
             filter: drop-shadow(0 0 8px rgba(0, 184, 255, 0.7));
         }
-        @keyframes spinSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* ═══════ AI HEAD BUTTON — Base ═══════ */
-        .ai-head {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            /* Octagonal AI head shape */
-            clip-path: polygon(
-                25% 0%, 75% 0%,
-                100% 25%, 100% 75%,
-                75% 100%, 25% 100%,
-                0% 75%, 0% 25%
-            );
-            background:
-                radial-gradient(circle at 50% 30%, rgba(0,184,255,0.15), transparent 60%),
-                linear-gradient(180deg, #0a1520 0%, #050a10 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            overflow: hidden;
-        }
-
-        /* Inner glowing border */
-        .ai-head::before {
-            content: '';
-            position: absolute;
-            inset: 4px;
-            clip-path: polygon(
-                25% 0%, 75% 0%,
-                100% 25%, 100% 75%,
-                75% 100%, 25% 100%,
-                0% 75%, 0% 25%
-            );
-            background: transparent;
-            border: 1.5px solid rgba(0, 240, 255, 0.5);
-            pointer-events: none;
-            box-shadow: inset 0 0 15px rgba(0,240,255,0.3);
-        }
-
-        /* Rectangular visor (eye showing name) */
-        .ai-visor {
-            position: relative;
-            z-index: 2;
-            width: 72%;
-            height: 30%;
-            background: linear-gradient(90deg,
-                rgba(0,184,255,0.15) 0%,
-                rgba(0,240,255,0.4) 50%,
-                rgba(0,184,255,0.15) 100%);
-            border: 1px solid #00F0FF;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Cairo', sans-serif;
-            font-size: 10px;
-            font-weight: 900;
-            color: #00F0FF;
-            text-shadow: 0 0 10px #00F0FF;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow:
-                0 0 15px rgba(0,240,255,0.5),
-                inset 0 0 10px rgba(0,240,255,0.3);
-            animation: visorPulse 2s ease-in-out infinite;
-        }
-        @keyframes visorPulse {
-            0%, 100% { box-shadow: 0 0 15px rgba(0,240,255,0.5), inset 0 0 10px rgba(0,240,255,0.3); }
-            50% { box-shadow: 0 0 25px rgba(0,240,255,0.9), inset 0 0 15px rgba(0,240,255,0.5); }
-        }
-
-        /* LED dots (antenna lights) */
-        .ai-led {
-            position: absolute;
-            top: 12%;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 6px;
-            z-index: 3;
-        }
-        .ai-led span {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #00F0FF;
-            box-shadow: 0 0 8px #00F0FF;
-            animation: ledBlink 1.5s ease-in-out infinite;
-        }
-        .ai-led span:nth-child(2) { animation-delay: 0.3s; }
-        .ai-led span:nth-child(3) { animation-delay: 0.6s; }
-        @keyframes ledBlink {
-            0%, 100% { opacity: 1; box-shadow: 0 0 12px #00F0FF; }
-            50% { opacity: 0.3; box-shadow: 0 0 4px #00F0FF; }
-        }
-
-        /* Emission rays from sides */
-        .ai-emission {
-            position: absolute;
-            inset: -30%;
-            z-index: -1;
-            pointer-events: none;
-        }
-        .ai-emission::before,
-        .ai-emission::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 160%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #00F0FF, transparent);
-            animation: rayPulse 3s ease-in-out infinite;
-        }
-        .ai-emission::before {
-            left: -30%;
-            transform-origin: right;
-            transform: translateY(-50%) rotate(-25deg);
-        }
-        .ai-emission::after {
-            right: -30%;
-            transform-origin: left;
-            transform: translateY(-50%) rotate(25deg);
-            animation-delay: 0.5s;
-        }
-        @keyframes rayPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.9; }
-        }
-
-        /* ═══════ MENU BUTTON (top right tower) ═══════ */
+        /* ═══════ MENU BUTTON (hidden in home) ═══════ */
         .menu-btn {
             position: fixed;
             top: 16px;
             left: 18px;
-            width: 46px;
-            height: 46px;
+            width: 50px;
+            height: 50px;
             background: transparent;
             border: none;
             cursor: pointer;
             padding: 0;
             z-index: 100;
-            transition: transform 0.3s;
-            animation: menuFloat 4s ease-in-out infinite;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s, transform 0.3s;
         }
-        @keyframes menuFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        .menu-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
         .menu-btn:hover, .menu-btn.active {
             transform: scale(1.1);
         }
-        .menu-btn .ai-head {
-            gap: 3px;
+
+        /* Small robot face for menu */
+        .mini-robot {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: linear-gradient(180deg, #0a1520 0%, #050a10 100%);
+            border: 2px solid #00F0FF;
+            border-radius: 12px;
+            box-shadow:
+                0 0 20px rgba(0, 240, 255, 0.5),
+                inset 0 0 15px rgba(0, 240, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            animation: miniPulse 2s ease-in-out infinite;
         }
-        .menu-btn .ai-visor {
-            height: 38%;
-            font-size: 16px;
-            letter-spacing: 0;
+        @keyframes miniPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.9), inset 0 0 20px rgba(0, 240, 255, 0.4); }
+        }
+        .mini-eye {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 10px #00F0FF;
+            animation: miniBlink 3s ease-in-out infinite;
+        }
+        .mini-eye:nth-child(2) { animation-delay: 0.1s; }
+        @keyframes miniBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
         }
 
-        /* ═══════ DROPDOWN ═══════ */
+        /* ═══════ DROPDOWN (only تواصل معنا) ═══════ */
         .dropdown-menu {
             position: fixed;
-            top: 72px;
-            left: 18px;
-            width: 220px;
+            top: 72px; left: 18px;
+            width: 200px;
             background: rgba(10, 14, 23, 0.96);
-            border: 1px solid rgba(0, 184, 255, 0.4);
+            border: 1px solid rgba(0, 240, 255, 0.4);
             border-radius: 16px;
             padding: 8px;
             z-index: 99;
             backdrop-filter: blur(24px);
             box-shadow:
                 0 20px 60px rgba(0, 0, 0, 0.8),
-                0 0 40px rgba(0, 184, 255, 0.25);
+                0 0 40px rgba(0, 240, 255, 0.25);
             opacity: 0;
             transform: translateY(-12px) scale(0.95);
             pointer-events: none;
@@ -298,16 +175,16 @@
         }
         .dropdown-menu a {
             display: flex; align-items: center; gap: 12px;
-            padding: 12px 14px;
-            color: #e2e8f0;
+            padding: 14px 16px;
+            color: #00F0FF;
             text-decoration: none;
-            font-size: 14px; font-weight: 700;
+            font-size: 15px; font-weight: 800;
             border-radius: 10px;
             transition: all 0.25s;
+            text-shadow: 0 0 8px rgba(0,240,255,0.5);
         }
         .dropdown-menu a:hover {
-            background: linear-gradient(135deg, rgba(0, 184, 255, 0.15), rgba(139, 92, 246, 0.08));
-            color: #00F0FF;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(212, 175, 55, 0.1));
             transform: translateX(-4px);
         }
 
@@ -362,7 +239,7 @@
         }
 
         /* ═══════ HOME ═══════ */
-        #screen-home .screen-inner { text-align: center; gap: 24px; }
+        #screen-home .screen-inner { text-align: center; gap: 26px; }
 
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
@@ -404,7 +281,7 @@
             text-shadow: 0 2px 8px rgba(0,0,0,0.8);
         }
 
-        /* ═══════ HOME BUTTON (AI Head Shape) ═══════ */
+        /* ═══════ HOME BUTTON — SQUARE ROBOT FACE ═══════ */
         .home-btn-wrap {
             display: flex;
             flex-direction: column;
@@ -413,84 +290,126 @@
             margin: 10px 0;
         }
 
-        .btn-primary-ai {
-            position: relative;
-            width: 220px;
-            height: 90px;
-            background: transparent;
+        .robot-btn {
+            background: none;
             border: none;
-            cursor: pointer;
             padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            font-family: inherit;
-            font-size: 20px;
-            font-weight: 900;
-            color: #050505;
-            animation: btnFloat 3s ease-in-out infinite;
-            transition: transform 0.3s;
+            cursor: pointer;
+            position: relative;
+            animation: btnFloat 3.5s ease-in-out infinite;
         }
         @keyframes btnFloat {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-6px); }
         }
 
-        .btn-primary-ai .ai-head {
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(circle at 50% 30%, rgba(0,240,255,0.35), transparent 65%),
-                linear-gradient(180deg, #D4AF37 0%, #B8941F 100%);
-            clip-path: polygon(
-                20% 0%, 80% 0%,
-                100% 30%, 100% 70%,
-                80% 100%, 20% 100%,
-                0% 70%, 0% 30%
-            );
-            box-shadow:
-                0 0 40px rgba(212,175,55,0.6),
-                0 0 80px rgba(0,240,255,0.3);
-            transition: all 0.4s;
-        }
-        .btn-primary-ai .ai-head::before {
-            border-color: rgba(0, 240, 255, 0.9);
-            box-shadow:
-                inset 0 0 20px rgba(0,240,255,0.4),
-                0 0 30px rgba(0,240,255,0.6);
-        }
-        .btn-primary-ai:hover .ai-head {
-            box-shadow:
-                0 0 60px rgba(212,175,55,0.9),
-                0 0 120px rgba(0,240,255,0.5);
-        }
-        .btn-primary-ai .ai-visor {
-            background: linear-gradient(90deg,
-                rgba(0,0,0,0.4) 0%,
-                rgba(0,0,0,0.7) 50%,
-                rgba(0,0,0,0.4) 100%);
-            border-color: #050505;
-            color: #D4AF37;
-            text-shadow:
-                0 0 10px #D4AF37,
-                0 0 20px rgba(212,175,55,0.5);
-            font-size: 18px;
-            height: 40%;
-            width: 76%;
-            border-radius: 8px;
+        .robot-btn:hover {
+            transform: scale(1.05);
         }
 
-        .btn-primary-ai .btn-text {
+        /* The square robot head */
+        .robot-head {
+            width: 140px;
+            height: 140px;
             position: relative;
-            z-index: 3;
+            background: linear-gradient(180deg, #0a1520 0%, #050a10 100%);
+            border: 2.5px solid #00F0FF;
+            border-radius: 18px;
+            box-shadow:
+                0 0 40px rgba(0, 240, 255, 0.6),
+                0 0 80px rgba(0, 240, 255, 0.3),
+                inset 0 0 25px rgba(0, 240, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: box-shadow 0.4s;
+            animation: robotGlow 2.5s ease-in-out infinite;
+        }
+        @keyframes robotGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.6), 0 0 80px rgba(0, 240, 255, 0.3), inset 0 0 25px rgba(0, 240, 255, 0.15); }
+            50% { box-shadow: 0 0 60px rgba(0, 240, 255, 0.9), 0 0 120px rgba(0, 240, 255, 0.5), inset 0 0 35px rgba(0, 240, 255, 0.3); }
+        }
+        .robot-btn:hover .robot-head {
+            box-shadow:
+                0 0 70px rgba(212, 175, 55, 0.8),
+                0 0 140px rgba(0, 240, 255, 0.7),
+                inset 0 0 40px rgba(0, 240, 255, 0.4);
         }
 
-        /* Bigger emission for primary button */
-        .btn-primary-ai .ai-emission::before,
-        .btn-primary-ai .ai-emission::after {
-            background: linear-gradient(90deg, transparent, #00F0FF, #D4AF37, #00F0FF, transparent);
-            height: 2px;
+        /* Antenna dots */
+        .robot-antenna {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .robot-antenna span {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 8px #00F0FF;
+            animation: antennaBlink 1.8s ease-in-out infinite;
+        }
+        .robot-antenna span:nth-child(2) { animation-delay: 0.3s; background: #D4AF37; box-shadow: 0 0 8px #D4AF37; }
+        .robot-antenna span:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes antennaBlink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.7); }
+        }
+
+        /* Eyes */
+        .robot-eyes {
+            display: flex;
+            gap: 22px;
+            margin-top: 12px;
+        }
+        .eye {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #050505;
+            border: 2px solid #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        .pupil {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 10px #00F0FF;
+            transform: translate(-50%, -50%);
+            animation: eyeMove 3.5s ease-in-out infinite;
+        }
+        @keyframes eyeMove {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            20% { transform: translate(-50%, -50%) translateX(7px); }
+            50% { transform: translate(-50%, -50%) translateX(0); }
+            80% { transform: translate(-50%, -50%) translateX(-7px); }
+        }
+
+        /* Mouth (text "ابدأ") */
+        .robot-mouth {
+            font-family: 'Cairo', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            color: #D4AF37;
+            letter-spacing: 1px;
+            text-shadow:
+                0 0 12px #D4AF37,
+                0 0 24px rgba(212, 175, 55, 0.6);
+            margin-top: 2px;
+            animation: mouthPulse 3s ease-in-out infinite;
+        }
+        @keyframes mouthPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.75; }
         }
 
         /* ═══════ STATS ═══════ */
@@ -528,7 +447,7 @@
             background: linear-gradient(180deg, transparent, rgba(0, 240, 255, 0.6), transparent);
         }
 
-        /* ═══════ HUB — AI HEADS AROUND ═══════ */
+        /* ═══════ HUB — ROBOTS AROUND CORE ═══════ */
         #screen-hub {
             display: flex; align-items: center; justify-content: center;
         }
@@ -544,87 +463,107 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Central core (energy ball) */
+        /* ═══════ CENTRAL ANIMATED ROBOT CORE ═══════ */
         .central-core {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 130px;
+            height: 130px;
             z-index: 10;
         }
         .core-glow {
             position: absolute;
-            inset: -50%;
+            inset: -60%;
             border-radius: 50%;
             background: radial-gradient(circle,
                 rgba(0, 240, 255, 0.5) 0%,
-                rgba(212, 175, 55, 0.3) 30%,
+                rgba(212, 175, 55, 0.25) 35%,
                 transparent 70%);
             animation: corePulse 3s ease-in-out infinite;
-            filter: blur(20px);
+            filter: blur(25px);
         }
         @keyframes corePulse {
             0%, 100% { transform: scale(1); opacity: 0.8; }
             50% { transform: scale(1.2); opacity: 1; }
         }
-        .core-inner {
+        .core-robot {
             position: relative;
             width: 100%; height: 100%;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent 50%),
-                linear-gradient(145deg, rgba(0, 240, 255, 0.3), rgba(212, 175, 55, 0.15));
+            background: linear-gradient(180deg, #0a1520 0%, #050a10 100%);
             border: 2px solid #00F0FF;
+            border-radius: 50%;
             box-shadow:
-                0 0 60px rgba(0, 240, 255, 0.7),
-                0 0 120px rgba(0, 240, 255, 0.3),
-                inset 0 0 40px rgba(0, 240, 255, 0.3);
-            display: flex; align-items: center; justify-content: center;
-            animation: coreFloat 5s ease-in-out infinite;
+                0 0 50px rgba(0, 240, 255, 0.7),
+                inset 0 0 30px rgba(0, 240, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            overflow: hidden;
         }
-        @keyframes coreFloat {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.05) rotate(8deg); }
+        .core-eye {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: #050505;
+            border: 2px solid #00F0FF;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.7);
+            position: relative;
+            overflow: hidden;
         }
-        .core-icon {
-            font-size: 60px;
-            filter: drop-shadow(0 0 25px #00F0FF);
-            animation: coreSpin 20s linear infinite;
+        .core-pupil {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 8px #00F0FF;
+            transform: translate(-50%, -50%);
+            animation: coreLook 4s ease-in-out infinite;
         }
-        @keyframes coreSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes coreLook {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0) translateY(0); }
+            25% { transform: translate(-50%, -50%) translateX(6px) translateY(-2px); }
+            50% { transform: translate(-50%, -50%) translateX(0) translateY(2px); }
+            75% { transform: translate(-50%, -50%) translateX(-6px) translateY(-2px); }
         }
         .core-orbit {
             position: absolute;
-            inset: -40px;
+            inset: -30px;
             border-radius: 50%;
             border: 1px dashed rgba(0, 240, 255, 0.5);
-            animation: orbitSpin 25s linear infinite;
+            animation: orbitSpin 20s linear infinite;
+            pointer-events: none;
         }
         .core-orbit::before {
             content: '';
             position: absolute;
-            top: -5px; left: 50%;
-            width: 10px; height: 10px;
+            top: -4px; left: 50%;
+            width: 8px; height: 8px;
             background: #00F0FF;
             border-radius: 50%;
-            box-shadow: 0 0 20px #00F0FF;
+            box-shadow: 0 0 15px #00F0FF;
             transform: translateX(-50%);
         }
-        @keyframes orbitSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .core-orbit.two {
+            inset: -50px;
+            animation-duration: 30s;
+            animation-direction: reverse;
         }
+        .core-orbit.two::before {
+            background: #D4AF37;
+            box-shadow: 0 0 15px #D4AF37;
+            top: auto; bottom: -4px;
+        }
+        @keyframes orbitSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* AI Head Nodes (5 around the core) */
+        /* ═══════ ROBOT NODES — each unique ═══════ */
         .ai-node {
             position: absolute;
             top: 50%; left: 50%;
-            width: 84px;
-            height: 100px;
-            margin: -50px 0 0 -42px;
+            width: 90px;
+            height: 105px;
+            margin: -52px 0 0 -45px;
             transform: rotate(var(--angle)) translateY(-165px) rotate(calc(-1 * var(--angle)));
             display: flex;
             flex-direction: column;
@@ -645,35 +584,153 @@
             0%, 100% { transform: rotate(var(--angle)) translateY(-165px) rotate(calc(-1 * var(--angle))) scale(1); }
             50% { transform: rotate(var(--angle)) translateY(-175px) rotate(calc(-1 * var(--angle))) scale(1.03); }
         }
-
-        .ai-node .ai-head {
-            width: 84px;
-            height: 84px;
-            box-shadow:
-                0 0 25px rgba(0, 240, 255, 0.5),
-                inset 0 0 20px rgba(0, 240, 255, 0.15);
-            transition: all 0.4s;
-        }
-
-        .ai-node:hover .ai-head,
-        .ai-node:active .ai-head {
-            box-shadow:
-                0 0 50px rgba(0, 240, 255, 0.9),
-                0 0 100px rgba(212, 175, 55, 0.5),
-                inset 0 0 30px rgba(0, 240, 255, 0.4);
-        }
-
         .ai-node:hover {
             transform: rotate(var(--angle)) translateY(-175px) rotate(calc(-1 * var(--angle))) scale(1.15);
         }
 
-        .ai-node .ai-visor {
-            font-size: 8px;
-            height: 28%;
-            letter-spacing: 0.8px;
+        .node-head {
+            width: 90px;
+            height: 90px;
+            position: relative;
+            background: linear-gradient(180deg, #0a1520 0%, #050a10 100%);
+            border: 2px solid #00F0FF;
+            box-shadow:
+                0 0 25px rgba(0, 240, 255, 0.5),
+                inset 0 0 20px rgba(0, 240, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.4s;
+            overflow: hidden;
         }
 
-        /* Node label below */
+        /* Different SHAPES per node */
+        .node-head.stadium {
+            border-radius: 12px;
+        }
+        .node-head.coach {
+            border-radius: 50% 50% 30% 30%;
+        }
+        .node-head.ai-lab {
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+        }
+        .node-head.tactical {
+            border-radius: 10px 30px 10px 30px;
+        }
+
+        /* Different COLORS per node */
+        .node-head.stadium {
+            border-color: #4ADE80;
+            box-shadow: 0 0 25px rgba(74, 222, 128, 0.5), inset 0 0 20px rgba(74, 222, 128, 0.15);
+        }
+        .node-head.stadium .node-visor { color: #4ADE80; text-shadow: 0 0 10px #4ADE80; border-color: #4ADE80; }
+        .node-head.stadium .node-led span { background: #4ADE80; box-shadow: 0 0 8px #4ADE80; }
+
+        .node-head.coach {
+            border-color: #00F0FF;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .node-head.ai-lab {
+            border-color: #D4AF37;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.5), inset 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+        .node-head.ai-lab .node-visor { color: #D4AF37; text-shadow: 0 0 10px #D4AF37; border-color: #D4AF37; }
+        .node-head.ai-lab .node-led span { background: #D4AF37; box-shadow: 0 0 8px #D4AF37; }
+
+        .node-head.tactical {
+            border-color: #A78BFA;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.15);
+        }
+        .node-head.tactical .node-visor { color: #A78BFA; text-shadow: 0 0 10px #A78BFA; border-color: #A78BFA; }
+        .node-head.tactical .node-led span { background: #A78BFA; box-shadow: 0 0 8px #A78BFA; }
+
+        /* Node antenna LEDs */
+        .node-led {
+            position: absolute;
+            top: 8px; left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+        }
+        .node-led span {
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: #00F0FF;
+            box-shadow: 0 0 6px #00F0FF;
+            animation: antennaBlink 1.8s ease-in-out infinite;
+        }
+        .node-led span:nth-child(2) { animation-delay: 0.3s; }
+        .node-led span:nth-child(3) { animation-delay: 0.6s; }
+
+        /* Node visor (eye with name) */
+        .node-visor {
+            width: 74%;
+            height: 24px;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid #00F0FF;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cairo', sans-serif;
+            font-size: 8px;
+            font-weight: 900;
+            color: #00F0FF;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px #00F0FF;
+            animation: visorPulse 2s ease-in-out infinite;
+            margin-top: 8px;
+        }
+        @keyframes visorPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(0,240,255,0.4), inset 0 0 8px rgba(0,240,255,0.2); }
+            50% { box-shadow: 0 0 20px rgba(0,240,255,0.9), inset 0 0 12px rgba(0,240,255,0.4); }
+        }
+
+        /* Mini eyes */
+        .node-eyes {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .node-eyes .eye {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: #050505;
+            border: 1.5px solid;
+            border-color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        .node-eyes .eye::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 6px currentColor;
+            transform: translate(-50%, -50%);
+            animation: pupilLook 3s ease-in-out infinite;
+        }
+        @keyframes pupilLook {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            30% { transform: translate(-50%, -50%) translateX(3px); }
+            70% { transform: translate(-50%, -50%) translateX(-3px); }
+        }
+
+        .ai-node:hover .node-head {
+            box-shadow:
+                0 0 50px rgba(0, 240, 255, 0.9),
+                0 0 100px rgba(212, 175, 55, 0.5),
+                inset 0 0 30px rgba(0, 240, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Node label */
         .node-label {
             margin-top: 6px;
             text-align: center;
@@ -790,22 +847,21 @@
         @media (min-width: 641px) {
             .world-hub { width: min(80vw, 500px); }
             .ai-node {
-                width: 100px; height: 110px;
-                margin: -55px 0 0 -50px;
+                width: 100px; height: 115px;
+                margin: -57px 0 0 -50px;
                 transform: rotate(var(--angle)) translateY(-195px) rotate(calc(-1 * var(--angle)));
             }
             @keyframes nodeFloat {
                 0%, 100% { transform: rotate(var(--angle)) translateY(-195px) rotate(calc(-1 * var(--angle))) scale(1); }
                 50% { transform: rotate(var(--angle)) translateY(-205px) rotate(calc(-1 * var(--angle))) scale(1.03); }
             }
-            .ai-node .ai-head { width: 100px; height: 100px; }
-            .ai-node .ai-visor { font-size: 10px; }
+            .node-head { width: 100px; height: 100px; }
+            .node-visor { font-size: 9px; height: 26px; }
             .node-ar { font-size: 11px; }
         }
     </style>
 </head>
 <body>
-    <!-- World Background Image -->
     <div class="bg-fallback"></div>
     <div class="world-bg"></div>
 
@@ -817,21 +873,18 @@
         </div>
     </header>
 
-    <!-- MENU BUTTON (AI Head) -->
+    <!-- MENU BUTTON (Only visible outside home) -->
     <button class="menu-btn" id="menuBtn" aria-label="القائمة">
-        <div class="ai-head">
-            <div class="ai-led"><span></span><span></span><span></span></div>
-            <div class="ai-visor">☰</div>
-            <div class="ai-emission"></div>
+        <div class="mini-robot">
+            <span class="mini-eye"></span>
+            <span class="mini-eye"></span>
         </div>
     </button>
 
-    <!-- DROPDOWN -->
+    <!-- DROPDOWN (only تواصل معنا) -->
     <nav class="dropdown-menu" id="dropdownMenu">
-        <a href="coaches.html"><span>👨‍🏫</span> المدربون</a>
-        <a href="ai-coach.html"><span>🧠</span> المدرب الذكي</a>
-        <a href="#" onclick="goToScreen('screen-about'); closeMenu(); return false;">
-            <span>ℹ️</span> عن الموقع
+        <a href="contact.html">
+            <span>📡</span> تواصل معنا
         </a>
     </nav>
 
@@ -849,11 +902,16 @@
             </p>
 
             <div class="home-btn-wrap">
-                <button class="btn-primary-ai" onclick="goToScreen('screen-hub')">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor"><span class="btn-text">ابدأ الآن ←</span></div>
-                        <div class="ai-emission"></div>
+                <button class="robot-btn" onclick="goToScreen('screen-hub')" aria-label="ابدأ">
+                    <div class="robot-head">
+                        <div class="robot-antenna">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="robot-eyes">
+                            <div class="eye"><div class="pupil"></div></div>
+                            <div class="eye"><div class="pupil"></div></div>
+                        </div>
+                        <div class="robot-mouth">ابدأ</div>
                     </div>
                 </button>
             </div>
@@ -873,63 +931,67 @@
         <button class="back-btn" onclick="goToScreen('screen-home')">→ رجوع</button>
         <div class="screen-inner">
             <div class="world-hub">
-                <!-- Central Core -->
+                <!-- Central Animated Core -->
                 <div class="central-core">
                     <div class="core-glow"></div>
-                    <div class="core-inner">
-                        <span class="core-icon">⚽</span>
+                    <div class="core-robot">
+                        <div class="core-eye"><div class="core-pupil"></div></div>
+                        <div class="core-eye"><div class="core-pupil" style="animation-delay: 0.1s;"></div></div>
                     </div>
                     <div class="core-orbit"></div>
+                    <div class="core-orbit two"></div>
                 </div>
 
-                <!-- AI NODE: STADIUM (top) -->
+                <!-- STADIUM Robot (field-like) -->
                 <button class="ai-node" style="--angle: 0deg; --delay: 0s;" onclick="goToScreen('screen-styles')">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor">STADIUM</div>
-                        <div class="ai-emission"></div>
+                    <div class="node-head stadium">
+                        <div class="node-led"><span></span><span></span><span></span></div>
+                        <div class="node-eyes" style="color:#4ADE80; border-color:#4ADE80;">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="node-visor">STADIUM</div>
                     </div>
                     <div class="node-label"><div class="node-ar">أساليب اللعب</div></div>
                 </button>
 
-                <!-- AI NODE: COACH (right top) -->
-                <a href="coaches.html" class="ai-node" style="--angle: 72deg; --delay: 0.5s;">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor">COACH</div>
-                        <div class="ai-emission"></div>
+                <!-- COACH Robot (rounded-top) -->
+                <a href="coaches.html" class="ai-node" style="--angle: 90deg; --delay: 0.5s;">
+                    <div class="node-head coach">
+                        <div class="node-led"><span></span><span></span><span></span></div>
+                        <div class="node-eyes" style="color:#00F0FF; border-color:#00F0FF;">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="node-visor">COACH</div>
                     </div>
                     <div class="node-label"><div class="node-ar">المدربون</div></div>
                 </a>
 
-                <!-- AI NODE: AI LAB (right bottom) -->
-                <a href="ai-coach.html" class="ai-node" style="--angle: 144deg; --delay: 1s;">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor">AI LAB</div>
-                        <div class="ai-emission"></div>
+                <!-- AI LAB Robot (brain shape) -->
+                <a href="ai-coach.html" class="ai-node" style="--angle: 180deg; --delay: 1s;">
+                    <div class="node-head ai-lab">
+                        <div class="node-led"><span></span><span></span><span></span></div>
+                        <div class="node-eyes" style="color:#D4AF37; border-color:#D4AF37;">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="node-visor">AI LAB</div>
                     </div>
                     <div class="node-label"><div class="node-ar">المدرب الذكي</div></div>
                 </a>
 
-                <!-- AI NODE: TACTICAL (left bottom) -->
-                <a href="tactic.html" class="ai-node" style="--angle: 216deg; --delay: 1.5s;">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor">TACTICAL</div>
-                        <div class="ai-emission"></div>
+                <!-- TACTICAL Robot (angled corners) -->
+                <a href="tactic.html" class="ai-node" style="--angle: 270deg; --delay: 1.5s;">
+                    <div class="node-head tactical">
+                        <div class="node-led"><span></span><span></span><span></span></div>
+                        <div class="node-eyes" style="color:#A78BFA; border-color:#A78BFA;">
+                            <div class="eye"></div>
+                            <div class="eye"></div>
+                        </div>
+                        <div class="node-visor">TACTICAL</div>
                     </div>
                     <div class="node-label"><div class="node-ar">الملعب 3D</div></div>
-                </a>
-
-                <!-- AI NODE: COMMAND (left top) -->
-                <a href="contact.html" class="ai-node" style="--angle: 288deg; --delay: 2s;">
-                    <div class="ai-head">
-                        <div class="ai-led"><span></span><span></span><span></span></div>
-                        <div class="ai-visor">COMMAND</div>
-                        <div class="ai-emission"></div>
-                    </div>
-                    <div class="node-label"><div class="node-ar">التواصل</div></div>
                 </a>
             </div>
         </div>
@@ -974,22 +1036,27 @@
         // ═══════ Screen Navigation ═══════
         function goToScreen(screenId) {
             var navbar = document.getElementById('mainNavbar');
+            var menuBtn = document.getElementById('menuBtn');
             var isHome = (screenId === 'screen-home');
+
             document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
             var target = document.getElementById(screenId);
-            if (target) {
-                target.classList.add('active');
-                target.scrollTop = 0;
-                if (isHome) {
-                    navbar.classList.remove('visible');
-                    target.classList.remove('with-navbar');
-                    target.style.top = '0';
-                } else {
-                    navbar.classList.add('visible');
-                    if (screenId === 'screen-styles' || screenId === 'screen-hub' || screenId === 'screen-about') {
-                        target.classList.add('with-navbar');
-                        target.style.top = '66px';
-                    }
+            if (!target) return;
+            target.classList.add('active');
+            target.scrollTop = 0;
+
+            if (isHome) {
+                navbar.classList.remove('visible');
+                menuBtn.classList.remove('visible');
+                target.classList.remove('with-navbar');
+                target.style.top = '0';
+                closeMenu();
+            } else {
+                navbar.classList.add('visible');
+                menuBtn.classList.add('visible');
+                if (screenId === 'screen-styles' || screenId === 'screen-hub' || screenId === 'screen-about') {
+                    target.classList.add('with-navbar');
+                    target.style.top = '66px';
                 }
             }
         }
@@ -1013,49 +1080,6 @@
             var b = document.getElementById('menuBtn');
             if (!m.contains(e.target) && !b.contains(e.target)) closeMenu();
         });
-
-        // ═══════ EMISSION PARTICLES ═══════
-        (function() {
-            var hub = document.getElementById('screen-hub');
-            if (!hub) return;
-
-            var container = document.createElement('div');
-            container.className = 'particle-field';
-            container.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden;';
-            hub.appendChild(container);
-
-            var isMobile = window.innerWidth < 768;
-            var count = isMobile ? 30 : 60;
-
-            for (var i = 0; i < count; i++) {
-                var p = document.createElement('div');
-                var size = 1 + Math.random() * 2;
-                var color = Math.random() > 0.5 ? '0,240,255' : '212,175,55';
-                p.style.cssText =
-                    'position:absolute;' +
-                    'width:' + size + 'px;' +
-                    'height:' + size + 'px;' +
-                    'border-radius:50%;' +
-                    'background:rgba(' + color + ', 0.8);' +
-                    'box-shadow:0 0 10px rgba(' + color + ', 1);' +
-                    'left:' + (Math.random() * 100) + '%;' +
-                    'top:' + (Math.random() * 100) + '%;' +
-                    'animation: particleFloat ' + (4 + Math.random() * 4) + 's ease-in-out infinite;' +
-                    'animation-delay: ' + (Math.random() * 3) + 's;' +
-                    'opacity:0;';
-                container.appendChild(p);
-            }
-
-            var style = document.createElement('style');
-            style.textContent =
-                '@keyframes particleFloat {' +
-                '  0% { opacity:0; transform:translate(0,0) scale(0); }' +
-                '  20% { opacity:0.9; }' +
-                '  80% { opacity:0.9; }' +
-                '  100% { opacity:0; transform:translate(' + (Math.random()*60-30) + 'px,' + (-100 - Math.random()*100) + 'px) scale(1.2); }' +
-                '}';
-            document.head.appendChild(style);
-        })();
 
         // ═══════ Service Worker ═══════
         if ('serviceWorker' in navigator) {
