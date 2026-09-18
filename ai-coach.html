@@ -8,7 +8,6 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ========== قفل الواجهة بحجم الشاشة ========== */
 html, body {
     height: 100%;
     width: 100%;
@@ -48,13 +47,11 @@ body {
     cursor: pointer; }
 .mode-tab.active { background: linear-gradient(135deg, #D4AF37, #F4D03F); color: #050505; border-color: #D4AF37; }
 
-/* ========== الأوضاع ========== */
 .chat-mode { display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .video-mode { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
 .video-mode.active { display: flex; }
 .chat-mode.active { display: flex; }
 
-/* المحادثة فقط تتحرك */
 .chat-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
 .chat-area::-webkit-scrollbar { width: 6px; }
 .chat-area::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
@@ -98,12 +95,10 @@ body {
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
     font-size: 18px; color: #050505; flex-shrink: 0; }
 
-/* ========== الفيديو ========== */
 .video-header { text-align: center; margin-bottom: 15px; }
 .video-header h2 { color: #D4AF37; font-size: 18px; font-weight: 900; margin-bottom: 6px; }
 .video-header p { color: #888; font-size: 12px; line-height: 1.6; }
 
-/* زر الفيديو — الـ input داخله بطريقة آمنة */
 .pick-btn {
     position: relative;
     display: block;
@@ -155,7 +150,6 @@ body {
 .frame-time { position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.75);
     color: #D4AF37; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
 
-/* الفيديو المساعد — صغير لكن ظاهر (ضروري لـ Firefox Android) */
 #hiddenVideo {
     position: fixed;
     bottom: 5px;
@@ -248,7 +242,7 @@ var FRAME_MAX_WIDTH = 480;
 var selectedVideoFile = null;
 var lastFileName = "";
 
-// ============ POLLING لـ Firefox Android ============
+// ============ FILE PICKER ============
 setInterval(function() {
     var input = document.getElementById("videoFileInput");
     if (!input || !input.files || input.files.length === 0) return;
@@ -509,6 +503,7 @@ function renderAnalysis(text) {
     card.querySelector(".content").textContent = text;
     videoMode.appendChild(card);
     setTimeout(function() { card.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
+    if (window.FTSounds) window.FTSounds.success();
 }
 
 // ============ CHAT ============
@@ -631,6 +626,8 @@ window.addEventListener("load", function() {
     }
 });
 </script>
+
+<script src="js/sounds.js"></script>
 
 </body>
 </html>
