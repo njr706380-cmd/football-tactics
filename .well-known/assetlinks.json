@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.mujtaba.ft",
+        "sha256_cert_fingerprints": ["4A:B1:3F:66:50:19:FD:CD:27:1B:2A:BE:4A:37:CC:AE:F0:41:FE:FD:32:71:E9:F6:69:F2:C7:6F:58:8B:C6:92"]
+      }
+    }]
