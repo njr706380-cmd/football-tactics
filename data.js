@@ -226,8 +226,8 @@ const COACHES = [
         philosophy: "الضغط العالي والهجوم المباشر",
         description: "أسطورة تشيلسي السابق. في مسيرته التدريبية اعتمد على الضغط العالي والتقدم المباشر. يعطي الحرية للشباب.",
         baseFormation: "4-3-3",
-        attackingFormation: "4-3-3",
-        defendingFormation: "4-3-3",
+        attackingFormation: "4-3-3-high",
+        defendingFormation: "4-1-4-1",
         principles: ["الضغط العالي", "التقدم المباشر", "التحرك الجماعي للأمام", "إشارات الضغط"],
         transformations: [
             { from: "CMF", to: "AMF", reason: "وسط يتقدم للضغط" },
