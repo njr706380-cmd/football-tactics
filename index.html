@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>تكتيكات كرة القدم | Football Tactics</title>
+    <title>Football Tactics | تكتيكات كرة القدم</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#D4AF37">
+    <meta name="theme-color" content="#00B8FF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Football Tactics">
@@ -14,17 +14,222 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* منع long-press popup على الموبايل */
+        /* إضافات خاصة بالصفحة الرئيسية فقط */
+        
+        /* World Status Bar */
+        .world-status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(10, 14, 23, 0.7);
+            border-top: 1px solid rgba(0, 184, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 184, 255, 0.1);
+            flex-wrap: wrap;
+            backdrop-filter: blur(15px);
+            margin-bottom: 0;
+        }
+        
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(0, 184, 255, 0.08);
+            border: 1px solid rgba(0, 184, 255, 0.25);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: var(--blue-light);
+        }
+        
+        .status-pill.online {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #4ADE80;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+        
+        /* World Zones */
+        .world-zones-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .zones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+        }
+        
+        .zone-card {
+            background: linear-gradient(145deg, rgba(14, 18, 25, 0.9), rgba(10, 14, 23, 0.8));
+            border: 1px solid rgba(0, 184, 255, 0.15);
+            border-radius: 18px;
+            padding: 24px 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .zone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        
+        .zone-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 184, 255, 0.4);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 184, 255, 0.15);
+        }
+        
+        .zone-card:hover::before { opacity: 1; }
+        
+        .zone-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 0 15px rgba(0, 184, 255, 0.4));
+        }
+        
+        .zone-name {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .zone-label {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        
+        /* Future Systems */
+        .future-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .future-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 40px;
+        }
+        
+        .future-card {
+            background: linear-gradient(145deg, rgba(14, 18, 25, 0.6), rgba(10, 14, 23, 0.5));
+            border: 1px dashed rgba(139, 92, 246, 0.3);
+            border-radius: 18px;
+            padding: 26px 22px;
+            position: relative;
+            transition: all 0.4s ease;
+            opacity: 0.85;
+        }
+        
+        .future-card:hover {
+            opacity: 1;
+            border-color: rgba(139, 92, 246, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(139, 92, 246, 0.15);
+        }
+        
+        .future-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            padding: 3px 10px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--violet-light);
+            letter-spacing: 0.8px;
+        }
+        
+        .future-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+            opacity: 0.7;
+        }
+        
+        .future-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .future-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        /* System indicator في الشريط العلوي */
+        .system-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4ADE80;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 640px) {
+            .system-indicator { display: none; }
+            .world-status-bar { gap: 8px; padding: 10px 12px; }
+            .status-pill { font-size: 10px; padding: 5px 10px; }
+            .zone-card { padding: 20px 16px; }
+            .zone-icon { font-size: 30px; }
+            .future-card { padding: 22px 18px; }
+        }
+        
+        /* منع long-press popup */
         a, button, .btn, .nav-link, .mode-btn, .tab, .mode-tab,
         .coach-card, .style-card, .social-circle, .suggestion-btn,
         .feature, .pick-btn, .analyze-btn, .send-btn, .back-btn,
-        .side-btn, .clear-btn {
+        .side-btn, .clear-btn, .zone-card, .future-card {
             -webkit-touch-callout: none !important;
             -webkit-user-select: none !important;
             user-select: none !important;
             -webkit-tap-highlight-color: transparent !important;
         }
-
+        
         .msg-content, #userInput, #analysisResult .content {
             -webkit-user-select: text !important;
             user-select: text !important;
@@ -35,30 +240,44 @@
     <div class="bg-animation"></div>
     <div class="bg-grid"></div>
 
+    <!-- ═══════ الشريط العلوي ═══════ -->
     <header class="navbar">
         <div class="nav-container">
             <div class="logo">
                 <span class="logo-icon">⚽</span>
-                <span class="logo-text">تكتيكات كرة القدم <span class="gold"></span></span>
+                <span class="logo-text">تكتيكات كرة القدم</span>
             </div>
             <nav class="nav-links">
                 <a href="#" class="nav-link active">الرئيسية</a>
                 <a href="coaches.html" class="nav-link">المدربون</a>
-                <a href="ai-coach.html" class="nav-link">مدرب الذكاء الاصطناعي</a>
-                <a href="#about" class="nav-link">عن الموقع</a>
+                <a href="ai-coach.html" class="nav-link">المدرب الذكي</a>
+                <a href="contact.html" class="nav-link">التواصل</a>
             </nav>
+            <div class="system-indicator">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
         </div>
     </header>
 
+    <!-- ═══════ شريط حالة العالم ═══════ -->
+    <div class="world-status-bar">
+        <span class="status-pill online"><span class="status-dot"></span> WORLD: ONLINE</span>
+        <span class="status-pill online"><span class="status-dot"></span> AI CORE: READY</span>
+        <span class="status-pill online"><span class="status-dot"></span> TACTICAL ENGINE: ACTIVE</span>
+        <span class="status-pill"><span class="status-dot"></span> v2.0 FUTURISTIC</span>
+    </div>
+
+    <!-- ═══════ قسم البطل ═══════ -->
     <section class="hero">
         <div class="hero-content">
-            <div class="hero-badge">🏆 إصدار 2026</div>
+            <div class="hero-badge">◉ FUTURISTIC FOOTBALL UNIVERSE</div>
             <h1 class="hero-title">
                 تكتيكات <span class="gold-gradient">كرة القدم</span>
             </h1>
             <p class="hero-subtitle">
-                اكتشف أساليب اللعب والتمركزات الهجومية والدفاعية<br>
-                مصمم خصيصاً للاعبي <span class="gold">eFootball</span>
+                عالم تحليلي مستقبلي للاعبي <span class="gold">eFootball</span><br>
+                استكشف أساليب اللعب • حلل مبارياتك • طوّر مستواك بالذكاء الاصطناعي
             </p>
             <div class="hero-buttons">
                 <a href="#styles" class="btn btn-primary">
@@ -94,6 +313,43 @@
         </div>
     </section>
 
+    <!-- ═══════ World Zones ═══════ -->
+    <section class="world-zones-section">
+        <div class="section-header">
+            <div class="section-badge">◉ WORLD ZONES</div>
+            <h2 class="section-title">مناطق العالم</h2>
+            <p class="section-desc">اختر منطقتك في عالم Football Tactics</p>
+        </div>
+        <div class="zones-grid">
+            <a href="#styles" class="zone-card" style="text-decoration:none;color:inherit;">
+                <span class="zone-icon">🏟️</span>
+                <div class="zone-name">STADIUM</div>
+                <div class="zone-label">أساليب اللعب</div>
+            </a>
+            <a href="coaches.html" class="zone-card" style="text-decoration:none;color:inherit;">
+                <span class="zone-icon">👨‍🏫</span>
+                <div class="zone-name">COACH DISTRICT</div>
+                <div class="zone-label">المدربون العالميون</div>
+            </a>
+            <a href="ai-coach.html" class="zone-card" style="text-decoration:none;color:inherit;">
+                <span class="zone-icon">🧠</span>
+                <div class="zone-name">AI LAB</div>
+                <div class="zone-label">المدرب الذكي</div>
+            </a>
+            <a href="tactic.html" class="zone-card" style="text-decoration:none;color:inherit;">
+                <span class="zone-icon">⚽</span>
+                <div class="zone-name">TACTICAL ARENA</div>
+                <div class="zone-label">الملعب التفاعلي</div>
+            </a>
+            <a href="contact.html" class="zone-card" style="text-decoration:none;color:inherit;">
+                <span class="zone-icon">📡</span>
+                <div class="zone-name">COMMAND CENTER</div>
+                <div class="zone-label">التواصل</div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══════ قسم الأساليب ═══════ -->
     <section class="styles-section" id="styles">
         <div class="section-header">
             <div class="section-badge">⚡ اختر أسلوبك</div>
@@ -104,6 +360,44 @@
         <div class="styles-grid" id="stylesGrid"></div>
     </section>
 
+    <!-- ═══════ قسم الأنظمة المستقبلية ═══════ -->
+    <section class="future-section">
+        <div class="section-header">
+            <div class="section-badge" style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.4); color: #A78BFA;">
+                🔮 COMING SOON
+            </div>
+            <h2 class="section-title">الأنظمة المستقبلية</h2>
+            <p class="section-desc">ميزات قادمة قريباً في تحديثات Football Tactics</p>
+        </div>
+        <div class="future-grid">
+            <div class="future-card">
+                <span class="future-badge">COMING SOON</span>
+                <span class="future-icon">🧬</span>
+                <div class="future-title">Tactical DNA</div>
+                <div class="future-desc">تحليل أسلوبك التكتيكي الشخصي وإنشاء بصمة تكتيكية فريدة</div>
+            </div>
+            <div class="future-card">
+                <span class="future-badge">COMING SOON</span>
+                <span class="future-icon">⚔️</span>
+                <div class="future-title">Tactical Battle</div>
+                <div class="future-desc">قارن تكتيكك مع لاعبين آخرين في تحديات تكتيكية</div>
+            </div>
+            <div class="future-card">
+                <span class="future-badge">COMING SOON</span>
+                <span class="future-icon">❓</span>
+                <div class="future-title">What If?</div>
+                <div class="future-desc">ماذا لو غيّرت قرارك في هذه اللحظة؟ تحليل السيناريوهات البديلة</div>
+            </div>
+            <div class="future-card">
+                <span class="future-badge">COMING SOON</span>
+                <span class="future-icon">📉</span>
+                <div class="future-title">Why Did I Lose?</div>
+                <div class="future-desc">تحليل مفصل لأسباب خسارتك في المباريات</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════ قسم عن الموقع ═══════ -->
     <section class="about-section" id="about">
         <div class="about-content">
             <h2 class="about-title">ما هو <span class="gold">تكتيكات كرة القدم</span>؟</h2>
@@ -115,36 +409,39 @@
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🎮</div>
-                    <h3>عرض تفاعلي ثلاثي الأبعاد</h3>
+                    <h3>عرض 3D تفاعلي</h3>
                     <p>شاهد تحركات اللاعبين بشكل حي</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🏆</div>
                     <h3>أساليب المحترفين</h3>
-                    <p>الخطط المطلوبة من أكبر المدربين</p>
+                    <p>الخطط الحقيقية من أكبر المدربين</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🤖</div>
                     <h3>مدرب الذكاء الاصطناعي</h3>
-                    <p>حلل مبارياتك بتقنية الذكاء الاصطناعي</p>
+                    <p>حلل مبارياتك بتقنية AI متقدمة</p>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ═══════ الفوتر ═══════ -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
                 <span class="logo-icon">⚽</span>
-                تكتيكات كرة القدم
+                <span>تكتيكات كرة القدم</span>
             </div>
-            <p class="footer-desc">موقع تكتيكات كرة القدم للاعبي eFootball</p>
+            <p class="footer-desc">عالم تكتيكي مستقبلي للاعبي eFootball</p>
             <div class="footer-links">
+                <a href="contact.html">تواصل معنا</a>
+                <span class="dot">•</span>
                 <a href="https://github.com/njr706380-cmd" target="_blank">GitHub</a>
                 <span class="dot">•</span>
-                <a href="contact.html">تواصل معنا</a>
+                <a href="ai-coach.html">مدرب AI</a>
             </div>
-            <p class="footer-copy">© 2026 Football Tactics - جميع الحقوق محفوظة</p>
+            <p class="footer-copy">© 2026 Football Tactics — v2.0 FUTURISTIC</p>
         </div>
     </footer>
 
@@ -152,14 +449,14 @@
     <script src="app.js"></script>
     <script src="js/sounds.js"></script>
 
-    <!-- PWA Service Worker -->
+    <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('service-worker.js').then(function(reg) {
-                    console.log('Service Worker registered:', reg.scope);
+                    console.log('SW registered:', reg.scope);
                 }).catch(function(err) {
-                    console.log('Service Worker registration failed:', err);
+                    console.log('SW failed:', err);
                 });
             });
         }
