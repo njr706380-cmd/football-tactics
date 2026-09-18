@@ -7,6 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ========== قفل الواجهة بحجم الشاشة ========== */
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
 body {
     background: radial-gradient(circle at 20% 30%, rgba(212,175,55,0.12), transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(74,144,226,0.15), transparent 50%),
@@ -14,7 +23,6 @@ body {
     background-attachment: fixed;
     font-family: 'Cairo', sans-serif;
     color: #FFF;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -29,25 +37,30 @@ body {
 .header-title-wrap { flex: 1; }
 .header-title { font-size: 16px; font-weight: 900; color: #D4AF37; }
 .header-status { font-size: 11px; color: #4CAF50; display: flex; align-items: center; gap: 5px; }
-.status-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+.status-dot { width: 6px; height: 6px; background: #4CAF50; border-radius: 50%; }
 .clear-btn { color: #888; background: transparent; border: 1px solid rgba(255,255,255,0.1);
     padding: 6px 10px; border-radius: 8px; font-size: 12px; font-family: inherit; cursor: pointer; }
 
 .mode-tabs { display: flex; padding: 10px 15px; gap: 8px; background: rgba(10,10,10,0.98);
-    border-bottom: 1px solid rgba(212,175,55,0.2); }
+    border-bottom: 1px solid rgba(212,175,55,0.2); flex-shrink: 0; }
 .mode-tab { flex: 1; padding: 10px; background: transparent; border: 2px solid rgba(212,175,55,0.2);
     color: #888; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 700;
     cursor: pointer; }
 .mode-tab.active { background: linear-gradient(135deg, #D4AF37, #F4D03F); color: #050505; border-color: #D4AF37; }
 
-.chat-mode { display: none; flex-direction: column; flex: 1; }
-.video-mode { display: none; flex-direction: column; padding: 15px; }
+/* ========== الأوضاع ========== */
+.chat-mode { display: none; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.video-mode { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; }
 .video-mode.active { display: flex; }
 .chat-mode.active { display: flex; }
 
-.chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
-.message { display: flex; gap: 10px; }
+/* المحادثة فقط تتحرك */
+.chat-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+.chat-area::-webkit-scrollbar { width: 6px; }
+.chat-area::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 3px; }
+
+.message { display: flex; gap: 10px; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .message.user { flex-direction: row-reverse; }
 .msg-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center;
     justify-content: center; font-size: 16px; flex-shrink: 0; }
@@ -68,13 +81,13 @@ body {
 .welcome h2 { font-size: 20px; font-weight: 900; color: #D4AF37; margin-bottom: 8px; }
 .welcome p { color: #888; font-size: 13px; line-height: 1.7; max-width: 400px; margin: 0 auto; }
 
-.suggestions { display: flex; gap: 8px; padding: 10px 15px; overflow-x: auto; }
+.suggestions { display: flex; gap: 8px; padding: 10px 15px; overflow-x: auto; flex-shrink: 0; }
 .suggestion-btn { padding: 8px 14px; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3);
     color: #D4AF37; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 700;
-    cursor: pointer; white-space: nowrap; }
+    cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
 .input-area { padding: 12px 15px; background: rgba(10,10,10,0.98); border-top: 1px solid rgba(212,175,55,0.2);
-    display: flex; gap: 10px; align-items: flex-end; }
+    display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 .input-wrap { flex: 1; }
 #userInput { width: 100%; background: rgba(20,20,20,0.9); border: 1px solid rgba(212,175,55,0.2);
     border-radius: 20px; padding: 12px 18px; color: #FFF; font-family: inherit; font-size: 14px;
@@ -83,51 +96,52 @@ body {
 #userInput::placeholder { color: #666; }
 .send-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #D4AF37, #F4D03F);
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: #050505; }
+    font-size: 18px; color: #050505; flex-shrink: 0; }
 
+/* ========== الفيديو ========== */
 .video-header { text-align: center; margin-bottom: 15px; }
 .video-header h2 { color: #D4AF37; font-size: 18px; font-weight: 900; margin-bottom: 6px; }
 .video-header p { color: #888; font-size: 12px; line-height: 1.6; }
 
-.file-input-wrap {
-    background: rgba(20,20,20,0.6);
-    border: 2px dashed rgba(212,175,55,0.5);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-.file-input-wrap .file-label-text {
-    color: #D4AF37;
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    text-align: center;
-}
-.file-input-wrap input[type="file"] {
+/* زر الفيديو — الـ input داخله بطريقة آمنة */
+.pick-btn {
+    position: relative;
     display: block;
     width: 100%;
-    padding: 12px;
-    background: rgba(0,0,0,0.5);
-    color: #FFF;
-    border: 2px solid #D4AF37;
-    border-radius: 10px;
+    padding: 20px;
+    background: linear-gradient(135deg, #D4AF37, #F4D03F);
+    color: #050505;
+    border: none;
+    border-radius: 14px;
     font-family: inherit;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+.pick-btn input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
     cursor: pointer;
 }
 
 #videoStatus { background: rgba(76, 175, 80, 0.2); border: 2px solid #4CAF50;
-    color: #81C784; border-radius: 12px; padding: 14px 16px; font-size: 14px;
+    color: #81C784; border-radius: 12px; padding: 14px; font-size: 14px;
     margin-bottom: 15px; line-height: 1.6; font-weight: 700; text-align: center; }
 
 #videoError { background: rgba(244, 67, 54, 0.2); border: 2px solid #F44336;
-    color: #FF6B6B; border-radius: 12px; padding: 14px 16px; font-size: 14px;
+    color: #FF6B6B; border-radius: 12px; padding: 14px; font-size: 14px;
     margin-bottom: 15px; line-height: 1.6; font-weight: 700; text-align: center; }
 
 .analyze-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #D4AF37, #F4D03F);
     color: #050505; border: none; border-radius: 12px; font-family: inherit; font-size: 16px;
     font-weight: 900; cursor: pointer; margin-bottom: 15px; }
-.analyze-btn:disabled { background: #333; color: #666; cursor: not-allowed; opacity: 0.6; }
+.analyze-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
 
 #videoProgress { width: 100%; height: 10px; border-radius: 4px; margin-bottom: 15px; display: none; }
 
@@ -140,6 +154,18 @@ body {
 .frame-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .frame-time { position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.75);
     color: #D4AF37; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+
+/* الفيديو المساعد — صغير لكن ظاهر (ضروري لـ Firefox Android) */
+#hiddenVideo {
+    position: fixed;
+    bottom: 5px;
+    right: 5px;
+    width: 40px;
+    height: 22px;
+    opacity: 0.01;
+    pointer-events: none;
+    z-index: -1;
+}
 
 #analysisResult { background: rgba(20,20,20,0.95); border: 1px solid rgba(212,175,55,0.4);
     border-radius: 16px; padding: 20px; margin-top: 20px; text-align: right; }
@@ -193,10 +219,12 @@ body {
         <p>ارفع مقطع من مباراة eFootball (حتى 90 ثانية، 100 ميجابايت)</p>
     </div>
 
-    <div class="file-input-wrap">
-        <div class="file-label-text">📹 اختر فيديو من جهازك:</div>
+    <label class="pick-btn" id="pickBtn">
+        📹 اضغط لاختيار فيديو
         <input type="file" id="videoFileInput" accept="video/*">
-    </div>
+    </label>
+
+    <video id="hiddenVideo" muted playsinline webkit-playsinline></video>
 
     <div id="videoStatus" style="display:none;">✅ تم اختيار الفيديو</div>
     <div id="videoError" style="display:none;">❌ خطأ</div>
@@ -210,35 +238,38 @@ body {
 </div>
 
 <script>
-// ========== CONFIG ==========
-const WORKER_URL = "https://tactics-ai.njr706380.workers.dev";
-const MODEL = "openai/gpt-oss-120b";
-const MAX_VIDEO_SIZE_MB = 100;
-const MAX_VIDEO_DURATION = 90;
-const FRAME_COUNT = 12;
-const FRAME_MAX_WIDTH = 480;
+var WORKER_URL = "https://tactics-ai.njr706380.workers.dev";
+var MODEL = "openai/gpt-oss-120b";
+var MAX_VIDEO_SIZE_MB = 100;
+var MAX_VIDEO_DURATION = 90;
+var FRAME_COUNT = 12;
+var FRAME_MAX_WIDTH = 480;
 
-let selectedVideoFile = null;
+var selectedVideoFile = null;
+var lastFileName = "";
 
-// ========== FILE INPUT HANDLER (inline) ==========
-document.getElementById("videoFileInput").onchange = function(event) {
-    var files = event.target.files;
-    console.log("[VA] onchange fired, files:", files);
+// ============ POLLING لـ Firefox Android ============
+setInterval(function() {
+    var input = document.getElementById("videoFileInput");
+    if (!input || !input.files || input.files.length === 0) return;
+    var file = input.files[0];
+    if (file.name === lastFileName && selectedVideoFile) return;
+    lastFileName = file.name;
+    handleFile(file);
+}, 500);
 
+document.getElementById("videoFileInput").onchange = function(e) {
+    if (e.target.files && e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+};
+
+function handleFile(file) {
     var statusEl = document.getElementById("videoStatus");
     var errorEl = document.getElementById("videoError");
     var analyzeBtn = document.getElementById("analyzeVideoBtn");
 
     errorEl.style.display = "none";
-
-    if (!files || files.length === 0) {
-        errorEl.textContent = "❌ لم يتم اختيار أي ملف";
-        errorEl.style.display = "block";
-        return;
-    }
-
-    var file = files[0];
-    console.log("[VA] file:", file.name, file.size, file.type);
 
     var sizeMB = file.size / (1024 * 1024);
     if (sizeMB > MAX_VIDEO_SIZE_MB) {
@@ -249,20 +280,12 @@ document.getElementById("videoFileInput").onchange = function(event) {
 
     selectedVideoFile = file;
     analyzeBtn.disabled = false;
-
-    statusEl.textContent = "✅ الفيديو جاهز: " + file.name + " (" + sizeMB.toFixed(2) + " MB) — اضغط (استخراج اللقطات)";
+    statusEl.textContent = "✅ الفيديو جاهز: " + file.name + " (" + sizeMB.toFixed(2) + " MB)";
     statusEl.style.display = "block";
+}
 
-    console.log("[VA] file accepted, button enabled");
-};
-
-// ========== ANALYZE BUTTON ==========
 document.getElementById("analyzeVideoBtn").onclick = function() {
-    console.log("[VA] analyze clicked, file:", selectedVideoFile);
-    if (!selectedVideoFile) {
-        alert("الرجاء اختيار فيديو أولاً");
-        return;
-    }
+    if (!selectedVideoFile) return;
     startAnalysis(selectedVideoFile);
 };
 
@@ -278,29 +301,31 @@ async function startAnalysis(file) {
     errorEl.style.display = "none";
     framesGrid.innerHTML = "";
     framesTitle.classList.remove("show");
-    var oldResult = document.getElementById("analysisResult");
-    if (oldResult) oldResult.remove();
+    var old = document.getElementById("analysisResult");
+    if (old) old.remove();
 
     progress.style.display = "block";
     progress.value = 0;
 
-    var video = document.createElement("video");
-    video.preload = "metadata";
+    var video = document.getElementById("hiddenVideo");
+    video.preload = "auto";
     video.muted = true;
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    video.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-1;";
-    document.body.appendChild(video);
 
     var url = URL.createObjectURL(file);
     video.src = url;
 
     try {
-        statusEl.textContent = "⏳ جاري قراءة الفيديو...";
+        statusEl.textContent = "⏳ جاري تحميل الفيديو...";
         statusEl.style.display = "block";
 
-        await waitMetadata(video);
-        console.log("[VA] metadata:", video.duration, video.videoWidth, video.videoHeight);
+        await waitCanPlay(video);
+
+        try {
+            video.currentTime = 0;
+            await video.play();
+            await new Promise(function(r) { setTimeout(r, 300); });
+            video.pause();
+        } catch (e) {}
 
         if (video.duration > MAX_VIDEO_DURATION) {
             errorEl.textContent = "❌ مدة الفيديو طويلة (" + Math.round(video.duration) + "s). الحد " + MAX_VIDEO_DURATION + "s";
@@ -314,7 +339,6 @@ async function startAnalysis(file) {
 
         statusEl.textContent = "⏳ جاري استخراج 12 لقطة...";
         var frames = await extractFrames(video, FRAME_COUNT);
-        console.log("[VA] extracted:", frames.length);
 
         renderFrames(frames);
         progress.style.display = "none";
@@ -324,7 +348,6 @@ async function startAnalysis(file) {
         await sendToWorker(frames);
 
     } catch (err) {
-        console.error("[VA] error:", err);
         errorEl.textContent = "❌ خطأ: " + err.message;
         errorEl.style.display = "block";
         statusEl.style.display = "none";
@@ -339,29 +362,33 @@ function cleanupVideo(video, url) {
         video.pause();
         video.removeAttribute("src");
         video.load();
-        if (video.parentNode) video.parentNode.removeChild(video);
         if (url) URL.revokeObjectURL(url);
     } catch (e) {}
 }
 
-function waitMetadata(video) {
+function waitCanPlay(video) {
     return new Promise(function(resolve, reject) {
-        if (video.readyState >= 1 && video.duration) { resolve(); return; }
+        if (video.readyState >= 3 && video.duration) { resolve(); return; }
         var done = false;
         function ok() { if (done) return; done = true; cleanup(); resolve(); }
         function err() { if (done) return; done = true; cleanup(); reject(new Error("فشل تحميل الفيديو")); }
         function cleanup() {
-            video.removeEventListener("loadedmetadata", ok);
+            video.removeEventListener("canplay", ok);
+            video.removeEventListener("canplaythrough", ok);
+            video.removeEventListener("loadeddata", ok);
             video.removeEventListener("error", err);
             clearTimeout(t);
         }
-        video.addEventListener("loadedmetadata", ok);
+        video.addEventListener("canplay", ok);
+        video.addEventListener("canplaythrough", ok);
+        video.addEventListener("loadeddata", ok);
         video.addEventListener("error", err);
         var t = setTimeout(function() {
             if (done) return; done = true; cleanup();
             if (video.videoWidth && video.duration) resolve();
-            else reject(new Error("انتهت المهلة - الفيديو غير مدعوم"));
-        }, 10000);
+            else reject(new Error("انتهت المهلة"));
+        }, 15000);
+        try { video.load(); } catch(e) {}
     });
 }
 
@@ -382,21 +409,34 @@ async function extractFrames(video, count) {
 
     for (var i = 0; i < count; i++) {
         var t = (duration * (i + 0.5)) / count;
-        await seekVideo(video, t);
+        await seekAndRender(video, t);
         ctx.drawImage(video, 0, 0, width, height);
-        frames.push({ timestamp: t, dataUrl: canvas.toDataURL("image/jpeg", 0.7) });
+        frames.push({ timestamp: t, dataUrl: canvas.toDataURL("image/jpeg", 0.75) });
         progress.value = ((i + 1) / count) * 100;
     }
     return frames;
 }
 
-function seekVideo(video, time) {
+function seekAndRender(video, time) {
     return new Promise(function(resolve) {
         var done = false;
-        function ok() { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); }
-        video.addEventListener("seeked", ok);
+        var finish = function() {
+            if (done) return;
+            done = true;
+            video.removeEventListener("seeked", onSeeked);
+            setTimeout(resolve, 250);
+        };
+        var onSeeked = function() {
+            if (typeof video.requestVideoFrameCallback === "function") {
+                video.requestVideoFrameCallback(function() { finish(); });
+                setTimeout(finish, 400);
+            } else {
+                finish();
+            }
+        };
+        video.addEventListener("seeked", onSeeked);
         try { video.currentTime = time; } catch(e) { resolve(); return; }
-        setTimeout(function() { if (done) return; done = true; video.removeEventListener("seeked", ok); resolve(); }, 2000);
+        setTimeout(finish, 3000);
     });
 }
 
@@ -429,7 +469,7 @@ async function sendToWorker(frames) {
     var loading = document.createElement("div");
     loading.id = "analysisLoading";
     loading.style.cssText = "text-align:center;padding:30px 15px;color:#D4AF37;font-size:14px;";
-    loading.innerHTML = '<div style="font-size:40px;margin-bottom:10px;">🧠</div>جاري تحليل اللقطات بالذكاء الاصطناعي...<br><span style="font-size:11px;color:#888;">قد يستغرق 15-30 ثانية</span>';
+    loading.innerHTML = '<div style="font-size:40px;margin-bottom:10px;">🧠</div>جاري التحليل...<br><span style="font-size:11px;color:#888;">15-30 ثانية</span>';
     videoMode.appendChild(loading);
 
     try {
@@ -438,12 +478,11 @@ async function sendToWorker(frames) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ frames: frames })
         });
-
         var data = await res.json();
         loading.remove();
 
         if (!res.ok || !data.success) {
-            errorEl.textContent = "❌ فشل التحليل: " + (data.details || data.error || "خطأ غير معروف");
+            errorEl.textContent = "❌ فشل التحليل: " + (data.details || data.error || "خطأ");
             errorEl.style.display = "block";
             statusEl.style.display = "none";
             analyzeBtn.disabled = false;
@@ -455,7 +494,7 @@ async function sendToWorker(frames) {
         analyzeBtn.disabled = false;
     } catch (err) {
         loading.remove();
-        errorEl.textContent = "❌ تعذر الاتصال بالخدمة: " + err.message;
+        errorEl.textContent = "❌ خطأ في الاتصال: " + err.message;
         errorEl.style.display = "block";
         statusEl.style.display = "none";
         analyzeBtn.disabled = false;
@@ -472,11 +511,10 @@ function renderAnalysis(text) {
     setTimeout(function() { card.scrollIntoView({ behavior: "smooth", block: "start" }); }, 100);
 }
 
-// ========== CHAT ==========
+// ============ CHAT ============
 var conversationHistory = [];
 var isProcessing = false;
-
-var SYSTEM_PROMPT = 'أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball من Konami.\n\nشخصيتك:\n- تتكلم بالعربية الفصحى المبسطة\n- ودود ومتحمس\n- محلل تكتيكي عميق\n- تعطي نصائح عملية فورية\n\nخبرتك: كل أساليب اللعب، الخطط، المدربين، تحليل الخصوم.\n\nقواعدك: لا تخترع معلومات، اعطي إجابات مفصلة ومباشرة، اذكر السبب.';
+var SYSTEM_PROMPT = 'أنت "المدرب الذكي"، محلل كروي خبير متخصص في لعبة eFootball من Konami.\n\nشخصيتك:\n- تتكلم بالعربية الفصحى المبسطة\n- ودود ومتحمس\n- محلل تكتيكي عميق\n\nخبرتك: كل أساليب اللعب، الخطط، المدربين.\n\nقواعدك: لا تخترع معلومات، اذكر السبب.';
 
 function switchMode(mode) {
     document.getElementById("chatTab").classList.toggle("active", mode === "chat");
