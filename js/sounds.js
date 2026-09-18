@@ -1,28 +1,39 @@
-// sounds.js — نظام أصوات رسمي (Web Audio API)
-// Event Delegation — يعمل دائماً بدون إعادة ربط
+// sounds.js - نسخة محسّنة (unlock تلقائي متكرر)
 
 (function() {
     'use strict';
 
     let audioCtx = null;
+    let isUnlocked = false;
     const masterVolume = 0.55;
 
     function getCtx() {
         if (!audioCtx) {
             try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                audioCtx = new AC();
             } catch (e) { return null; }
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume().catch(function(){});
         }
         return audioCtx;
     }
 
-    // ============ 🔘 Button Click (0.08s — واطي جداً) ============
-    function playClick() {
+    // unlock aggressively — يستدعى بكثرة
+    function unlockAudio() {
         const ctx = getCtx();
         if (!ctx) return;
+        if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+            ctx.resume().then(function() { isUnlocked = true; }).catch(function(){});
+        } else {
+            isUnlocked = true;
+        }
+    }
+
+    // ============ 🔘 نقرة ناعمة ============
+    function playClick() {
+        unlockAudio();
+        const ctx = getCtx();
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -46,10 +57,11 @@
         osc.stop(now + 0.09);
     }
 
-    // ============ ✨ UI Tick (0.05s) ============
+    // ============ ✨ Tick ============
     function playTick() {
+        unlockAudio();
         const ctx = getCtx();
-        if (!ctx) return;
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -67,10 +79,11 @@
         osc.stop(now + 0.06);
     }
 
-    // ============ 🧠 AI Subtle Futuristic Beep (0.15s) ============
+    // ============ 🧠 AI ============
     function playAI() {
+        unlockAudio();
         const ctx = getCtx();
-        if (!ctx) return;
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
 
         const osc1 = ctx.createOscillator();
@@ -100,13 +113,13 @@
         osc2.stop(now + 0.17);
     }
 
-    // ============ ⚽ Deep Click + Whoosh (0.35s) ============
+    // ============ ⚽ Start ============
     function playStart() {
+        unlockAudio();
         const ctx = getCtx();
-        if (!ctx) return;
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
 
-        // نقرة عميقة
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
@@ -120,7 +133,6 @@
         osc.start(now);
         osc.stop(now + 0.22);
 
-        // Whoosh — ضجيج أبيض + فلتر
         const bufferSize = Math.floor(ctx.sampleRate * 0.3);
         const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -147,10 +159,11 @@
         noise.stop(now + 0.4);
     }
 
-    // ============ ✅ Soft Success Chime (0.6s) ============
+    // ============ ✅ Success ============
     function playSuccess() {
+        unlockAudio();
         const ctx = getCtx();
-        if (!ctx) return;
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
         const notes = [523.25, 659.25, 783.99];
 
@@ -158,14 +171,11 @@
             const t = now + i * 0.09;
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, t);
-
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.042 * masterVolume, t + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
-
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(t);
@@ -173,10 +183,11 @@
         });
     }
 
-    // ============ ⚠️ Short Low Beep (0.18s) ============
+    // ============ ⚠️ Error ============
     function playError() {
+        unlockAudio();
         const ctx = getCtx();
-        if (!ctx) return;
+        if (!ctx || ctx.state !== 'running') return;
         const now = ctx.currentTime;
 
         [0, 0.09].forEach(function(offset) {
@@ -184,18 +195,14 @@
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             const filter = ctx.createBiquadFilter();
-
             osc.type = 'square';
             osc.frequency.setValueAtTime(220, t);
             osc.frequency.exponentialRampToValueAtTime(160, t + 0.07);
-
             filter.type = 'lowpass';
             filter.frequency.value = 800;
-
             gain.gain.setValueAtTime(0, t);
             gain.gain.linearRampToValueAtTime(0.038 * masterVolume, t + 0.005);
             gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
-
             osc.connect(filter);
             filter.connect(gain);
             gain.connect(ctx.destination);
@@ -204,7 +211,6 @@
         });
     }
 
-    // ============ خريطة الأصوات ============
     const SOUNDS = {
         click: playClick,
         tick: playTick,
@@ -214,53 +220,86 @@
         error: playError
     };
 
-    // ============ Event Delegation — يشتغل دائمًا ============
     function playByName(name) {
-        const fn = SOUNDS[name];
-        if (fn) fn();
+        try {
+            const fn = SOUNDS[name];
+            if (fn) fn();
+        } catch (e) {}
     }
 
-    // نقرة عامة على أي عنصر تفاعلي
-    document.addEventListener('click', function(e) {
-        // تجاوز لو العنصر عليه data-sound
-        const explicit = e.target.closest('[data-sound]');
-        if (explicit) {
-            const soundName = explicit.getAttribute('data-sound');
-            // منع التكرار
-            if (!explicit.dataset._soundPlayed) {
-                explicit.dataset._soundPlayed = '1';
-                setTimeout(function() { delete explicit.dataset._soundPlayed; }, 50);
-                playByName(soundName);
+    function inferSound(el) {
+        if (!el || !el.classList) return 'click';
+        const c = el.classList;
+        if (c.contains('suggestion-btn') || c.contains('mode-tab') ||
+            c.contains('social-circle') || c.contains('tab') ||
+            c.contains('coach-card') || c.contains('style-card') ||
+            c.contains('feature') || c.contains('mode-btn') ||
+            c.contains('side-btn') || c.contains('back-btn')) {
+            return 'tick';
+        }
+        if (c.contains('send-btn') || c.contains('ai-avatar')) {
+            return 'ai';
+        }
+        if (c.contains('analyze-btn') || c.contains('pick-btn')) {
+            return 'start';
+        }
+        return 'click';
+    }
+
+    function findSoundElement(target) {
+        let el = target;
+        let depth = 0;
+        while (el && el !== document.documentElement && depth < 10) {
+            if (el.nodeType === 1) {
+                if (el.getAttribute && el.getAttribute('data-sound')) {
+                    return el.getAttribute('data-sound');
+                }
+                if (el.matches && el.matches(
+                    'button, a[href], .btn, .tab, .coach-card, .style-card, ' +
+                    '.nav-link, .suggestion-btn, .mode-tab, .social-circle, ' +
+                    '.feature, .pick-btn, .analyze-btn, .send-btn, .back-btn, ' +
+                    '.footer-links a, .mode-btn, .side-btn'
+                )) {
+                    return inferSound(el);
+                }
             }
-            return;
+            el = el.parentElement;
+            depth++;
         }
+        return null;
+    }
 
-        // الكشف التلقائي حسب النوع
-        const el = e.target.closest(
-            'button, a, .btn, .style-card, .nav-link, .suggestion-btn, .mode-tab, .social-circle, .feature'
-        );
+    let lastPlay = 0;
+    const MIN_GAP = 20;
 
-        if (!el) return;
-
-        // منع التكرار السريع (double click protection)
-        if (el.dataset._sndLock) return;
-        el.dataset._sndLock = '1';
-        setTimeout(function() { delete el.dataset._sndLock; }, 40);
-
-        // الكشف عن النوع حسب الـ class
-        if (el.classList.contains('suggestion-btn') ||
-            el.classList.contains('mode-tab') ||
-            el.classList.contains('social-circle')) {
-            playTick();
-        } else if (el.classList.contains('send-btn') ||
-                   el.classList.contains('ai-avatar')) {
-            playAI();
-        } else {
-            playClick();
-        }
+    // ========== click handler ==========
+    document.addEventListener('click', function(e) {
+        unlockAudio(); // أول شي نفعّل الصوت
+        try {
+            const now = Date.now();
+            if (now - lastPlay < MIN_GAP) return;
+            lastPlay = now;
+            const sound = findSoundElement(e.target);
+            if (sound) playByName(sound);
+        } catch (err) {}
     }, true);
 
-    // ============ API عام ============
+    // ========== unlock events — متعددة ==========
+    ['touchstart', 'touchend', 'mousedown', 'mouseup', 'keydown', 'scroll', 'pointerdown'].forEach(function(evt) {
+        document.addEventListener(evt, unlockAudio, { capture: true, passive: true });
+    });
+
+    // ========== unlock دوري ==========
+    setInterval(unlockAudio, 3000);
+
+    // ========== عند رجوع الصفحة ==========
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) unlockAudio();
+    });
+    window.addEventListener('focus', unlockAudio);
+    window.addEventListener('pageshow', unlockAudio);
+
+    // ========== API عام ==========
     window.FTSounds = {
         click: playClick,
         tick: playTick,
@@ -268,9 +307,7 @@
         start: playStart,
         success: playSuccess,
         error: playError,
-        play: playByName
+        play: playByName,
+        unlock: unlockAudio
     };
-
-    // تنظيف أيقونات قديمة عند التحميل
-    console.log('[FTSounds] ready');
 })();
