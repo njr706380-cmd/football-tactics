@@ -23,8 +23,8 @@ body {
     background: radial-gradient(circle at 20% 30%, rgba(212,175,55,0.12), transparent 50%),
                 radial-gradient(circle at 80% 70%, rgba(74,144,226,0.15), transparent 50%), #050505; }
 
-.top-header { background: rgba(10,10,10,0.95); border-bottom: 1px solid rgba(212,175,55,0.2);
-    padding: 12px 15px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(15px); flex-shrink: 0; }
+.top-header { background: rgba(10,10,10,0.98); border-bottom: 1px solid rgba(212,175,55,0.2);
+    padding: 12px 15px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .back-btn { color: #D4AF37; text-decoration: none; width: 38px; height: 38px; display: flex;
     align-items: center; justify-content: center; border-radius: 10px;
     border: 1px solid rgba(212,175,55,0.3); background: rgba(0,0,0,0.3); font-size: 18px; flex-shrink: 0; }
@@ -38,7 +38,7 @@ body {
 .clear-btn { color: #888; background: transparent; border: 1px solid rgba(255,255,255,0.1);
     padding: 6px 10px; border-radius: 8px; font-size: 12px; font-family: inherit; cursor: pointer; }
 
-.mode-tabs { display: flex; padding: 10px 15px; gap: 8px; background: rgba(10,10,10,0.95);
+.mode-tabs { display: flex; padding: 10px 15px; gap: 8px; background: rgba(10,10,10,0.98);
     border-bottom: 1px solid rgba(212,175,55,0.2); flex-shrink: 0; }
 .mode-tab { flex: 1; padding: 10px; background: transparent; border: 2px solid rgba(212,175,55,0.2);
     color: #888; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 700;
@@ -82,7 +82,7 @@ body {
     color: #D4AF37; border-radius: 20px; font-family: inherit; font-size: 12px; font-weight: 700;
     cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
-.input-area { padding: 12px 15px; background: rgba(10,10,10,0.95); border-top: 1px solid rgba(212,175,55,0.2);
+.input-area { padding: 12px 15px; background: rgba(10,10,10,0.98); border-top: 1px solid rgba(212,175,55,0.2);
     display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 .input-wrap { flex: 1; }
 #userInput { width: 100%; background: rgba(20,20,20,0.9); border: 1px solid rgba(212,175,55,0.2);
@@ -127,6 +127,21 @@ body {
 .frame-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .frame-time { position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.75);
     color: #D4AF37; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+
+/* إخفاء الـ input بطريقة آمنة */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
 </style>
 </head>
 <body>
@@ -182,7 +197,7 @@ body {
         <div class="upload-hint">MP4 • WebM • MOV</div>
     </label>
 
-    <input type="file" id="videoFileInput" accept="video/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+    <input type="file" id="videoFileInput" accept="video/*" class="visually-hidden">
 
     <button class="analyze-btn" id="analyzeVideoBtn" disabled>استخراج اللقطات</button>
 
@@ -355,6 +370,23 @@ function clearChat() {
     `;
 }
 
+// يمنع الصفحة من السحب لما ترجع من نافذة اختيار الملفات
+window.addEventListener("scroll", () => {
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
+});
+
+window.addEventListener("focus", () => {
+    window.scrollTo(0, 0);
+    document.body.style.height = "100%";
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        window.scrollTo(0, 0);
+        document.body.style.height = "100%";
+    }
+});
+
 window.addEventListener("load", () => {
     setupChat();
 
@@ -364,17 +396,6 @@ window.addEventListener("load", () => {
 
     document.querySelectorAll(".suggestion-btn").forEach(btn => {
         btn.addEventListener("click", () => quickAsk(btn.dataset.q));
-    });
-
-    // لما نرجع من نافذة اختيار الملفات، نتأكد من التخطيط
-    window.addEventListener("focus", () => {
-        document.body.style.height = "100%";
-        document.body.style.display = "flex";
-    });
-    document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
-            document.body.style.height = "100%";
-        }
     });
 });
 </script>
