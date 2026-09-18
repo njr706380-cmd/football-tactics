@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>المدرب الذكي | AI Coach</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -24,6 +24,24 @@ body {
     color: #FFF;
     display: flex;
     flex-direction: column;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* منع long-press popup */
+a, button, .mode-tab, .suggestion-btn, .send-btn, .back-btn,
+.pick-btn, .analyze-btn, .clear-btn, .ai-avatar {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* السماح بتحديد النص في الشات */
+.msg-content, #userInput, #analysisResult .content {
+    -webkit-user-select: text !important;
+    user-select: text !important;
 }
 
 .top-header { background: rgba(10,10,10,0.98); border-bottom: 1px solid rgba(212,175,55,0.2);
