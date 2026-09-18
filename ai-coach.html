@@ -87,7 +87,6 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
     font-size: 18px; color: #050505; flex-shrink: 0; box-shadow: 0 5px 20px rgba(212,175,55,0.3); }
 .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Coming Soon */
 .coming-soon {
     background: rgba(20,20,20,0.7);
     border: 2px dashed rgba(212,175,55,0.3);
@@ -95,23 +94,9 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
     padding: 50px 25px;
     max-width: 400px;
 }
-.coming-soon-icon {
-    font-size: 70px;
-    margin-bottom: 20px;
-    display: block;
-    animation: pulse 2s infinite;
-}
-.coming-soon h2 {
-    color: #D4AF37;
-    font-size: 22px;
-    font-weight: 900;
-    margin-bottom: 12px;
-}
-.coming-soon p {
-    color: #888;
-    font-size: 14px;
-    line-height: 1.8;
-}
+.coming-soon-icon { font-size: 70px; margin-bottom: 20px; display: block; animation: pulse 2s infinite; }
+.coming-soon h2 { color: #D4AF37; font-size: 22px; font-weight: 900; margin-bottom: 12px; }
+.coming-soon p { color: #888; font-size: 14px; line-height: 1.8; }
 </style>
 </head>
 <body>
@@ -165,11 +150,9 @@ body { font-family: 'Cairo', sans-serif; background: #050505; color: #FFF; displ
 
 <script>
 // ============ الإعدادات ============
-const GROQ_CONFIG = {
-    API_KEY: "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",
-    MODEL: "openai/gpt-oss-120b",
-    API_URL: "https://api.groq.com/openai/v1/chat/completions"
-};
+// لا يوجد API Key في Frontend. الطلبات تمر عبر Cloudflare Worker.
+const WORKER_URL = "https://tacticals-ai.njr706380.workers.dev";
+const MODEL = "openai/gpt-oss-120b";
 
 let conversationHistory = [];
 let isProcessing = false;
@@ -249,7 +232,7 @@ async function sendMessage() {
     const typingId = showTyping();
 
     try {
-        const response = await callGroq();
+        const response = await callWorker();
         removeTyping(typingId);
         addMessage("ai", response);
         conversationHistory.push({ role: "assistant", content: response });
@@ -262,20 +245,19 @@ async function sendMessage() {
     }
 }
 
-async function callGroq() {
+async function callWorker() {
     const messages = [
         { role: "system", content: SYSTEM_PROMPT },
         ...conversationHistory
     ];
 
-    const response = await fetch(GROQ_CONFIG.API_URL, {
+    const response = await fetch(WORKER_URL + "/api/chat", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + GROQ_CONFIG.API_KEY
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            model: GROQ_CONFIG.MODEL,
+            model: MODEL,
             messages: messages,
             temperature: 0.85,
             max_tokens: 2000
